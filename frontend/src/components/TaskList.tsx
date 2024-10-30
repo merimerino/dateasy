@@ -1,23 +1,16 @@
-// components/TaskList.tsx
 import React from "react";
-import { Box, Heading, VStack, Button, useDisclosure } from "@chakra-ui/react";
+import { Box, Heading, VStack, Button } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 import { TaskHandler } from "../utils/taskHandle";
-import TaskForm from "./TaskForm";
-import { Task, TaskCreateDTO } from "../types/Task";
+import { Task } from "../types/Task";
 
 const TaskList: React.FC = () => {
   const [tasks, setTasks] = React.useState<Task[]>([]);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     setTasks(TaskHandler.getTasks());
   }, []);
-
-  const handleCreateTask = (taskData: TaskCreateDTO) => {
-    const newTask = TaskHandler.createTask(taskData);
-    setTasks([...tasks, newTask]);
-    onClose();
-  };
 
   return (
     <Box p={4}>
@@ -30,7 +23,7 @@ const TaskList: React.FC = () => {
         ))}
 
         <Button
-          onClick={onOpen}
+          onClick={() => navigate("/addTask")}
           size="lg"
           width="100%"
           variant="ghost"
@@ -39,21 +32,6 @@ const TaskList: React.FC = () => {
           +
         </Button>
       </VStack>
-
-      {isOpen && (
-        <Box
-          position="fixed"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          bg="white"
-          zIndex={1000}
-          p={4}
-        >
-          <TaskForm onSubmit={handleCreateTask} onCancel={onClose} />
-        </Box>
-      )}
     </Box>
   );
 };

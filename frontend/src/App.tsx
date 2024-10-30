@@ -4,6 +4,7 @@ import { I18nextProvider } from "react-i18next";
 import i18n from "./i18n/config";
 import LoginPage from "./pages/LoginPage";
 import TasksPage from "./pages/TasksPage";
+import AddTaskPage from "./pages/AddTaskPage";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
             <Route path="/" element={<LoginPage />} />
             <Route path="/main" element={<LoginPage />} />
             <Route path="/tasks" element={<TasksPage />} />
+            <Route path="/addTask" element={<AddTaskPage />} />
           </Routes>
         </BrowserRouter>
       </ChakraProvider>
