@@ -32,7 +32,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
   };
 
   return (
-    <Box as="form" onSubmit={handleSubmit}>
+    <Box as="form" onSubmit={handleSubmit} pt={4} pl={16} pr={16}>
       <VStack spacing={4}>
         <FormControl>
           <FormLabel>{t("taskType")}</FormLabel>

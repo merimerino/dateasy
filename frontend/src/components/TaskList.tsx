@@ -13,7 +13,7 @@ const TaskList: React.FC = () => {
   }, []);
 
   return (
-    <Box p={4}>
+    <Box pt={4} pl={16} pr={16}>
       <VStack spacing={4} align="stretch">
         {tasks.map((task) => (
           <Box key={task.id} p={4} borderWidth="1px" borderRadius="lg">
