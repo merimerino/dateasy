@@ -8,7 +8,7 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = (roomName: string, password: string) => {
     console.log(roomName, password);
-    navigate("/main");
+    navigate("/tasks");
   };
 
   return (
