@@ -17,6 +17,13 @@ const resources = {
       joinRoom: "Uđi u sobu",
       roomName: "Naziv sobe",
       password: "Lozinka",
+      taskType: "Tip zadatka",
+      shortText: "Kratki tekst",
+      longText: "Dugi tekst",
+      taskTitle: "Naziv zadatka",
+      taskDescription: "Tekst zadatka",
+      save: "Spremi",
+      cancel: "Odustani",
     },
   },
 };
