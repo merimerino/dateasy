@@ -30,7 +30,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
   return (
     <Container maxW="md" py={10}>
       <Box borderWidth="1px" borderRadius="lg" p={6}>
-        <Tabs isFitted variant="enclosed">
+        <Tabs isFitted variant="enclosed" colorScheme="teal">
           <TabList mb="1em">
             <Tab>{t("createRoom")}</Tab>
             <Tab>{t("joinRoom")}</Tab>

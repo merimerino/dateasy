@@ -14,7 +14,7 @@ const resources = {
   hr: {
     translation: {
       createRoom: "Stvori sobu",
-      joinRoom: "Udi u sobu",
+      joinRoom: "Uđi u sobu",
       roomName: "Naziv sobe",
       password: "Lozinka",
     },
