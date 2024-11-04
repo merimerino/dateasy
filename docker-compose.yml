@@ -1,0 +1,19 @@
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: my-mongodb-container
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/init-db.js:/docker-entrypoint-initdb.d/init-db.js
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
