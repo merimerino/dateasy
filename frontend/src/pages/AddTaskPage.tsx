@@ -1,9 +1,8 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Box } from "@chakra-ui/react";
 import Header from "../components/Header";
 import TaskForm from "../components/TaskForm";
-import { TaskHandler } from "../utils/taskHandle";
+import { TaskHandler } from "../utils/taskHandler";
 import { TaskCreateDTO } from "../types/Task";
 
 const AddTaskPage: React.FC = () => {

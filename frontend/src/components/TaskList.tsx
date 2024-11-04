@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Heading, VStack, Button } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { TaskHandler } from "../utils/taskHandle";
+import { TaskHandler } from "../utils/taskHandler";
 import { Task } from "../types/Task";
 
 const TaskList: React.FC = () => {
