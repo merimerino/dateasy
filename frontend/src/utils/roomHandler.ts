@@ -1,179 +1,94 @@
-import axios from "axios";
-import {
-  ProfessorRoomDTO,
-  StudentRoomDTO,
-  RoomResponse,
-  UserRole,
-  UserSession,
-} from "../types/Room";
+interface RoomCredentials {
+  room_name: string;
+  password?: string;
+  nickname?: string;
+}
 
-const API_BASE_URL = "http://localhost:3000";
+interface ApiResponse {
+  token: string;
+}
 
-export class RoomHandler {
-  private static instance: RoomHandler;
-  private session: UserSession = {
-    token: null,
-    roomId: null,
-    role: null,
-    nickname: null,
-  };
+class RoomHandler {
+  private baseUrl = "http://localhost:3000";
 
-  private constructor() {
-    this.loadSession();
-  }
+  private async handleRequest(
+    endpoint: string,
+    credentials: RoomCredentials,
+    isProfessor: boolean
+  ): Promise<void> {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(credentials),
+    });
 
-  public static getInstance(): RoomHandler {
-    if (!RoomHandler.instance) {
-      RoomHandler.instance = new RoomHandler();
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(error || "Failed to process request");
     }
-    return RoomHandler.instance;
-  }
 
-  private getHeaders() {
-    return {
-      "Content-Type": "application/json",
-      ...(this.session.token && {
-        Authorization: `Bearer ${this.session.token}`,
-      }),
-    };
-  }
+    const data: ApiResponse = await response.json();
 
-  private saveSession(): void {
-    localStorage.setItem("roomSession", JSON.stringify(this.session));
-  }
+    // Store the token and room name
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("roomName", credentials.room_name);
+    localStorage.setItem("isProfessor", String(isProfessor));
 
-  private loadSession(): void {
-    const savedSession = localStorage.getItem("roomSession");
-    if (savedSession) {
-      this.session = JSON.parse(savedSession);
+    // Store nickname if provided
+    if (credentials.nickname) {
+      localStorage.setItem("nickname", credentials.nickname);
     }
   }
 
-  private updateSession(
-    response: RoomResponse,
-    role: UserRole,
-    nickname?: string
-  ): void {
-    this.session = {
-      token: response.token || null,
-      roomId: response.room?.id || null,
-      role,
-      nickname: nickname || null,
-    };
-    this.saveSession();
+  async professorCreateRoom(credentials: RoomCredentials): Promise<void> {
+    await this.handleRequest("/createRoom", credentials, true);
   }
 
-  public async professorCreateRoom(
-    roomData: ProfessorRoomDTO
-  ): Promise<RoomResponse> {
-    try {
-      const response = await axios.request({
-        method: "post",
-        url: `${API_BASE_URL}/createRoom`,
-        headers: this.getHeaders(),
-        data: roomData,
-      });
-
-      if (response.data) {
-        this.updateSession(response.data, "professor");
-      }
-
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(
-          error.response?.data?.message || "Failed to create room"
-        );
-      }
-      throw error;
-    }
+  async professorJoinRoom(credentials: RoomCredentials): Promise<void> {
+    await this.handleRequest("/joinAsAdmin", credentials, true);
   }
 
-  public async professorJoinRoom(
-    roomData: ProfessorRoomDTO
-  ): Promise<RoomResponse> {
-    try {
-      const response = await axios.request({
-        method: "post",
-        url: `${API_BASE_URL}/joinAsAdmin`,
-        headers: this.getHeaders(),
-        data: roomData,
-      });
-
-      if (response.data) {
-        this.updateSession(response.data, "professor");
-      }
-
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.data?.message || "Failed to join room");
-      }
-      throw error;
+  async studentJoinRoom(credentials: RoomCredentials): Promise<void> {
+    if (!credentials.nickname) {
+      throw new Error("Nickname is required");
     }
+    await this.handleRequest("/joinAsStudent", credentials, false);
   }
 
-  public async studentJoinRoom(
-    roomData: StudentRoomDTO
-  ): Promise<RoomResponse> {
-    try {
-      const response = await axios.request({
-        method: "post",
-        url: `${API_BASE_URL}/joinAsStudent`,
-        headers: this.getHeaders(),
-        data: roomData,
-      });
-
-      if (response.data) {
-        this.updateSession(response.data, "student", roomData.nickname);
-      }
-
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.data?.message || "Failed to join room");
-      }
-      throw error;
-    }
+  getCurrentRoom(): string | null {
+    return localStorage.getItem("roomName");
   }
 
-  public async leaveRoom(): Promise<boolean> {
-    if (!this.session.roomId || !this.session.token) {
-      return false;
-    }
+  getNickname(): string | null {
+    return localStorage.getItem("nickname");
+  }
+
+  isProfessor(): boolean {
+    return localStorage.getItem("isProfessor") === "true";
+  }
+
+  isAuthenticated(): boolean {
+    const token = localStorage.getItem("token");
+    const roomName = localStorage.getItem("roomName");
+
+    if (!token || !roomName) return false;
 
     try {
-      await axios.post(
-        `${API_BASE_URL}/leaveRoom`,
-        { room_id: this.session.roomId },
-        { headers: this.getHeaders() }
-      );
-
-      this.clearSession();
-      return true;
-    } catch (error) {
-      console.log(error);
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return Date.now() < payload.expiresAt * 1000;
+    } catch {
       return false;
     }
   }
 
-  public getSession(): UserSession {
-    return { ...this.session };
-  }
-
-  public isLoggedIn(): boolean {
-    return !!this.session.token && !!this.session.roomId;
-  }
-
-  public clearSession(): void {
-    this.session = {
-      token: null,
-      roomId: null,
-      role: null,
-      nickname: null,
-    };
-    localStorage.removeItem("roomSession");
+  logout(): void {
+    localStorage.removeItem("token");
+    localStorage.removeItem("roomName");
+    localStorage.removeItem("nickname");
+    localStorage.removeItem("isProfessor");
   }
 }
 
-export const roomHandler = RoomHandler.getInstance();
+export const roomHandler = new RoomHandler();

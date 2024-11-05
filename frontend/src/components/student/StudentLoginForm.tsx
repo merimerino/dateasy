@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   FormControl,
   FormLabel,
@@ -15,7 +14,7 @@ interface FormData {
 interface StudentLoginFormProps {
   formData: FormData;
   isLoading: boolean;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: () => void;
   onChange: (field: keyof FormData, value: string) => void;
 }
 
@@ -25,29 +24,35 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({
   onSubmit,
   onChange,
 }) => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Form submitted with data:", formData);
+    onSubmit();
+  };
+
   return (
-    <Box
-      as="form"
-      onSubmit={onSubmit}
-      borderWidth="1px"
-      borderRadius="lg"
-      p={6}
-    >
+    <form onSubmit={handleSubmit}>
       <VStack spacing={4}>
         <FormControl isRequired>
           <FormLabel>Room Name</FormLabel>
           <Input
             value={formData.room_name}
-            onChange={(e) => onChange("room_name", e.target.value)}
+            onChange={(e) => {
+              console.log("Room name changed:", e.target.value);
+              onChange("room_name", e.target.value);
+            }}
             placeholder="Enter room name"
           />
         </FormControl>
 
         <FormControl isRequired>
-          <FormLabel>Your Nickname</FormLabel>
+          <FormLabel>Nickname</FormLabel>
           <Input
             value={formData.nickname}
-            onChange={(e) => onChange("nickname", e.target.value)}
+            onChange={(e) => {
+              console.log("Nickname changed:", e.target.value);
+              onChange("nickname", e.target.value);
+            }}
             placeholder="Enter your nickname"
           />
         </FormControl>
@@ -61,7 +66,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({
           Join Room
         </Button>
       </VStack>
-    </Box>
+    </form>
   );
 };
 

@@ -5,6 +5,8 @@ import i18n from "./i18n/config";
 
 import StudentLoginPage from "./pages/StudentLoginPage";
 import ProfessorLoginPage from "./pages/ProfessorLoginPage";
+import RoomEditPage from "./pages/RoomEditPage";
+import RoomViewPage from "./pages/RoomViewPage";
 import AddTaskPage from "./pages/AddTaskPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -19,11 +21,28 @@ function App() {
             <Route path="/prof" element={<ProfessorLoginPage />} />
 
             {/* Protected Routes */}
+            <Route
+              path="/room/:roomName/edit"
+              element={
+                <ProtectedRoute>
+                  <RoomEditPage />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
-              path="/addTask"
+              path="/room/:roomName/view"
               element={
-                <ProtectedRoute allowedRoles={["professor"]}>
+                <ProtectedRoute>
+                  <RoomViewPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/room/:roomName/addTask"
+              element={
+                <ProtectedRoute>
                   <AddTaskPage />
                 </ProtectedRoute>
               }
