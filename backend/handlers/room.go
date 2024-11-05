@@ -10,7 +10,7 @@ import (
 )
 
 func (s *APIServer) HandleCreateRoom(w http.ResponseWriter, r *http.Request) error {
-	c_r_req := new(types.CreateRoomRequest)
+	c_r_req := new(types.JoinAsAdminRequest)
 	if err := json.NewDecoder(r.Body).Decode(c_r_req); err != nil {
 		return err
 	}
@@ -40,6 +40,7 @@ func (s *APIServer) HandleCreateRoom(w http.ResponseWriter, r *http.Request) err
 
 	// Create a JWT token storing room_name
 	tokenString, err := createJWT(map[string]interface{}{
+		"username": "Admin",
 		"room_name": c_r_req.RoomName,
 	})
 	if err != nil {
@@ -53,8 +54,8 @@ func (s *APIServer) HandleCreateRoom(w http.ResponseWriter, r *http.Request) err
 }
 
 // JoinRoom endpoint - /joinRoom
-func (s *APIServer) HandleJoinRoom(w http.ResponseWriter, r *http.Request) error {
-	j_r_req := new(types.JoinRoomRequest)
+func (s *APIServer) HandleJoinAsStudent(w http.ResponseWriter, r *http.Request) error {
+	j_r_req := new(types.JoinAsStudentRequest)
 	if err := json.NewDecoder(r.Body).Decode(j_r_req); err != nil {
 		return err
 	}
@@ -98,4 +99,37 @@ func hashPassword(password string) string {
 		log.Fatal(err)
 	}
 	return string(hashedPassword)
+}
+
+
+func (s *APIServer) HandleJoinAsAdmin(w http.ResponseWriter, r *http.Request) error {
+	j_r_req := new(types.JoinAsAdminRequest)
+	if err := json.NewDecoder(r.Body).Decode(j_r_req); err != nil {
+		return err
+	}
+
+	// Retrieve the room by name
+	room, err := s.store.GetRoomByName(j_r_req.RoomName)
+	if err != nil {
+		return WriteJSON(w, http.StatusNotFound, ApiError{Error: "Room not found"})
+	}
+
+	// Check if passwords match
+	if err := bcrypt.CompareHashAndPassword([]byte(room.Password), []byte(j_r_req.Password)); err != nil {
+		return WriteJSON(w, http.StatusNotFound, ApiError{Error: "Invalid login credentials"})
+	}
+		
+
+	tokenString, err := createJWT(map[string]interface{}{
+		"username": "Admin",
+		"room_name": j_r_req.RoomName,
+	})
+	if err != nil {
+		return err
+	}
+
+	// Return the token
+	return WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"token": tokenString,
+	})
 }

@@ -1,11 +1,11 @@
 package types
 
-type CreateRoomRequest struct {
+type JoinAsAdminRequest struct {
     RoomName string `json:"room_name"`
     Password string `json:"password"`
 }
 
-type JoinRoomRequest struct {
+type JoinAsStudentRequest struct {
     RoomName string `json:"room_name"`
     Username string `json:"username"`
 }

@@ -38,11 +38,28 @@ func NewAPIServer(listenAddr string, store storage.Storage) *APIServer {
 	}
 }
 
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// Handle preflight (OPTIONS) request
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 func (s *APIServer) Run() {
 	router := mux.NewRouter()
+	router.Use(corsMiddleware)
 
 	router.HandleFunc("/createRoom", makeHTTPHandleFunc(s.HandleCreateRoom))
-	router.HandleFunc("/joinRoom", makeHTTPHandleFunc(s.HandleJoinRoom))
+	router.HandleFunc("/joinAsStudent", makeHTTPHandleFunc(s.HandleJoinAsStudent))
+	router.HandleFunc("/joinAsAdmin", makeHTTPHandleFunc(s.HandleJoinAsAdmin))
 
 	router.HandleFunc("/tasks", withJWTAuth(s.HandleGetAllTasks))
 	//router.HandleFunc("/multichoices", withJWTAuth(makeHTTPHandleFunc(s.HandleMultipleChoice)))
