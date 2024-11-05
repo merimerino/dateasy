@@ -5,10 +5,11 @@ import {
   Input,
   VStack,
 } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 
 interface FormData {
   room_name: string;
-  nickname: string;
+  username: string;
 }
 
 interface StudentLoginFormProps {
@@ -24,9 +25,10 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({
   onSubmit,
   onChange,
 }) => {
+  const { t } = useTranslation();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted with data:", formData);
     onSubmit();
   };
 
@@ -34,26 +36,20 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({
     <form onSubmit={handleSubmit}>
       <VStack spacing={4}>
         <FormControl isRequired>
-          <FormLabel>Room Name</FormLabel>
+          <FormLabel>{t("roomName")}</FormLabel>
           <Input
             value={formData.room_name}
-            onChange={(e) => {
-              console.log("Room name changed:", e.target.value);
-              onChange("room_name", e.target.value);
-            }}
-            placeholder="Enter room name"
+            onChange={(e) => onChange("room_name", e.target.value)}
+            placeholder={t("roomName")}
           />
         </FormControl>
 
         <FormControl isRequired>
-          <FormLabel>Nickname</FormLabel>
+          <FormLabel>{t("username")}</FormLabel>
           <Input
-            value={formData.nickname}
-            onChange={(e) => {
-              console.log("Nickname changed:", e.target.value);
-              onChange("nickname", e.target.value);
-            }}
-            placeholder="Enter your nickname"
+            value={formData.username}
+            onChange={(e) => onChange("username", e.target.value)}
+            placeholder={t("username")}
           />
         </FormControl>
 
@@ -63,7 +59,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({
           type="submit"
           isLoading={isLoading}
         >
-          Join Room
+          {t("joinRoom")}
         </Button>
       </VStack>
     </form>

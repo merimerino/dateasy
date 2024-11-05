@@ -1,7 +1,9 @@
+import i18next from "i18next";
+
 interface RoomCredentials {
   room_name: string;
   password?: string;
-  nickname?: string;
+  username?: string;
 }
 
 interface ApiResponse {
@@ -16,43 +18,100 @@ class RoomHandler {
     credentials: RoomCredentials,
     isProfessor: boolean
   ): Promise<void> {
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(credentials),
-    });
+    try {
+      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(credentials),
+      });
 
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(error || "Failed to process request");
-    }
+      if (!response.ok) {
+        const error = await response.text();
+        try {
+          const parsedError = JSON.parse(error);
+          const errorKey = this.getErrorTranslationKey(parsedError.error);
+          throw new Error(i18next.t(errorKey));
+        } catch {
+          throw new Error(i18next.t("error.failedToJoin"));
+        }
+      }
 
-    const data: ApiResponse = await response.json();
+      const data: ApiResponse = await response.json();
 
-    // Store the token and room name
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("roomName", credentials.room_name);
-    localStorage.setItem("isProfessor", String(isProfessor));
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("roomName", credentials.room_name);
+      localStorage.setItem("isProfessor", String(isProfessor));
 
-    // Store nickname if provided
-    if (credentials.nickname) {
-      localStorage.setItem("nickname", credentials.nickname);
+      if (credentials.username) {
+        localStorage.setItem("username", credentials.username);
+      }
+    } catch (error) {
+      this.logout();
+      throw error;
     }
   }
 
+  private getErrorTranslationKey(apiError: string): string {
+    // Map API error messages to translation keys
+    const errorMap: { [key: string]: string } = {
+      "Username already taken in this room": "error.usernameTaken",
+      "Invalid credentials": "error.invalidCredentials",
+      "Room not found": "error.roomNotFound",
+      "Invalid password": "error.invalidPassword",
+      "Room already exists": "error.roomAlreadyExists",
+      "User not found": "error.userNotFound",
+      Unauthorized: "error.unauthorized",
+    };
+
+    if (errorMap[apiError]) {
+      return errorMap[apiError];
+    }
+
+    if (apiError.toLowerCase().includes("server error")) {
+      return "error.serverError";
+    }
+
+    if (
+      apiError.toLowerCase().includes("failed to fetch") ||
+      apiError.toLowerCase().includes("network error")
+    ) {
+      return "error.connectionError";
+    }
+
+    return "error.failedRequest";
+  }
+
   async professorCreateRoom(credentials: RoomCredentials): Promise<void> {
+    if (!credentials.room_name) {
+      throw new Error(i18next.t("error.roomRequired"));
+    }
+    if (!credentials.password) {
+      throw new Error(i18next.t("error.passwordRequired"));
+    }
     await this.handleRequest("/createRoom", credentials, true);
   }
 
   async professorJoinRoom(credentials: RoomCredentials): Promise<void> {
+    if (!credentials.room_name) {
+      throw new Error(i18next.t("error.roomRequired"));
+    }
+    if (!credentials.password) {
+      throw new Error(i18next.t("error.passwordRequired"));
+    }
     await this.handleRequest("/joinAsAdmin", credentials, true);
   }
 
-  async studentJoinRoom(credentials: RoomCredentials): Promise<void> {
-    if (!credentials.nickname) {
-      throw new Error("Nickname is required");
+  async studentJoinRoom(credentials: {
+    room_name: string;
+    username: string;
+  }): Promise<void> {
+    if (!credentials.username) {
+      throw new Error(i18next.t("error.usernameRequired"));
+    }
+    if (!credentials.room_name) {
+      throw new Error(i18next.t("error.roomRequired"));
     }
     await this.handleRequest("/joinAsStudent", credentials, false);
   }
@@ -61,8 +120,8 @@ class RoomHandler {
     return localStorage.getItem("roomName");
   }
 
-  getNickname(): string | null {
-    return localStorage.getItem("nickname");
+  getUsername(): string | null {
+    return localStorage.getItem("username");
   }
 
   isProfessor(): boolean {
@@ -77,8 +136,15 @@ class RoomHandler {
 
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
-      return Date.now() < payload.expiresAt * 1000;
+      const isValid = Date.now() < payload.expiresAt * 1000;
+
+      if (!isValid) {
+        this.logout();
+      }
+
+      return isValid;
     } catch {
+      this.logout();
       return false;
     }
   }
@@ -86,7 +152,7 @@ class RoomHandler {
   logout(): void {
     localStorage.removeItem("token");
     localStorage.removeItem("roomName");
-    localStorage.removeItem("nickname");
+    localStorage.removeItem("username");
     localStorage.removeItem("isProfessor");
   }
 }

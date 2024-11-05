@@ -1,4 +1,3 @@
-// types/Task.ts
 export interface Task {
   id: string;
   type: "kratki_tekst" | "dugi_tekst";

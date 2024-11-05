@@ -20,12 +20,12 @@ export interface ProfessorRoomDTO {
 
 export interface StudentRoomDTO {
   room_name: string;
-  nickname: string;
+  username: string;
 }
 
 export interface UserSession {
   token: string | null;
   roomId: string | null;
   role: UserRole | null;
-  nickname?: string | null;
+  username?: string | null;
 }

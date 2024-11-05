@@ -5,6 +5,7 @@ import {
   Input,
   VStack,
 } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 
 interface FormData {
   room_name: string;
@@ -26,24 +27,26 @@ const ProfessorLoginForm: React.FC<ProfessorLoginFormProps> = ({
   onChange,
   submitButtonText,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <VStack spacing={4}>
       <FormControl isRequired>
-        <FormLabel>Room Name</FormLabel>
+        <FormLabel>{t("roomName")}</FormLabel>
         <Input
           value={formData.room_name}
           onChange={(e) => onChange("room_name", e.target.value)}
-          placeholder="Enter room name"
+          placeholder={t("roomName")}
         />
       </FormControl>
 
       <FormControl isRequired>
-        <FormLabel>Password</FormLabel>
+        <FormLabel>{t("password")}</FormLabel>
         <Input
           type="password"
           value={formData.password}
           onChange={(e) => onChange("password", e.target.value)}
-          placeholder="Enter password"
+          placeholder={t("password")}
         />
       </FormControl>
 
