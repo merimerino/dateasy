@@ -1,7 +1,10 @@
 interface BaseTask {
   taskType: string;
   taskOrderNumber: number;
+  id: string;
+  description: string;
   room_name: string;
+  title: string;
   name: string;
   text: string;
 }

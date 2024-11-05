@@ -7,7 +7,6 @@ import StudentLoginPage from "./pages/StudentLoginPage";
 import ProfessorLoginPage from "./pages/ProfessorLoginPage";
 import RoomEditPage from "./pages/RoomEditPage";
 import RoomViewPage from "./pages/RoomViewPage";
-import AddTaskPage from "./pages/AddTaskPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -35,15 +34,6 @@ function App() {
               element={
                 <ProtectedRoute>
                   <RoomViewPage />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/room/:roomName/addTask"
-              element={
-                <ProtectedRoute>
-                  <AddTaskPage />
                 </ProtectedRoute>
               }
             />
