@@ -3,7 +3,7 @@ import React from "react";
 import { Container } from "@chakra-ui/react";
 import Header from "../components/Header";
 import ProfessorLoginTabs from "../components/professor/ProfessorLoginTabs";
-import { useProfessorLogin } from "../components/professor/hooks/useProfessorLogin";
+import { useProfessorLogin } from "../hooks/useProfessorLogin";
 
 const ProfessorLoginPage: React.FC = () => {
   const {

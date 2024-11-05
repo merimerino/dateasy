@@ -3,7 +3,7 @@ import { Box } from "@chakra-ui/react";
 import Header from "../components/Header";
 import TaskForm from "../components/TaskForm";
 import { TaskHandler } from "../utils/taskHandler";
-import { TaskCreateDTO } from "../types/Task";
+import { TaskCreateDTO } from "../types/Tasks";
 
 const AddTaskPage: React.FC = () => {
   const navigate = useNavigate();

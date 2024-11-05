@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@chakra-ui/react";
-import { roomHandler } from "../../../utils/roomHandler";
+import { roomHandler } from "../utils/roomHandler";
 
 interface FormData {
   room_name: string;

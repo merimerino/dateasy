@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Heading, VStack, Button } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { TaskHandler } from "../utils/taskHandler";
-import { Task } from "../types/Task";
+import { Task } from "../types/Tasks";
 
 const TaskList: React.FC = () => {
   const [tasks, setTasks] = React.useState<Task[]>([]);

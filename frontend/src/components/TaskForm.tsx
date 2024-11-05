@@ -11,7 +11,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { TaskCreateDTO } from "../types/Task";
+import { TaskCreateDTO } from "../types/Tasks";
 
 interface TaskFormProps {
   onSubmit: (task: TaskCreateDTO) => void;

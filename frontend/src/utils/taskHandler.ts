@@ -1,5 +1,5 @@
 // utils/taskHandler.ts
-import { Task, TaskCreateDTO } from "../types/Task";
+import { Task, TaskCreateDTO } from "../types/Tasks";
 import { v4 as uuidv4 } from "uuid";
 
 // Mock data
