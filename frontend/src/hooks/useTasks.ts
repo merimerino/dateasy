@@ -20,17 +20,17 @@ export const useTasks = () => {
           throw new Error("Not authenticated");
         }
 
-        const token = localStorage.getItem("token");
-        console.log("Token exists:", !!token);
+        const authToken = localStorage.getItem("token");
+        console.log("Token exists:", !!authToken);
 
-        if (!token) {
+        if (!authToken) {
           navigate("/");
           throw new Error("Not authenticated");
         }
 
         // Log the token payload for debugging
         try {
-          const payload = JSON.parse(atob(token.split(".")[1]));
+          const payload = JSON.parse(atob(authToken.split(".")[1]));
           console.log("Token payload:", payload);
           console.log(
             "Token expiry:",
@@ -46,8 +46,8 @@ export const useTasks = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "x-jwt-token": authToken,
           },
-          body: JSON.stringify({ token }),
         });
 
         console.log("Response status:", response.status);
