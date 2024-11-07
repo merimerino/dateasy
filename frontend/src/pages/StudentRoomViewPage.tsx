@@ -1,13 +1,15 @@
+import { Box } from "@chakra-ui/react";
 import Header from "../components/Header";
 import TaskList from "../components/TaskList";
 
-const TasksPage: React.FC = () => {
+const RoomViewPage: React.FC = () => {
   return (
-    <>
+    <Box>
       <Header />
+
       <TaskList />
-    </>
+    </Box>
   );
 };
 
-export default TasksPage;
+export default RoomViewPage;
