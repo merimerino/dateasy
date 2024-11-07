@@ -26,7 +26,7 @@ export const useTasks = () => {
         }
 
         const response = await fetch("http://localhost:3000/tasks", {
-          method: "POST",
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
             "x-jwt-token": authToken,

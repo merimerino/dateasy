@@ -5,9 +5,9 @@ import i18n from "./i18n/config";
 
 import StudentLoginPage from "./pages/StudentLoginPage";
 import ProfessorLoginPage from "./pages/ProfessorLoginPage";
-import RoomEditPage from "./pages/RoomEditPage";
-import RoomViewPage from "./pages/RoomViewPage";
+import ProfessorTaskManagementPage from "./pages/ProfessorTaskManagementPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import TaskForm from "./components/TaskForm";
 
 function App() {
   return (
@@ -20,20 +20,31 @@ function App() {
             <Route path="/prof" element={<ProfessorLoginPage />} />
 
             {/* Protected Routes */}
+
+            {/* Professor Task Management Routes */}
             <Route
               path="/room/:roomName/edit"
               element={
                 <ProtectedRoute>
-                  <RoomEditPage />
+                  <ProfessorTaskManagementPage />
                 </ProtectedRoute>
               }
             />
 
             <Route
-              path="/room/:roomName/view"
+              path="/room/:roomName/add-task"
               element={
                 <ProtectedRoute>
-                  <RoomViewPage />
+                  <TaskForm mode="create" />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/room/:roomName/edit-task/:taskId"
+              element={
+                <ProtectedRoute>
+                  <TaskForm mode="edit" />
                 </ProtectedRoute>
               }
             />

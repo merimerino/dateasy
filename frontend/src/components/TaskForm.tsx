@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -13,24 +13,62 @@ import {
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { Task } from "../types/Tasks";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface TaskFormProps {
-  onSubmit: (task: Partial<Task>) => void;
-  onCancel: () => void;
+  mode: "create" | "edit";
+  initialData?: Task;
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
+const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
   const { t } = useTranslation();
-  const [formData, setFormData] = React.useState<Partial<Task>>({
-    task_type: "short_task",
-    name: "",
-    text: "",
-    max_characters_allowed: 250,
-  });
+  const navigate = useNavigate();
+  const { roomName } = useParams();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [formData, setFormData] = useState<Partial<Task>>(
+    initialData || {
+      task_type: "short_task",
+      name: "",
+      text: "",
+      max_characters_allowed: 250,
+    }
+  );
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    try {
+      const url =
+        mode === "create"
+          ? `http://localhost:3000/tasks`
+          : `http://localhost:3000/tasks/${formData.order_number}`;
+
+      const method = mode === "create" ? "POST" : "PUT";
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          "x-jwt-token": localStorage.getItem("token") || "",
+        },
+        body: JSON.stringify({
+          ...formData,
+          room_name: roomName,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save task");
+      }
+
+      navigate(`/room/${roomName}/edit`);
+    } catch (error) {
+      console.error("Error saving task:", error);
+      // You might want to add error handling/toast here
+    }
+  };
+
+  const handleCancel = () => {
+    navigate(`/room/${roomName}/edit`);
   };
 
   return (
@@ -136,7 +174,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
         )}
 
         <Box w="100%" display="flex" justifyContent="flex-end" gap={4}>
-          <Button onClick={onCancel}>{t("cancel")}</Button>
+          <Button onClick={handleCancel}>{t("cancel")}</Button>
           <Button type="submit" colorScheme="teal">
             {t("save")}
           </Button>

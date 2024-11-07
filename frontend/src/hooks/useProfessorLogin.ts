@@ -26,22 +26,13 @@ export const useProfessorLogin = () => {
     try {
       if (action === "create") {
         await roomHandler.professorCreateRoom(formData);
-        console.log(
-          "Room created successfully, navigating to:",
-          `/room/${formData.room_name}/edit`
-        );
       } else {
         await roomHandler.professorJoinRoom(formData);
-        console.log(
-          "Joined room successfully, navigating to:",
-          `/room/${formData.room_name}/edit`
-        );
       }
 
       // Add a small delay to ensure localStorage is set
       setTimeout(() => {
         const roomName = roomHandler.getCurrentRoom();
-        console.log("Current room from storage:", roomName);
         if (roomName) {
           navigate(`/room/${roomName}/edit`, { replace: true });
         } else {
