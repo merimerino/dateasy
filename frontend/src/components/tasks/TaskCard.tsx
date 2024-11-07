@@ -1,3 +1,4 @@
+// components/TaskCard.tsx
 import {
   Box,
   VStack,
@@ -22,9 +23,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   const [value, setValue] = useState("");
   const [numberValue, setNumberValue] = useState("");
 
+  // Add safety check at the component level
+  if (!task) {
+    return null;
+  }
+
   const renderTaskInput = () => {
-    switch (task.taskType) {
-      case "short_tasks":
+    switch (task.task_type) {
+      case "short_task":
         return (
           <FormControl>
             <Input
@@ -39,8 +45,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
           </FormControl>
         );
 
-      case "multiple_choice":
-        return (
+      case "multichoice":
+        return task.options ? (
           <RadioGroup value={value} onChange={setValue}>
             <VStack align="stretch" spacing={2}>
               {task.options.map((option, index) => (
@@ -50,9 +56,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
               ))}
             </VStack>
           </RadioGroup>
-        );
+        ) : null;
 
-      case "number_tasks":
+      case "numbers_task":
         return (
           <FormControl>
             <NumberInput
@@ -69,6 +75,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
             </NumberInput>
           </FormControl>
         );
+
+      default:
+        return null;
     }
   };
 

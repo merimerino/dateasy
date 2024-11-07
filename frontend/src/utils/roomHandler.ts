@@ -132,10 +132,6 @@ class RoomHandler {
     const token = localStorage.getItem("token");
     const roomName = localStorage.getItem("roomName");
 
-    console.log("Checking authentication:");
-    console.log("- Token exists:", !!token);
-    console.log("- Room name exists:", !!roomName);
-
     if (!token || !roomName) return false;
 
     try {
@@ -143,15 +139,9 @@ class RoomHandler {
       const currentTime = Date.now();
       const expiryTime = payload.expiresAt * 1000;
 
-      console.log("Token validation:");
-      console.log("- Current time:", new Date(currentTime).toLocaleString());
-      console.log("- Expiry time:", new Date(expiryTime).toLocaleString());
-      console.log("- Is valid:", currentTime < expiryTime);
-
       const isValid = currentTime < expiryTime;
 
       if (!isValid) {
-        console.log("Token expired, logging out");
         this.logout();
       }
 

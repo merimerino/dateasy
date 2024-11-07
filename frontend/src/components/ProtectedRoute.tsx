@@ -12,14 +12,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const token = localStorage.getItem("token");
     const roomName = localStorage.getItem("roomName");
 
-    console.log("Protected Route Check:", {
-      token: !!token,
-      roomName,
-      pathname: location.pathname,
-    });
-
     if (!token || !roomName) {
-      console.log("Missing token or room name");
       return false;
     }
 
@@ -29,7 +22,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
       // Check if token is expired
       if (payload.expiresAt && Date.now() >= payload.expiresAt * 1000) {
-        console.log("Token expired");
         localStorage.removeItem("token");
         localStorage.removeItem("roomName");
         return false;
@@ -41,9 +33,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
       if (roomPathMatch) {
         const requestedRoom = roomPathMatch[1];
-        console.log("Room check:", { requestedRoom, storedRoom: roomName });
         if (requestedRoom !== roomName) {
-          console.log("Room mismatch");
           return false;
         }
       }
@@ -59,10 +49,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   const isAuthorized = checkAuth();
 
-  console.log("Authorization result:", isAuthorized);
-
   if (!isAuthorized) {
-    console.log("Redirecting to home due to failed authorization");
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
