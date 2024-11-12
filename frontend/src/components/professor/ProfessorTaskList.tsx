@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Box,
   Button,
@@ -6,15 +7,19 @@ import {
   IconButton,
   HStack,
   Text,
+  Badge,
+  useColorModeValue,
+  Tooltip,
 } from "@chakra-ui/react";
 import { AddIcon, EditIcon, DeleteIcon } from "@chakra-ui/icons";
 import { Task } from "../../types/Tasks";
+import { useTranslation } from "react-i18next";
 
 interface ProfessorTaskListProps {
   tasks: Task[] | null;
   onEdit: (task: Task) => void;
   onDelete: (taskId: string) => void;
-  onAdd: () => void; // Changed to not require parameter
+  onAdd: () => void;
 }
 
 const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
@@ -23,73 +28,150 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
   onDelete,
   onAdd,
 }) => {
-  const getTaskTypeLabel = (type: string) => {
+  const { t } = useTranslation();
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+
+  const getTaskTypeInfo = (type: string): { color: string } => {
     switch (type) {
       case "multichoice":
-        return "Multiple Choice";
+        return { color: "purple" };
       case "numbers_task":
-        return "Number Task";
+        return { color: "blue" };
       case "short_task":
-        return "Short Answer";
+        return { color: "green" };
+      case "table":
+        return { color: "orange" };
+      case "map":
+        return { color: "red" };
+      case "description":
+        return { color: "gray" };
       default:
-        return type;
+        return { color: "gray" };
     }
   };
 
   return (
     <Box maxW="800px" mx="auto" p={4}>
-      <VStack spacing={4} align="stretch">
+      <VStack spacing={6} align="stretch">
+        <HStack justify="space-between" mb={4}>
+          <Heading size="lg" color="teal.600">
+            {t("tasksList")}
+          </Heading>
+          <Button
+            leftIcon={<AddIcon />}
+            colorScheme="teal"
+            size="md"
+            onClick={onAdd}
+            _hover={{
+              transform: "translateY(-2px)",
+              boxShadow: "lg",
+            }}
+            transition="all 0.2s"
+          >
+            {t("addNewTask")}
+          </Button>
+        </HStack>
+
         {!tasks || tasks.length === 0 ? (
-          <Box p={4} borderWidth="1px" borderRadius="lg" textAlign="center">
-            <Text color="gray.500">No tasks created yet</Text>
+          <Box
+            p={8}
+            borderWidth="1px"
+            borderRadius="lg"
+            borderStyle="dashed"
+            borderColor={borderColor}
+            textAlign="center"
+            bg={bgColor}
+          >
+            <Text color="gray.500" fontSize="lg">
+              {t("noTasksYet")}
+            </Text>
+            <Text color="gray.400" fontSize="md" mt={2}>
+              {t("clickAddToCreate")}
+            </Text>
           </Box>
         ) : (
-          tasks.map((task) => (
-            <Box
-              key={`${task.task_type}-${task.order_number}`}
-              p={4}
-              borderWidth="1px"
-              borderRadius="lg"
-              bg="white"
-              shadow="sm"
-            >
-              <HStack justify="space-between">
-                <VStack align="start" spacing={1}>
-                  <Heading size="sm">{task.name}</Heading>
-                  <Text color="gray.600" fontSize="sm">
-                    {getTaskTypeLabel(task.task_type)}
-                  </Text>
-                  <Text color="gray.500" fontSize="sm">
-                    Order: {task.order_number}
-                  </Text>
-                </VStack>
-                <HStack>
-                  <IconButton
-                    icon={<EditIcon />}
-                    aria-label="Edit task"
-                    size="sm"
-                    onClick={() => onEdit(task)}
-                  />
-                  <IconButton
-                    icon={<DeleteIcon />}
-                    aria-label="Delete task"
-                    size="sm"
-                    colorScheme="red"
-                    variant="ghost"
-                    onClick={() => onDelete(task.order_number.toString())}
-                  />
-                </HStack>
-              </HStack>
-            </Box>
-          ))
+          <VStack spacing={4} align="stretch">
+            {tasks
+              .sort((a, b) => a.order_number - b.order_number)
+              .map((task) => {
+                const typeInfo = getTaskTypeInfo(task.task_type);
+                return (
+                  <Box
+                    key={`${task.task_type}-${task.order_number}`}
+                    p={5}
+                    borderWidth="1px"
+                    borderRadius="lg"
+                    bg={bgColor}
+                    shadow="sm"
+                    _hover={{
+                      shadow: "md",
+                      transform: "translateY(-2px)",
+                      borderColor: "teal.200",
+                    }}
+                    transition="all 0.2s"
+                  >
+                    <HStack justify="space-between" align="start">
+                      <VStack align="start" spacing={2} flex={1}>
+                        <HStack>
+                          <Badge
+                            colorScheme={typeInfo.color}
+                            px={2}
+                            py={1}
+                            borderRadius="full"
+                            textTransform="none"
+                          >
+                            {t(`taskTypes.${task.task_type}`)}
+                          </Badge>
+                          <Badge
+                            colorScheme="teal"
+                            variant="outline"
+                            px={2}
+                            py={1}
+                            borderRadius="full"
+                          >
+                            #{task.order_number}
+                          </Badge>
+                        </HStack>
+                        <Heading size="md" color="gray.700">
+                          {task.name}
+                        </Heading>
+                        <Text color="gray.600" fontSize="sm" noOfLines={2}>
+                          {task.text}
+                        </Text>
+                      </VStack>
+                      <HStack spacing={2}>
+                        <Tooltip label={t("editTask")} placement="top">
+                          <IconButton
+                            icon={<EditIcon />}
+                            aria-label={t("editTask")}
+                            size="sm"
+                            colorScheme="teal"
+                            variant="ghost"
+                            onClick={() => onEdit(task)}
+                            _hover={{ bg: "teal.50" }}
+                          />
+                        </Tooltip>
+                        <Tooltip label={t("deleteTask")} placement="top">
+                          <IconButton
+                            icon={<DeleteIcon />}
+                            aria-label={t("deleteTask")}
+                            size="sm"
+                            colorScheme="red"
+                            variant="ghost"
+                            onClick={() =>
+                              onDelete(task.order_number.toString())
+                            }
+                            _hover={{ bg: "red.50" }}
+                          />
+                        </Tooltip>
+                      </HStack>
+                    </HStack>
+                  </Box>
+                );
+              })}
+          </VStack>
         )}
-        <Button
-          leftIcon={<AddIcon />}
-          colorScheme="teal"
-          onClick={onAdd} // Changed to use onAdd prop
-        >
-          Add New Task
-        </Button>
       </VStack>
     </Box>
   );

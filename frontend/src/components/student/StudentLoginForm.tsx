@@ -1,11 +1,14 @@
+import React from "react";
 import {
   Button,
   FormControl,
   FormLabel,
   Input,
   VStack,
+  Box,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
+import TaskWrapper from "../tasks/TaskWrapper";
 
 interface FormData {
   room_name: string;
@@ -33,36 +36,70 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <VStack spacing={4}>
-        <FormControl isRequired>
-          <FormLabel>{t("roomName")}</FormLabel>
-          <Input
-            value={formData.room_name}
-            onChange={(e) => onChange("room_name", e.target.value)}
-            placeholder={t("roomName")}
-          />
-        </FormControl>
+    <TaskWrapper>
+      <form onSubmit={handleSubmit}>
+        <VStack spacing={6} align="stretch">
+          <FormControl isRequired>
+            <FormLabel color="teal.700" fontSize="md" fontWeight="medium">
+              {t("roomName")}
+            </FormLabel>
+            <Input
+              value={formData.room_name}
+              onChange={(e) => onChange("room_name", e.target.value)}
+              placeholder={t("enterRoomName")}
+              size="lg"
+              borderColor="teal.200"
+              _hover={{ borderColor: "teal.300" }}
+              _focus={{
+                borderColor: "teal.400",
+                boxShadow: "0 0 0 1px var(--chakra-colors-teal-400)",
+              }}
+            />
+          </FormControl>
 
-        <FormControl isRequired>
-          <FormLabel>{t("username")}</FormLabel>
-          <Input
-            value={formData.username}
-            onChange={(e) => onChange("username", e.target.value)}
-            placeholder={t("username")}
-          />
-        </FormControl>
+          <FormControl isRequired>
+            <FormLabel color="teal.700" fontSize="md" fontWeight="medium">
+              {t("username")}
+            </FormLabel>
+            <Input
+              value={formData.username}
+              onChange={(e) => onChange("username", e.target.value)}
+              placeholder={t("enterUsername")}
+              size="lg"
+              borderColor="teal.200"
+              _hover={{ borderColor: "teal.300" }}
+              _focus={{
+                borderColor: "teal.400",
+                boxShadow: "0 0 0 1px var(--chakra-colors-teal-400)",
+              }}
+            />
+          </FormControl>
 
-        <Button
-          width="100%"
-          colorScheme="teal"
-          type="submit"
-          isLoading={isLoading}
-        >
-          {t("joinRoom")}
-        </Button>
-      </VStack>
-    </form>
+          <Box pt={2}>
+            <Button
+              width="100%"
+              colorScheme="teal"
+              type="submit"
+              isLoading={isLoading}
+              size="lg"
+              fontSize="md"
+              height="50px"
+              _hover={{
+                transform: "translateY(-1px)",
+                boxShadow: "lg",
+              }}
+              _active={{
+                transform: "translateY(0)",
+                boxShadow: "md",
+              }}
+              transition="all 0.2s"
+            >
+              {t("joinRoom")}
+            </Button>
+          </Box>
+        </VStack>
+      </form>
+    </TaskWrapper>
   );
 };
 

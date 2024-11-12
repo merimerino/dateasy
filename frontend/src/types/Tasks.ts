@@ -1,7 +1,14 @@
+// Define base type with proper task_type union type
 interface BaseTask {
   room_name: string;
   name: string;
-  task_type: string;
+  task_type:
+    | "multichoice"
+    | "numbers_task"
+    | "short_task"
+    | "description"
+    | "table"
+    | "map";
   order_number: number;
   text: string;
 }
@@ -23,4 +30,72 @@ export interface ShortTask extends BaseTask {
   max_characters_allowed: number;
 }
 
-export type Task = MultipleChoiceTask | NumberTask | ShortTask;
+export interface DescriptionTask extends BaseTask {
+  task_type: "description";
+}
+
+export interface TableTask extends BaseTask {
+  task_type: "table";
+  headers: string[];
+  rows: number;
+  columns: number;
+}
+
+export interface MapTask extends BaseTask {
+  task_type: "map";
+  center_latitude?: number;
+  center_longitude?: number;
+  zoom_level?: number;
+  allow_multiple_points?: boolean;
+}
+
+export type Task =
+  | MultipleChoiceTask
+  | NumberTask
+  | ShortTask
+  | DescriptionTask
+  | TableTask
+  | MapTask;
+
+// Type guard functions with proper typing
+export const isMultipleChoiceTask = (
+  task: Task
+): task is MultipleChoiceTask => {
+  return task.task_type === "multichoice";
+};
+
+export const isNumberTask = (task: Task): task is NumberTask => {
+  return task.task_type === "numbers_task";
+};
+
+export const isShortTask = (task: Task): task is ShortTask => {
+  return task.task_type === "short_task";
+};
+
+export const isDescriptionTask = (task: Task): task is DescriptionTask => {
+  return task.task_type === "description";
+};
+
+export const isTableTask = (task: Task): task is TableTask => {
+  return task.task_type === "table";
+};
+
+export const isMapTask = (task: Task): task is MapTask => {
+  return task.task_type === "map";
+};
+
+// Form state with all fields optional
+export type TaskFormState = Partial<Task> & {
+  options?: string[];
+  headers?: string[];
+  multiple_answers?: boolean;
+  min_num?: number;
+  max_num?: number;
+  max_characters_allowed?: number;
+  rows?: number;
+  columns?: number;
+  center_latitude?: number;
+  center_longitude?: number;
+  zoom_level?: number;
+  allow_multiple_points?: boolean;
+};

@@ -6,6 +6,7 @@ import i18n from "./i18n/config";
 import StudentLoginPage from "./pages/StudentLoginPage";
 import ProfessorLoginPage from "./pages/ProfessorLoginPage";
 import ProfessorTaskManagementPage from "./pages/ProfessorTaskManagementPage";
+import StudentRoomViewPage from "./pages/StudentRoomViewPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import TaskForm from "./components/TaskForm";
 
@@ -45,6 +46,16 @@ function App() {
               element={
                 <ProtectedRoute>
                   <TaskForm mode="edit" />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Student Task View Routes */}
+            <Route
+              path="/room/:roomName/view"
+              element={
+                <ProtectedRoute>
+                  <StudentRoomViewPage />
                 </ProtectedRoute>
               }
             />
