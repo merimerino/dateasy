@@ -1,4 +1,3 @@
-import React from "react";
 import { Task } from "../../types/Tasks";
 import ShortTextTask from "./ShortTextTask";
 import NumbersTask from "./NumbersTask";

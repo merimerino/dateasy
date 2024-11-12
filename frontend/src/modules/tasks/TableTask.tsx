@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Box, Table, Thead, Tbody, Tr, Th, Td, Input } from "@chakra-ui/react";
 import TaskWrapper from "./TaskWrapper";
 

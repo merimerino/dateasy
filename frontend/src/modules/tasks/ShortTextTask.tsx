@@ -1,5 +1,4 @@
-// src/components/tasks/ShortTextTask.tsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { Input, FormControl, Text } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import TaskWrapper from "./TaskWrapper";

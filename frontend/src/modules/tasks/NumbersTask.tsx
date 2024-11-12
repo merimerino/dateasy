@@ -1,5 +1,4 @@
-// src/components/tasks/NumbersTask.tsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { NumberInput, NumberInputField, FormControl } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import TaskWrapper from "./TaskWrapper";

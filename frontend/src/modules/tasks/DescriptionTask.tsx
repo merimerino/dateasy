@@ -1,5 +1,3 @@
-// src/components/tasks/DescriptionTask.tsx
-import React from "react";
 import { Box, VStack, Text } from "@chakra-ui/react";
 
 interface DescriptionTaskProps {

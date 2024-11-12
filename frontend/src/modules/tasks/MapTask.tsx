@@ -1,5 +1,3 @@
-// src/components/tasks/MapTask.tsx
-import React from "react";
 import { Box, Button } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import TaskWrapper from "./TaskWrapper";

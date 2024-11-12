@@ -1,5 +1,3 @@
-// pages/ProfessorLoginPage.tsx
-import React from "react";
 import { Container } from "@chakra-ui/react";
 import Header from "../modules/Header";
 import ProfessorLoginTabs from "../modules/professor/ProfessorLoginTabs";

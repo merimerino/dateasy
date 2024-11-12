@@ -8,7 +8,7 @@ import ProfessorLoginPage from "./pages/ProfessorLoginPage";
 import ProfessorTaskManagementPage from "./pages/ProfessorTaskManagementPage";
 import StudentRoomViewPage from "./pages/StudentRoomViewPage";
 import ProtectedRoute from "./modules/ProtectedRoute";
-import TaskForm from "./modules/TaskForm";
+import TaskForm from "./modules/tasks/TaskForm/TaskForm";
 
 function App() {
   return (

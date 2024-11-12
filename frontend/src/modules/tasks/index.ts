@@ -1,5 +1,3 @@
-// src/components/tasks/index.ts
-
 // Export individual task components
 export { default as ShortTextTask } from "./ShortTextTask";
 export { default as NumbersTask } from "./NumbersTask";

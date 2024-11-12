@@ -1,5 +1,4 @@
-// src/components/tasks/MultiChoiceTask.tsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { Radio, RadioGroup, VStack, Text } from "@chakra-ui/react";
 import TaskWrapper from "./TaskWrapper";
 

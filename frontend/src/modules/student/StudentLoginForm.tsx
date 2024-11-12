@@ -6,6 +6,7 @@ import {
   Input,
   VStack,
   Box,
+  Image,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import TaskWrapper from "../tasks/TaskWrapper";
@@ -39,6 +40,8 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({
     <TaskWrapper>
       <form onSubmit={handleSubmit}>
         <VStack spacing={6} align="stretch">
+          <Image src="/logo.png" alt="Logo" height="42px" objectFit="contain" />
+
           <FormControl isRequired>
             <FormLabel color="teal.700" fontSize="md" fontWeight="medium">
               {t("roomName")}

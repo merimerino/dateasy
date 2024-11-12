@@ -1,4 +1,3 @@
-import React from "react";
 import { FormControl, FormLabel, Select } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { TaskFormData } from "../types";

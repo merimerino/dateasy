@@ -1,4 +1,3 @@
-import React from "react";
 import { Box, useToast } from "@chakra-ui/react";
 import { useTasks } from "../hooks/useTasks";
 import ProfessorTaskList from "../modules/professor/ProfessorTaskList";
