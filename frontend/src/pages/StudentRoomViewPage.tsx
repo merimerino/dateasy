@@ -1,5 +1,5 @@
-import Header from "../components/Header";
-import TasksViewer from "../components/tasks/TasksViewer";
+import Header from "../modules/Header";
+import TasksViewer from "../modules/tasks/TasksViewer";
 
 const StudentRoomViewPage: React.FC = () => {
   return (

@@ -1,6 +1,6 @@
 import { Container } from "@chakra-ui/react";
-import Header from "../components/Header";
-import StudentLoginForm from "../components/student/StudentLoginForm";
+import Header from "../modules/Header";
+import StudentLoginForm from "../modules/student/StudentLoginForm";
 import { useStudentLogin } from "../hooks/useStudentLogin";
 
 const StudentLoginPage: React.FC = () => {

@@ -1,11 +1,11 @@
 import React from "react";
 import { Box, useToast } from "@chakra-ui/react";
 import { useTasks } from "../hooks/useTasks";
-import ProfessorTaskList from "../components/professor/ProfessorTaskList";
-import LoadingSpinner from "../components/LoadingSpinner";
+import ProfessorTaskList from "../modules/professor/ProfessorTaskList";
+import LoadingSpinner from "../modules/LoadingSpinner";
 import { Task } from "../types/Tasks";
 import { useNavigate, useParams } from "react-router-dom";
-import Header from "../components/Header";
+import Header from "../modules/Header";
 
 const ProfessorTaskManagementPage: React.FC = () => {
   const { tasks, loading } = useTasks();
