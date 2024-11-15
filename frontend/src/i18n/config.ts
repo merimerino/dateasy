@@ -87,6 +87,12 @@ const resources = {
         headersRequired: "At least one header is required",
         emptyHeaders: "Headers cannot be empty",
         validationFailed: "Please check the form for errors",
+        pleaseLogin: "Please log in to access this page",
+        accessDenied: "Access Denied",
+        insufficientPermissions:
+          "You don't have permission to access this page",
+        sessionExpired: "Your session has expired",
+        pleaseLoginAgain: "Please log in again",
       },
 
       success: {
@@ -225,6 +231,12 @@ const resources = {
         headersRequired: "Potrebno je barem jedno zaglavlje",
         emptyHeaders: "Zaglavlja ne mogu biti prazna",
         validationFailed: "Molimo provjerite obrazac za greške",
+        pleaseLogin: "Prijavite se za pristup ovoj stranici",
+        accessDenied: "Pristup zabranjen",
+        insufficientPermissions:
+          "Nemate potrebne ovlasti za pristup ovoj stranici",
+        sessionExpired: "Vaša sesija je istekla",
+        pleaseLoginAgain: "Molimo prijavite se ponovno",
       },
 
       success: {

@@ -10,14 +10,21 @@ interface ApiResponse {
   token: string;
 }
 
+interface LoginResponse {
+  token: string;
+  room_name: string;
+}
+
+type UserRole = "student" | "professor";
+
 class RoomHandler {
   private baseUrl = "http://localhost:3000";
 
   private async handleRequest(
     endpoint: string,
     credentials: RoomCredentials,
-    isProfessor: boolean
-  ): Promise<void> {
+    role: UserRole
+  ): Promise<LoginResponse> {
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         method: "POST",
@@ -42,11 +49,17 @@ class RoomHandler {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("roomName", credentials.room_name);
-      localStorage.setItem("isProfessor", String(isProfessor));
+      localStorage.setItem("userRole", role);
 
       if (credentials.username) {
         localStorage.setItem("username", credentials.username);
       }
+
+      // Return the format expected by the login hooks
+      return {
+        token: data.token,
+        room_name: credentials.room_name,
+      };
     } catch (error) {
       this.logout();
       throw error;
@@ -83,37 +96,41 @@ class RoomHandler {
     return "error.failedRequest";
   }
 
-  async professorCreateRoom(credentials: RoomCredentials): Promise<void> {
+  async professorCreateRoom(
+    credentials: RoomCredentials
+  ): Promise<LoginResponse> {
     if (!credentials.room_name) {
       throw new Error(i18next.t("error.roomRequired"));
     }
     if (!credentials.password) {
       throw new Error(i18next.t("error.passwordRequired"));
     }
-    await this.handleRequest("/createRoom", credentials, true);
+    return this.handleRequest("/createRoom", credentials, "professor");
   }
 
-  async professorJoinRoom(credentials: RoomCredentials): Promise<void> {
+  async professorJoinRoom(
+    credentials: RoomCredentials
+  ): Promise<LoginResponse> {
     if (!credentials.room_name) {
       throw new Error(i18next.t("error.roomRequired"));
     }
     if (!credentials.password) {
       throw new Error(i18next.t("error.passwordRequired"));
     }
-    await this.handleRequest("/joinAsAdmin", credentials, true);
+    return this.handleRequest("/joinAsAdmin", credentials, "professor");
   }
 
   async studentJoinRoom(credentials: {
     room_name: string;
     username: string;
-  }): Promise<void> {
+  }): Promise<LoginResponse> {
     if (!credentials.username) {
       throw new Error(i18next.t("error.usernameRequired"));
     }
     if (!credentials.room_name) {
       throw new Error(i18next.t("error.roomRequired"));
     }
-    await this.handleRequest("/joinAsStudent", credentials, false);
+    return this.handleRequest("/joinAsStudent", credentials, "student");
   }
 
   getCurrentRoom(): string | null {
@@ -124,15 +141,16 @@ class RoomHandler {
     return localStorage.getItem("username");
   }
 
-  isProfessor(): boolean {
-    return localStorage.getItem("isProfessor") === "true";
+  getUserRole(): UserRole | null {
+    return localStorage.getItem("userRole") as UserRole | null;
   }
 
   isAuthenticated(): boolean {
     const token = localStorage.getItem("token");
     const roomName = localStorage.getItem("roomName");
+    const userRole = localStorage.getItem("userRole");
 
-    if (!token || !roomName) return false;
+    if (!token || !roomName || !userRole) return false;
 
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
@@ -157,7 +175,7 @@ class RoomHandler {
     localStorage.removeItem("token");
     localStorage.removeItem("roomName");
     localStorage.removeItem("username");
-    localStorage.removeItem("isProfessor");
+    localStorage.removeItem("userRole");
   }
 }
 

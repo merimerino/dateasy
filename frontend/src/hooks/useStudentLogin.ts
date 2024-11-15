@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 import { roomHandler } from "../utils/roomHandler";
 
 interface FormData {
@@ -11,6 +12,7 @@ interface FormData {
 export const useStudentLogin = () => {
   const navigate = useNavigate();
   const toast = useToast();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     room_name: "",
@@ -24,26 +26,14 @@ export const useStudentLogin = () => {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      console.log("Attempting to join room with data:", formData);
-      await roomHandler.studentJoinRoom(formData);
-      console.log("Successfully joined room");
+      const response = await roomHandler.studentJoinRoom(formData);
 
-      // Add a small delay to ensure localStorage is set
-      setTimeout(() => {
-        const roomName = roomHandler.getCurrentRoom();
-        console.log("Current room from storage:", roomName);
-
-        if (roomName) {
-          navigate(`/room/${roomName}/view`, { replace: true });
-        } else {
-          throw new Error("Room name not found after login");
-        }
-      }, 100);
+      localStorage.setItem("userRole", "student");
+      navigate(`/room/${response.room_name}/view`, { replace: true });
     } catch (error) {
       console.error("Student login error:", error);
-      let errorMessage = "Failed to join room";
+      let errorMessage = t("error.failedToJoin");
 
-      // Try to parse error message from JSON
       try {
         if (error instanceof Error) {
           const parsedError = JSON.parse(error.message);
@@ -54,7 +44,7 @@ export const useStudentLogin = () => {
       }
 
       toast({
-        title: "Error",
+        title: t("error.loginFailed"),
         description: errorMessage,
         status: "error",
         duration: 5000,

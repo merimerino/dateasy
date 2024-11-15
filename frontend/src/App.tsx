@@ -20,13 +20,11 @@ function App() {
             <Route path="/" element={<StudentLoginPage />} />
             <Route path="/prof" element={<ProfessorLoginPage />} />
 
-            {/* Protected Routes */}
-
-            {/* Professor Task Management Routes */}
+            {/* Professor Routes */}
             <Route
               path="/room/:roomName/edit"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={["professor"]}>
                   <ProfessorTaskManagementPage />
                 </ProtectedRoute>
               }
@@ -35,7 +33,7 @@ function App() {
             <Route
               path="/room/:roomName/add-task"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={["professor"]}>
                   <TaskForm mode="create" />
                 </ProtectedRoute>
               }
@@ -44,20 +42,26 @@ function App() {
             <Route
               path="/room/:roomName/edit-task/:taskId"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={["professor"]}>
                   <TaskForm mode="edit" />
                 </ProtectedRoute>
               }
             />
 
-            {/* Student Task View Routes */}
+            {/* Student Routes */}
             <Route
               path="/room/:roomName/view"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={["student"]}>
                   <StudentRoomViewPage />
                 </ProtectedRoute>
               }
+            />
+
+            {/* Redirect unauthorized access */}
+            <Route
+              path="/room/:roomName/*"
+              element={<Navigate to="/" replace />}
             />
 
             {/* Catch all route */}

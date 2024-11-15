@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 import { roomHandler } from "../utils/roomHandler";
 
 interface FormData {
@@ -11,6 +12,7 @@ interface FormData {
 export const useProfessorLogin = () => {
   const navigate = useNavigate();
   const toast = useToast();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     room_name: "",
@@ -24,34 +26,18 @@ export const useProfessorLogin = () => {
   const handleSubmit = async (action: "create" | "join") => {
     setIsLoading(true);
     try {
-      if (action === "create") {
-        await roomHandler.professorCreateRoom(formData);
-      } else {
-        await roomHandler.professorJoinRoom(formData);
-      }
+      const response = await (action === "create"
+        ? roomHandler.professorCreateRoom(formData)
+        : roomHandler.professorJoinRoom(formData));
 
-      // Add a small delay to ensure localStorage is set
-      setTimeout(() => {
-        const roomName = roomHandler.getCurrentRoom();
-        if (roomName) {
-          navigate(`/room/${roomName}/edit`, { replace: true });
-        } else {
-          console.error("Room name not found in storage after login");
-          toast({
-            title: "Navigation Error",
-            description: "Could not find room information",
-            status: "error",
-            duration: 5000,
-            isClosable: true,
-          });
-        }
-      }, 100);
+      localStorage.setItem("userRole", "professor");
+      navigate(`/room/${response.room_name}/edit`, { replace: true });
     } catch (error) {
       console.error("Login error:", error);
       toast({
-        title: "Error",
+        title: t("error.loginFailed"),
         description:
-          error instanceof Error ? error.message : "Failed to process request",
+          error instanceof Error ? error.message : t("error.failedRequest"),
         status: "error",
         duration: 5000,
         isClosable: true,

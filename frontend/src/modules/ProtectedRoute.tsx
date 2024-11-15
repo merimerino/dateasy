@@ -1,56 +1,52 @@
+import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { ReactNode } from "react";
+import { useToast } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
+import { roomHandler } from "../utils/roomHandler";
 
 interface ProtectedRouteProps {
-  children: ReactNode;
+  children: React.ReactNode;
+  allowedRoles: ("student" | "professor")[];
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  allowedRoles,
+}) => {
+  const { t } = useTranslation();
   const location = useLocation();
+  const toast = useToast();
 
-  const checkAuth = () => {
-    const token = localStorage.getItem("token");
-    const roomName = localStorage.getItem("roomName");
-
-    if (!token || !roomName) {
-      return false;
-    }
-
-    try {
-      // Decode the JWT token
-      const payload = JSON.parse(atob(token.split(".")[1]));
-
-      // Check if token is expired
-      if (payload.expiresAt && Date.now() >= payload.expiresAt * 1000) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("roomName");
-        return false;
-      }
-
-      // Check if trying to access a different room
-      const currentPath = location.pathname;
-      const roomPathMatch = currentPath.match(/\/room\/(.+?)(\/|$)/);
-
-      if (roomPathMatch) {
-        const requestedRoom = roomPathMatch[1];
-        if (requestedRoom !== roomName) {
-          return false;
-        }
-      }
-
-      return true;
-    } catch (error) {
-      console.error("Auth check error:", error);
-      localStorage.removeItem("token");
-      localStorage.removeItem("roomName");
-      return false;
-    }
-  };
-
-  const isAuthorized = checkAuth();
-
-  if (!isAuthorized) {
+  if (!roomHandler.isAuthenticated()) {
+    toast({
+      title: t("error.unauthorized"),
+      description: t("error.pleaseLogin"),
+      status: "error",
+      duration: 3000,
+      isClosable: true,
+    });
     return <Navigate to="/" state={{ from: location }} replace />;
+  }
+
+  const userRole = roomHandler.getUserRole();
+
+  if (!userRole || !allowedRoles.includes(userRole)) {
+    toast({
+      title: t("error.accessDenied"),
+      description: t("error.insufficientPermissions"),
+      status: "error",
+      duration: 3000,
+      isClosable: true,
+    });
+
+    // If student tries to access professor routes, redirect to view
+    if (userRole === "student") {
+      const roomName = location.pathname.split("/")[2];
+      return <Navigate to={`/room/${roomName}/view`} replace />;
+    }
+
+    // Otherwise, redirect to home
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
