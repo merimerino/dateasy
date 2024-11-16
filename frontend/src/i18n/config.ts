@@ -4,6 +4,8 @@ import { initReactI18next } from "react-i18next";
 const resources = {
   en: {
     translation: {
+      forProfessors: "For professors",
+      forStudents: "For students",
       createRoom: "Create Room",
       joinRoom: "Join Room",
       roomName: "Room Name",
@@ -124,6 +126,8 @@ const resources = {
   },
   hr: {
     translation: {
+      forProfessors: "Za profesore",
+      forStudents: "Za učenike",
       createRoom: "Stvori sobu",
       joinRoom: "Uđi u sobu",
       roomName: "Naziv sobe",

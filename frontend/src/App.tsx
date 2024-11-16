@@ -7,8 +7,11 @@ import StudentLoginPage from "./pages/StudentLoginPage";
 import ProfessorLoginPage from "./pages/ProfessorLoginPage";
 import ProfessorTaskManagementPage from "./pages/ProfessorTaskManagementPage";
 import StudentRoomViewPage from "./pages/StudentRoomViewPage";
+import TaskViewPage from "./pages/TaskViewPage";
 import ProtectedRoute from "./modules/ProtectedRoute";
-import TaskForm from "./modules/tasks/TaskForm/TaskForm";
+
+import AddTaskPage from "./pages/AddTaskPage";
+import EditTaskPage from "./pages/EditTaskPage";
 
 function App() {
   return (
@@ -29,12 +32,20 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/room/:roomName/view/:taskId"
+              element={
+                <ProtectedRoute allowedRoles={["professor"]}>
+                  <TaskViewPage />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               path="/room/:roomName/add-task"
               element={
                 <ProtectedRoute allowedRoles={["professor"]}>
-                  <TaskForm mode="create" />
+                  <AddTaskPage />
                 </ProtectedRoute>
               }
             />
@@ -43,7 +54,7 @@ function App() {
               path="/room/:roomName/edit-task/:taskId"
               element={
                 <ProtectedRoute allowedRoles={["professor"]}>
-                  <TaskForm mode="edit" />
+                  <EditTaskPage />
                 </ProtectedRoute>
               }
             />

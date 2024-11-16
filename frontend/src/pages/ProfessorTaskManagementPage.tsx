@@ -69,6 +69,7 @@ const ProfessorTaskManagementPage: React.FC = () => {
         onEdit={handleEditTask}
         onDelete={handleDeleteTask}
         onAdd={handleAddTask}
+        roomName={roomName}
       />
     </Box>
   );

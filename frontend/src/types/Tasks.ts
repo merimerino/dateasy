@@ -1,4 +1,3 @@
-// Define base type with proper task_type union type
 interface BaseTask {
   room_name: string;
   name: string;
@@ -13,25 +12,56 @@ interface BaseTask {
   text: string;
 }
 
+interface BaseAnswer {
+  username: string;
+}
+
+export interface MultipleChoiceAnswer extends BaseAnswer {
+  answer: string;
+}
+
+export interface NumberAnswer extends BaseAnswer {
+  answer: string; // Could be number, but keeping string for consistency with API
+}
+
+export interface ShortAnswer extends BaseAnswer {
+  answer: string;
+}
+
+export interface TableAnswer extends BaseAnswer {
+  answer: string[][];
+}
+
+export interface MapAnswer extends BaseAnswer {
+  answer: {
+    latitude: number;
+    longitude: number;
+  };
+}
+
 export interface MultipleChoiceTask extends BaseTask {
   task_type: "multichoice";
   multiple_answers: boolean;
   options: string[];
+  answers: MultipleChoiceAnswer[];
 }
 
 export interface NumberTask extends BaseTask {
   task_type: "numbers_task";
   min_num: number;
   max_num: number;
+  answers: NumberAnswer[];
 }
 
 export interface ShortTask extends BaseTask {
   task_type: "short_task";
   max_characters_allowed: number;
+  answers: ShortAnswer[];
 }
 
 export interface DescriptionTask extends BaseTask {
   task_type: "description";
+  answers?: never;
 }
 
 export interface TableTask extends BaseTask {
@@ -39,6 +69,7 @@ export interface TableTask extends BaseTask {
   headers: string[];
   rows: number;
   columns: number;
+  answers: TableAnswer[];
 }
 
 export interface MapTask extends BaseTask {
@@ -47,6 +78,7 @@ export interface MapTask extends BaseTask {
   center_longitude?: number;
   zoom_level?: number;
   allow_multiple_points?: boolean;
+  answers: MapAnswer[];
 }
 
 export type Task =

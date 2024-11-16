@@ -14,9 +14,11 @@ import {
 import { AddIcon, EditIcon, DeleteIcon } from "@chakra-ui/icons";
 import { Task } from "../../types/Tasks";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 interface ProfessorTaskListProps {
   tasks: Task[] | null;
+  roomName?: string;
   onEdit: (task: Task) => void;
   onDelete: (taskId: string) => void;
   onAdd: () => void;
@@ -27,8 +29,10 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
   onEdit,
   onDelete,
   onAdd,
+  roomName,
 }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
 
@@ -49,6 +53,9 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
       default:
         return { color: "gray" };
     }
+  };
+  const showTask = (orderNumber: number) => {
+    navigate(`/room/${roomName}/view/${orderNumber}`);
   };
 
   return (
@@ -110,6 +117,7 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
                       borderColor: "teal.200",
                     }}
                     transition="all 0.2s"
+                    onClick={() => showTask(task.order_number)}
                   >
                     <HStack justify="space-between" align="start">
                       <VStack align="start" spacing={2} flex={1}>
