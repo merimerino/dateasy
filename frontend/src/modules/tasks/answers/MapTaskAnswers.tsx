@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Heading, VStack } from "@chakra-ui/react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import L from "leaflet";
+import { useTranslation } from "react-i18next";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
@@ -25,7 +26,8 @@ const defaultIcon = L.icon({
 L.Marker.prototype.options.icon = defaultIcon;
 
 const MapTaskAnswers: React.FC<MapTaskAnswersProps> = ({ answers }) => {
-  // Calculate center point from all answers
+  const { t } = useTranslation();
+
   const center = answers.reduce(
     (acc, answer) => {
       acc.lat += answer.answer.latitude;
@@ -38,42 +40,39 @@ const MapTaskAnswers: React.FC<MapTaskAnswersProps> = ({ answers }) => {
   center.lat /= answers.length || 1;
   center.lng /= answers.length || 1;
 
-  // We'll use useEffect to add the marker cluster after the map is loaded
   const mapRef = React.useRef<L.Map | null>(null);
   const markerClusterRef = React.useRef<L.MarkerClusterGroup | null>(null);
 
   React.useEffect(() => {
     if (mapRef.current) {
-      // Remove old cluster group if it exists
       if (markerClusterRef.current) {
         markerClusterRef.current.remove();
       }
 
-      // Create new cluster group
       const markerCluster = L.markerClusterGroup();
       markerClusterRef.current = markerCluster;
 
-      // Add markers to cluster group
       answers.forEach((answer) => {
         const marker = L.marker([
           answer.answer.latitude,
           answer.answer.longitude,
         ]).bindPopup(`
           <b>${answer.username}</b><br/>
-          Lat: ${answer.answer.latitude.toFixed(6)}<br/>
-          Lng: ${answer.answer.longitude.toFixed(6)}
+          ${t("latitude")}: ${answer.answer.latitude.toFixed(6)}<br/>
+          ${t("longitude")}: ${answer.answer.longitude.toFixed(6)}
         `);
         markerCluster.addLayer(marker);
       });
 
-      // Add cluster group to map
       mapRef.current.addLayer(markerCluster);
     }
-  }, [answers]);
+  }, [answers, t]);
 
   return (
     <VStack spacing={4} align="stretch">
-      <Heading size="sm">Answer Locations ({answers.length} responses)</Heading>
+      <Heading size="sm">
+        {t("answerLocations", { count: answers.length })}
+      </Heading>
 
       <Box h="500px" position="relative" borderRadius="lg" overflow="hidden">
         <MapContainer
@@ -93,9 +92,9 @@ const MapTaskAnswers: React.FC<MapTaskAnswersProps> = ({ answers }) => {
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              <th style={{ textAlign: "left" }}>User</th>
-              <th>Latitude</th>
-              <th>Longitude</th>
+              <th style={{ textAlign: "left" }}>{t("user")}</th>
+              <th>{t("latitude")}</th>
+              <th>{t("longitude")}</th>
             </tr>
           </thead>
           <tbody>

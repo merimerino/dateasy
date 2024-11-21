@@ -1,18 +1,19 @@
+import { useRef } from "react";
 import {
   VStack,
   Box,
+  Button,
+  Container,
+  Center,
   Heading,
   Text,
   Spinner,
-  Center,
-  Container,
-  useToast,
 } from "@chakra-ui/react";
 import { useTasks } from "../../hooks/useTasks";
 import TaskDisplay from "./TaskDisplay";
 import { useTranslation } from "react-i18next";
+import { Task } from "../../types/Tasks";
 
-// Define the submission value type to match TaskDisplay's SubmissionValue
 type SubmissionValue =
   | string
   | number
@@ -20,58 +21,31 @@ type SubmissionValue =
   | { latitude: number; longitude: number }
   | null;
 
-interface TaskSubmission {
-  roomName: string;
+interface TaskAnswer {
+  taskId: number;
+  taskName: string;
+  taskType: Task["task_type"];
   value: SubmissionValue;
 }
 
 const TasksViewer: React.FC = () => {
   const { tasks, loading } = useTasks();
   const { t } = useTranslation();
-  const toast = useToast();
+  const taskRefs = useRef<Record<number, SubmissionValue>>({});
 
-  const handleTaskSubmit = async (roomName: string, value: SubmissionValue) => {
-    try {
-      const authToken = localStorage.getItem("token");
+  const handleSubmitAll = () => {
+    if (!tasks) return;
 
-      if (!authToken) {
-        throw new Error("Not authenticated");
-      }
+    const allAnswers: TaskAnswer[] = tasks
+      .sort((a, b) => a.order_number - b.order_number)
+      .map((task) => ({
+        taskId: task.order_number,
+        taskName: task.name,
+        taskType: task.task_type,
+        value: taskRefs.current[task.order_number] || null,
+      }));
 
-      const submission: TaskSubmission = {
-        roomName,
-        value,
-      };
-
-      const response = await fetch("http://localhost:3000/submit-task", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-jwt-token": authToken,
-        },
-        body: JSON.stringify(submission),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to submit task");
-      }
-
-      toast({
-        title: t("taskSubmitted"),
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
-    } catch (error) {
-      console.error("Error submitting task:", error);
-      toast({
-        title: t("errorSubmittingTask"),
-        description: error instanceof Error ? error.message : t("unknownError"),
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-    }
+    console.log("All form inputs:", allAnswers);
   };
 
   if (loading) {
@@ -88,7 +62,7 @@ const TasksViewer: React.FC = () => {
     );
   }
 
-  if (!tasks || tasks.length === 0) {
+  if (!tasks?.length) {
     return (
       <Center h="50vh">
         <Box textAlign="center">
@@ -110,9 +84,17 @@ const TasksViewer: React.FC = () => {
           .sort((a, b) => a.order_number - b.order_number)
           .map((task) => (
             <Box key={`${task.room_name}-${task.order_number}`}>
-              <TaskDisplay task={task} onSubmit={handleTaskSubmit} />
+              <TaskDisplay
+                task={task}
+                onSubmit={(_: string, value: SubmissionValue) => {
+                  taskRefs.current[task.order_number] = value;
+                }}
+              />
             </Box>
           ))}
+        <Button colorScheme="teal" size="lg" onClick={handleSubmitAll}>
+          {t("submitAllAnswers")}
+        </Button>
       </VStack>
     </Container>
   );

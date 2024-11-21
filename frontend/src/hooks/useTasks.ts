@@ -112,7 +112,6 @@ export const useTasks = () => {
           },
         ];
 
-        console.log(data);
         setTasks(data);
       } catch (error) {
         console.error("Error details:", error);

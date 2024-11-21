@@ -10,6 +10,7 @@ import {
   Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import { useTranslation } from "react-i18next";
 import { NumberAnswer } from "../../../types/Tasks";
 
 ChartJS.register(
@@ -32,6 +33,8 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
   min,
   max,
 }) => {
+  const { t } = useTranslation();
+
   const stats = useMemo(() => {
     const numericAnswers = answers.map((a) => Number(a.answer));
     return {
@@ -44,7 +47,6 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
     };
   }, [answers]);
 
-  // Create bins for histogram
   const binCount = 10;
   const binSize = (max - min) / binCount;
   const bins = Array.from({ length: binCount }, (_, i) => ({
@@ -53,7 +55,6 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
     count: 0,
   }));
 
-  // Fill bins
   answers.forEach((answer) => {
     const value = Number(answer.answer);
     const binIndex = Math.min(
@@ -69,7 +70,7 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
     ),
     datasets: [
       {
-        label: "Number of Answers",
+        label: t("numberOfAnswers"),
         data: bins.map((bin) => bin.count),
         backgroundColor: "rgba(54, 162, 235, 0.6)",
         borderColor: "rgba(54, 162, 235, 1)",
@@ -86,7 +87,7 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
       },
       title: {
         display: true,
-        text: "Distribution of Answers",
+        text: t("distributionOfAnswers"),
       },
     },
     scales: {
@@ -103,23 +104,23 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
     <VStack spacing={8} align="stretch">
       <Box>
         <Heading size="sm" mb={4}>
-          Statistics
+          {t("statistics")}
         </Heading>
         <HStack spacing={8} justify="center">
           <VStack>
-            <Text fontWeight="bold">Average</Text>
+            <Text fontWeight="bold">{t("average")}</Text>
             <Text>{stats.average.toFixed(2)}</Text>
           </VStack>
           <VStack>
-            <Text fontWeight="bold">Median</Text>
+            <Text fontWeight="bold">{t("median")}</Text>
             <Text>{stats.median.toFixed(2)}</Text>
           </VStack>
           <VStack>
-            <Text fontWeight="bold">Min</Text>
+            <Text fontWeight="bold">{t("min")}</Text>
             <Text>{stats.min.toFixed(2)}</Text>
           </VStack>
           <VStack>
-            <Text fontWeight="bold">Max</Text>
+            <Text fontWeight="bold">{t("max")}</Text>
             <Text>{stats.max.toFixed(2)}</Text>
           </VStack>
         </HStack>

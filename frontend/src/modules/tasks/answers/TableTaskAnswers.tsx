@@ -22,6 +22,7 @@ import {
   BarElement,
 } from "chart.js";
 import { Bar, Line } from "react-chartjs-2";
+import { useTranslation } from "react-i18next";
 import { TableAnswer } from "../../../types/Tasks";
 
 ChartJS.register(
@@ -44,8 +45,9 @@ const TableTaskAnswers: React.FC<TableTaskAnswersProps> = ({
   answers,
   headers,
 }) => {
+  const { t } = useTranslation();
+
   const stats = useMemo(() => {
-    // Calculate statistics for each column
     return headers
       .map((header, colIndex) => {
         const columnValues = answers
@@ -73,21 +75,21 @@ const TableTaskAnswers: React.FC<TableTaskAnswersProps> = ({
     labels: stats.map((stat) => stat!.header),
     datasets: [
       {
-        label: "Average Value",
+        label: t("averageValue"),
         data: stats.map((stat) => stat!.average),
         backgroundColor: "rgba(54, 162, 235, 0.6)",
         borderColor: "rgba(54, 162, 235, 1)",
         borderWidth: 1,
       },
       {
-        label: "Min Value",
+        label: t("minValue"),
         data: stats.map((stat) => stat!.min),
         backgroundColor: "rgba(255, 99, 132, 0.6)",
         borderColor: "rgba(255, 99, 132, 1)",
         borderWidth: 1,
       },
       {
-        label: "Max Value",
+        label: t("maxValue"),
         data: stats.map((stat) => stat!.max),
         backgroundColor: "rgba(75, 192, 192, 0.6)",
         borderColor: "rgba(75, 192, 192, 1)",
@@ -104,7 +106,7 @@ const TableTaskAnswers: React.FC<TableTaskAnswersProps> = ({
       },
       title: {
         display: true,
-        text: "Column Statistics",
+        text: t("columnStatistics"),
       },
     },
     scales: {
@@ -118,16 +120,16 @@ const TableTaskAnswers: React.FC<TableTaskAnswersProps> = ({
     <VStack spacing={8} align="stretch">
       <Box overflowX="auto">
         <Heading size="sm" mb={4}>
-          Column Statistics
+          {t("columnStatistics")}
         </Heading>
         <Table variant="simple" size="sm">
           <Thead>
             <Tr>
-              <Th>Column</Th>
-              <Th isNumeric>Average</Th>
-              <Th isNumeric>Min</Th>
-              <Th isNumeric>Max</Th>
-              <Th isNumeric>Count</Th>
+              <Th>{t("column")}</Th>
+              <Th isNumeric>{t("average")}</Th>
+              <Th isNumeric>{t("min")}</Th>
+              <Th isNumeric>{t("max")}</Th>
+              <Th isNumeric>{t("count")}</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -156,7 +158,7 @@ const TableTaskAnswers: React.FC<TableTaskAnswersProps> = ({
               ...options.plugins,
               title: {
                 display: true,
-                text: "Value Trends",
+                text: t("valueTrends"),
               },
             },
           }}
@@ -166,13 +168,13 @@ const TableTaskAnswers: React.FC<TableTaskAnswersProps> = ({
 
       <Box>
         <Heading size="sm" mb={4}>
-          Raw Answers
+          {t("rawAnswers")}
         </Heading>
         <Box maxH="300px" overflowY="auto">
           <Table variant="simple" size="sm">
             <Thead>
               <Tr>
-                <Th>User</Th>
+                <Th>{t("user")}</Th>
                 {headers.map((header) => (
                   <Th key={header}>{header}</Th>
                 ))}

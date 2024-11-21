@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Heading, VStack } from "@chakra-ui/react";
 import { TagCloud } from "react-tagcloud";
+import { useTranslation } from "react-i18next";
 import { ShortAnswer } from "../../../types/Tasks";
 
 interface ShortTaskAnswersProps {
@@ -13,6 +14,8 @@ interface WordCount {
 }
 
 const ShortTaskAnswers: React.FC<ShortTaskAnswersProps> = ({ answers }) => {
+  const { t } = useTranslation();
+
   const wordCounts = answers.reduce((acc: Record<string, number>, answer) => {
     const words = answer.answer
       .toLowerCase()
@@ -21,7 +24,6 @@ const ShortTaskAnswers: React.FC<ShortTaskAnswersProps> = ({ answers }) => {
 
     words.forEach((word) => {
       if (word.length > 2) {
-        // Ignore short words
         acc[word] = (acc[word] || 0) + 1;
       }
     });
@@ -40,7 +42,7 @@ const ShortTaskAnswers: React.FC<ShortTaskAnswersProps> = ({ answers }) => {
 
   return (
     <VStack spacing={6}>
-      <Heading size="sm">Word Cloud of Answers</Heading>
+      <Heading size="sm">{t("wordCloudAnswers")}</Heading>
       <Box
         h="400px"
         w="100%"
@@ -54,7 +56,9 @@ const ShortTaskAnswers: React.FC<ShortTaskAnswersProps> = ({ answers }) => {
           tags={cloudData}
           colorOptions={options}
           onClick={(tag: WordCount) =>
-            console.log(`${tag.value} appears ${tag.count} times`)
+            console.log(
+              `${t("wordAppears", { word: tag.value, count: tag.count })}`
+            )
           }
         />
       </Box>

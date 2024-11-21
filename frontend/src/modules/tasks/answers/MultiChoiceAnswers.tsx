@@ -10,6 +10,7 @@ import {
   BarElement,
 } from "chart.js";
 import { Pie, Bar } from "react-chartjs-2";
+import { useTranslation } from "react-i18next";
 import { MultipleChoiceAnswer } from "../../../types/Tasks";
 
 ChartJS.register(
@@ -30,6 +31,8 @@ const MultiChoiceAnswers: React.FC<MultiChoiceAnswersProps> = ({
   answers,
   options,
 }) => {
+  const { t } = useTranslation();
+
   const answerCounts = options.reduce((acc, option) => {
     acc[option] = answers.filter((a) => a.answer === option).length;
     return acc;
@@ -57,13 +60,13 @@ const MultiChoiceAnswers: React.FC<MultiChoiceAnswersProps> = ({
       <HStack spacing={8} justify="center">
         <Box w="300px" h="300px">
           <Heading size="sm" textAlign="center" mb={4}>
-            Distribution (Pie)
+            {t("pieDistribution")}
           </Heading>
           <Pie data={chartData} />
         </Box>
         <Box w="400px" h="300px">
           <Heading size="sm" textAlign="center" mb={4}>
-            Distribution (Bar)
+            {t("barDistribution")}
           </Heading>
           <Bar
             data={chartData}
