@@ -1,199 +1,21 @@
 package handlers
 
 import (
+	"encoding/json"
+	"log"
 	"net/http"
 	"sort"
-	"log"
 
 	types "backend/types"
 )
 
-
-// func (s *APIServer) HandleMultipleChoice(w http.ResponseWriter, r *http.Request) error {
-// 	log.Println("Tu sam dosao")
-// 	if r.Method == "GET" {
-// 		return s.handleGetMultipleChoiceTasks(w, r)
-// 	}
-// 	//if r.Method == "POST" {
-// 	//	return s.handleCreateAccount(w, r)
-// 	//}
-
-// 	return fmt.Errorf("method now allowed %s ", r.Method)
-// }
-
-// func (s *APIServer) HandleShortTask(w http.ResponseWriter, r *http.Request) error {
-// 	log.Println("Tu sam dosao")
-// 	if r.Method == "GET" {
-// 		return s.handleGetShortTasks(w, r)
-// 	}
-// 	//if r.Method == "POST" {
-// 	//	return s.handleCreateAccount(w, r)
-// 	//}
-
-// 	return fmt.Errorf("method now allowed %s ", r.Method)
-// }
-
-// func (s *APIServer) HandleNumberTasks(w http.ResponseWriter, r *http.Request) error {
-// 	log.Println("Tu sam dosao")
-// 	if r.Method == "GET" {
-// 		return s.handleGetNumberTasks(w, r)
-// 	}
-// 	//if r.Method == "POST" {
-// 	//	return s.handleCreateAccount(w, r)
-// 	//}
-
-// 	return fmt.Errorf("method now allowed %s ", r.Method)
-// }
-
-// func (s *APIServer) HandleMapTasks(w http.ResponseWriter, r *http.Request) error {
-// 	log.Println("Tu sam dosao")
-// 	if r.Method == "GET" {
-// 		return s.handleGetMapTasks(w, r)
-// 	}
-// 	//if r.Method == "POST" {
-// 	//	return s.handleCreateAccount(w, r)
-// 	//}
-
-// 	return fmt.Errorf("method now allowed %s ", r.Method)
-// }
-
-// func (s *APIServer) HandleTableTasks(w http.ResponseWriter, r *http.Request) error {
-// 	log.Println("Tu sam dosao")
-// 	if r.Method == "GET" {
-// 		return s.handleGetTableTasks(w, r)
-// 	}
-// 	//if r.Method == "POST" {
-// 	//	return s.handleCreateAccount(w, r)
-// 	//}
-
-// 	return fmt.Errorf("method now allowed %s ", r.Method)
-// }
-
-// func (s *APIServer) HandleDescriptions(w http.ResponseWriter, r *http.Request) error {
-// 	log.Println("Tu sam dosao")
-// 	if r.Method == "GET" {
-// 		return s.handleGetDescription(w, r)
-// 	}
-// 	//if r.Method == "POST" {
-// 	//	return s.handleCreateAccount(w, r)
-// 	//}
-
-// 	return fmt.Errorf("method now allowed %s ", r.Method)
-// }
-
-
-// func (s *APIServer) handleGetMultipleChoiceTasks(w http.ResponseWriter, r *http.Request) error {
-// 	tasks, err := s.store.GetMultipleChoiceTasks()
-
-// 	if err != nil {
-// 		return err
-// 	}
-// 	log.Println("Vracam", len(tasks), "zadaka")
-
-// 	return WriteJSON(w, http.StatusOK, tasks)
-// }
-
-
-// func (s *APIServer) handleGetShortTasks(w http.ResponseWriter, r *http.Request) error {
-// 	tasks, err := s.store.GetShortTasks()
-
-// 	if err != nil {
-// 		return err
-// 	}
-// 	log.Println("Vracam", len(tasks), "zadaka")
-
-// 	return WriteJSON(w, http.StatusOK, tasks)
-// }
-// func (s *APIServer) handleGetNumberTasks(w http.ResponseWriter, r *http.Request) error {
-// 	tasks, err := s.store.GetNumberTasks()
-
-// 	if err != nil {
-// 		return err
-// 	}
-// 	log.Println("Vracam", len(tasks), "zadaka")
-
-// 	return WriteJSON(w, http.StatusOK, tasks)
-// }
-// func (s *APIServer) handleGetMapTasks(w http.ResponseWriter, r *http.Request) error {
-// 	tasks, err := s.store.GetMapTasks()
-
-// 	if err != nil {
-// 		return err
-// 	}
-// 	log.Println("Vracam", len(tasks), "zadaka")
-
-// 	return WriteJSON(w, http.StatusOK, tasks)
-// }
-// func (s *APIServer) handleGetDescription(w http.ResponseWriter, r *http.Request) error {
-// 	tasks, err := s.store.GetDescriptions()
-
-// 	if err != nil {
-// 		return err
-// 	}
-// 	log.Println("Vracam", len(tasks), "zadaka")
-
-// 	return WriteJSON(w, http.StatusOK, tasks)
-// }
-// func (s *APIServer) handleGetTableTasks(w http.ResponseWriter, r *http.Request) error {
-// 	tasks, err := s.store.GetTableTasks()
-
-// 	if err != nil {
-// 		return err
-// 	}
-// 	log.Println("Vracam", len(tasks), "zadaka")
-
-// 	return WriteJSON(w, http.StatusOK, tasks)
-// }
-/*
-func (s *APIServer) HandleGetAllTasks(w http.ResponseWriter, r *http.Request, room_name string) error {
-	tasks := make(map[string]interface{})
-
-	multipleChoiceTasks, err := s.store.GetMultipleChoiceTasks(room_name)
-	if err != nil {
-		return WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to retrieve multiple choice tasks"})
-	}
-	tasks["multiple_choice"] = multipleChoiceTasks
-
-	shortTasks, err := s.store.GetShortTasks(room_name)
-	if err != nil {
-		return WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to retrieve short tasks"})
-	}
-	tasks["short_tasks"] = shortTasks
-
-	numberTasks, err := s.store.GetNumberTasks(room_name)
-	if err != nil {
-		return WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to retrieve number tasks"})
-	}
-	tasks["number_tasks"] = numberTasks
-
-	mapTasks, err := s.store.GetMapTasks(room_name)
-	if err != nil {
-		return WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to retrieve map tasks"})
-	}
-	tasks["map_tasks"] = mapTasks
-
-	descriptions, err := s.store.GetDescriptions(room_name)
-	if err != nil {
-		return WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to retrieve descriptions"})
-	}
-	tasks["descriptions"] = descriptions
-
-	tableTasks, err := s.store.GetTableTasks(room_name)
-	if err != nil {
-		return WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to retrieve table tasks"})
-	}
-	tasks["table_tasks"] = tableTasks
-
-	return WriteJSON(w, http.StatusOK, tasks)
-}
-*/
 type SortedTasks []types.Task
 
 func (s SortedTasks) Len() int           { return len(s) }
 func (s SortedTasks) Less(i, j int) bool { return s[i].OrderNumberField() < s[j].OrderNumberField() }
 func (s SortedTasks) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
-func (s *APIServer) HandleGetAllTasks(w http.ResponseWriter, r *http.Request, room_name string) error {
+func (s *APIServer) HandleGetAllTasks(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
 	// Initialize an empty slice of TaskSortable to store all tasks
 	var allTasks SortedTasks
 
@@ -252,8 +74,206 @@ func (s *APIServer) HandleGetAllTasks(w http.ResponseWriter, r *http.Request, ro
 		allTasks = append(allTasks, task)
 	}
 
-
 	sort.Sort(allTasks)
 	// Return the sorted tasks as JSON
 	return WriteJSON(w, http.StatusOK, allTasks)
+}
+
+func (s *APIServer) HandleAddMultipleChoice(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
+	if username != "Admin" {
+		return WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+	}
+	add_multiple_req := new(types.AddMultipleChoice)
+	if err := json.NewDecoder(r.Body).Decode(add_multiple_req); err != nil {
+		return err
+	}
+
+	// Get the highest task order
+	highestOrder, err := s.store.GetHighestTaskOrder(room_name)
+	if err != nil {
+		return err
+	}
+
+	// Create a new MultipleChoice task
+	newTask := &types.MultipleChoice{
+		RoomName:        room_name,
+		Name:            add_multiple_req.Name,
+		TaskType:        add_multiple_req.TaskType,
+		OrderNumber:     highestOrder + 1,
+		MultipleAnswers: add_multiple_req.MultipleAnswers,
+		Text:            add_multiple_req.Text,
+		Options:         add_multiple_req.Options,
+	}
+
+	// Save the new task to the database
+	if err := s.store.AddMultipleChoiceTask(newTask); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, "Successfully added a task")
+}
+
+func (s *APIServer) HandleAddNumbersTask(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
+	if username != "Admin" {
+		return WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+	}
+	add_multiple_req := new(types.AddNumbersTask)
+	if err := json.NewDecoder(r.Body).Decode(add_multiple_req); err != nil {
+		return err
+	}
+
+	// Get the highest task order
+	highestOrder, err := s.store.GetHighestTaskOrder(room_name)
+	if err != nil {
+		return err
+	}
+
+	// Create a new MultipleChoice task
+	newTask := &types.NumbersTask{
+		RoomName:    room_name,
+		Name:        add_multiple_req.Name,
+		TaskType:    add_multiple_req.TaskType,
+		OrderNumber: highestOrder + 1,
+		Text:        add_multiple_req.Text,
+		MinNum:      add_multiple_req.MinNum,
+		MaxNum:      add_multiple_req.MaxNum,
+	}
+
+	// Save the new task to the database
+	if err := s.store.AddNumbersTask(newTask); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, "Successfully added a task")
+}
+func (s *APIServer) HandleAddShortTask(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
+	if username != "Admin" {
+		return WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+	}
+	add_multiple_req := new(types.AddShortTask)
+	if err := json.NewDecoder(r.Body).Decode(add_multiple_req); err != nil {
+		return err
+	}
+
+	// Get the highest task order
+	highestOrder, err := s.store.GetHighestTaskOrder(room_name)
+	if err != nil {
+		return err
+	}
+
+	// Create a new MultipleChoice task
+	newTask := &types.ShortTask{
+		RoomName:             room_name,
+		Name:                 add_multiple_req.Name,
+		TaskType:             add_multiple_req.TaskType,
+		OrderNumber:          highestOrder + 1,
+		Text:                 add_multiple_req.Text,
+		MaxCharactersAllowed: add_multiple_req.MaxCharactersAllowed,
+	}
+
+	// Save the new task to the database
+	if err := s.store.AddShortTask(newTask); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, "Successfully added a task")
+}
+func (s *APIServer) HandleAddDescription(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
+	if username != "Admin" {
+		return WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+	}
+	add_multiple_req := new(types.AddDescription)
+	if err := json.NewDecoder(r.Body).Decode(add_multiple_req); err != nil {
+		return err
+	}
+
+	// Get the highest task order
+	highestOrder, err := s.store.GetHighestTaskOrder(room_name)
+	if err != nil {
+		return err
+	}
+
+	// Create a new MultipleChoice task
+	newTask := &types.Description{
+		RoomName:    room_name,
+		Description: add_multiple_req.Description,
+		TaskType:    add_multiple_req.TaskType,
+		OrderNumber: highestOrder + 1,
+	}
+
+	// Save the new task to the database
+	if err := s.store.AddDescription(newTask); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, "Successfully added a task")
+}
+func (s *APIServer) HandleAddMapTask(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
+	if username != "Admin" {
+		return WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+	}
+	add_multiple_req := new(types.AddMapTask)
+	if err := json.NewDecoder(r.Body).Decode(add_multiple_req); err != nil {
+		return err
+	}
+
+	// Get the highest task order
+	highestOrder, err := s.store.GetHighestTaskOrder(room_name)
+	if err != nil {
+		return err
+	}
+
+	// Create a new MultipleChoice task
+	newTask := &types.MapTask{
+		RoomName:    room_name,
+		Name:        add_multiple_req.Name,
+		TaskType:    add_multiple_req.TaskType,
+		OrderNumber: highestOrder + 1,
+		Text:        add_multiple_req.Text,
+		AddMark:     add_multiple_req.AddMark,
+		CoordX:      add_multiple_req.CoordX,
+		CoordY:      add_multiple_req.CoordY,
+	}
+
+	// Save the new task to the database
+	if err := s.store.AddMapTask(newTask); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, "Successfully added a task")
+}
+func (s *APIServer) HandleAddTableTask(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
+	if username != "Admin" {
+		return WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+	}
+	add_multiple_req := new(types.AddTableTask)
+	if err := json.NewDecoder(r.Body).Decode(add_multiple_req); err != nil {
+		return err
+	}
+
+	// Get the highest task order
+	highestOrder, err := s.store.GetHighestTaskOrder(room_name)
+	if err != nil {
+		return err
+	}
+
+	// Create a new MultipleChoice task
+	newTask := &types.TableTask{
+		RoomName:          room_name,
+		Name:              add_multiple_req.Name,
+		TaskType:          add_multiple_req.TaskType,
+		OrderNumber:       highestOrder + 1,
+		Columns:           add_multiple_req.Columns,
+		Rows:              add_multiple_req.Rows,
+		ShowGraf:          add_multiple_req.ShowGraf,
+		AllowAddingOfRows: add_multiple_req.AllowAddingOfRows,
+		NewRowName:        add_multiple_req.NewRowName,
+	}
+
+	// Save the new task to the database
+	if err := s.store.AddTableTask(newTask); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, "Successfully added a task")
 }
