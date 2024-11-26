@@ -98,7 +98,7 @@ func (s *APIServer) HandleAddMultipleChoice(w http.ResponseWriter, r *http.Reque
 	newTask := &types.MultipleChoice{
 		RoomName:        room_name,
 		Name:            add_multiple_req.Name,
-		TaskType:        add_multiple_req.TaskType,
+		TaskType:        "multichoice",
 		OrderNumber:     highestOrder + 1,
 		MultipleAnswers: add_multiple_req.MultipleAnswers,
 		Text:            add_multiple_req.Text,
@@ -132,7 +132,7 @@ func (s *APIServer) HandleAddNumbersTask(w http.ResponseWriter, r *http.Request,
 	newTask := &types.NumbersTask{
 		RoomName:    room_name,
 		Name:        add_multiple_req.Name,
-		TaskType:    add_multiple_req.TaskType,
+		TaskType:    "numbers_task",
 		OrderNumber: highestOrder + 1,
 		Text:        add_multiple_req.Text,
 		MinNum:      add_multiple_req.MinNum,
@@ -165,7 +165,7 @@ func (s *APIServer) HandleAddShortTask(w http.ResponseWriter, r *http.Request, r
 	newTask := &types.ShortTask{
 		RoomName:             room_name,
 		Name:                 add_multiple_req.Name,
-		TaskType:             add_multiple_req.TaskType,
+		TaskType:             "short_task",
 		OrderNumber:          highestOrder + 1,
 		Text:                 add_multiple_req.Text,
 		MaxCharactersAllowed: add_multiple_req.MaxCharactersAllowed,
@@ -197,7 +197,7 @@ func (s *APIServer) HandleAddDescription(w http.ResponseWriter, r *http.Request,
 	newTask := &types.Description{
 		RoomName:    room_name,
 		Description: add_multiple_req.Description,
-		TaskType:    add_multiple_req.TaskType,
+		TaskType:    "description",
 		OrderNumber: highestOrder + 1,
 	}
 
@@ -227,7 +227,7 @@ func (s *APIServer) HandleAddMapTask(w http.ResponseWriter, r *http.Request, roo
 	newTask := &types.MapTask{
 		RoomName:    room_name,
 		Name:        add_multiple_req.Name,
-		TaskType:    add_multiple_req.TaskType,
+		TaskType:    "map_task",
 		OrderNumber: highestOrder + 1,
 		Text:        add_multiple_req.Text,
 		AddMark:     add_multiple_req.AddMark,
@@ -261,7 +261,7 @@ func (s *APIServer) HandleAddTableTask(w http.ResponseWriter, r *http.Request, r
 	newTask := &types.TableTask{
 		RoomName:          room_name,
 		Name:              add_multiple_req.Name,
-		TaskType:          add_multiple_req.TaskType,
+		TaskType:          "table_task",
 		OrderNumber:       highestOrder + 1,
 		Columns:           add_multiple_req.Columns,
 		Rows:              add_multiple_req.Rows,

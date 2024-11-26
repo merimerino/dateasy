@@ -51,8 +51,6 @@ export const useTaskForm = ({ mode, initialData }: TaskFormProps) => {
     };
   });
 
-  // ... rest of the hook implementation stays the same
-
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 

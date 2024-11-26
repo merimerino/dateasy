@@ -262,7 +262,7 @@ db.TableTask.insertMany([
   {
     room_name: "againtest",
     name: "MyName of this task",
-    task_type: "tabel_task",
+    task_type: "table_task",
     order_number: 3,
     columns: "first,second,third",
     rows: "last,last1",
@@ -273,7 +273,7 @@ db.TableTask.insertMany([
   {
     room_name: "vidisnestodrugo",
     name: "MyName of this task",
-    task_type: "tabel_task",
+    task_type: "table_task",
     order_number: 1,
     columns: "first,second,third",
     rows: "last,last1",
