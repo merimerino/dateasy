@@ -1,14 +1,10 @@
 import { Box, VStack, Text } from "@chakra-ui/react";
 
 interface DescriptionTaskProps {
-  title: string;
   description: string;
 }
 
-const DescriptionTask: React.FC<DescriptionTaskProps> = ({
-  title,
-  description,
-}) => {
+const DescriptionTask: React.FC<DescriptionTaskProps> = ({ description }) => {
   return (
     <Box
       borderWidth="1px"
@@ -20,9 +16,6 @@ const DescriptionTask: React.FC<DescriptionTaskProps> = ({
     >
       <VStack align="stretch" spacing={3}>
         <Text fontWeight="bold" fontSize="lg" color="teal.600">
-          {title}
-        </Text>
-        <Text color="gray.600" fontSize="md">
           {description}
         </Text>
       </VStack>

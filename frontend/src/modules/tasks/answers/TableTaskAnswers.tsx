@@ -9,6 +9,7 @@ import {
   Tr,
   Th,
   Td,
+  Text,
 } from "@chakra-ui/react";
 import {
   Chart as ChartJS,
@@ -42,12 +43,14 @@ interface TableTaskAnswersProps {
 }
 
 const TableTaskAnswers: React.FC<TableTaskAnswersProps> = ({
-  answers,
-  headers,
+  answers = [],
+  headers = [],
 }) => {
   const { t } = useTranslation();
 
   const stats = useMemo(() => {
+    if (!answers?.length || !headers?.length) return [];
+
     return headers
       .map((header, colIndex) => {
         const columnValues = answers
@@ -70,6 +73,14 @@ const TableTaskAnswers: React.FC<TableTaskAnswersProps> = ({
       })
       .filter(Boolean);
   }, [answers, headers]);
+
+  if (!answers?.length || !headers?.length) {
+    return (
+      <Box textAlign="center" py={8}>
+        <Text color="gray.500">{t("noAnswersYet")}</Text>
+      </Box>
+    );
+  }
 
   const chartData = {
     labels: stats.map((stat) => stat!.header),
@@ -115,6 +126,14 @@ const TableTaskAnswers: React.FC<TableTaskAnswersProps> = ({
       },
     },
   };
+
+  if (!stats.length) {
+    return (
+      <Box textAlign="center" py={8}>
+        <Text color="gray.500">{t("noValidData")}</Text>
+      </Box>
+    );
+  }
 
   return (
     <VStack spacing={8} align="stretch">

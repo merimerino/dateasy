@@ -29,13 +29,15 @@ interface NumberTaskAnswersProps {
 }
 
 const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
-  answers,
+  answers = [],
   min,
   max,
 }) => {
   const { t } = useTranslation();
 
   const stats = useMemo(() => {
+    if (!answers?.length) return null;
+
     const numericAnswers = answers.map((a) => Number(a.answer));
     return {
       average: numericAnswers.reduce((a, b) => a + b, 0) / answers.length,
@@ -46,6 +48,14 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
       max: Math.max(...numericAnswers),
     };
   }, [answers]);
+
+  if (!answers?.length) {
+    return (
+      <Box textAlign="center" py={8}>
+        <Text color="gray.500">{t("noAnswersYet")}</Text>
+      </Box>
+    );
+  }
 
   const binCount = 10;
   const binSize = (max - min) / binCount;
@@ -82,9 +92,7 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
   const options = {
     responsive: true,
     plugins: {
-      legend: {
-        position: "top" as const,
-      },
+      legend: { position: "top" as const },
       title: {
         display: true,
         text: t("distributionOfAnswers"),
@@ -93,12 +101,12 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
     scales: {
       y: {
         beginAtZero: true,
-        ticks: {
-          stepSize: 1,
-        },
+        ticks: { stepSize: 1 },
       },
     },
   };
+
+  if (!stats) return null;
 
   return (
     <VStack spacing={8} align="stretch">

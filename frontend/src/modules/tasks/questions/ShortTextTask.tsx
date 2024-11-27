@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Input, FormControl, Text } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import TaskWrapper from "./TaskWrapper";
+import TaskWrapper from "../TaskWrapper";
 
 interface ShortTextTaskProps {
   title: string;

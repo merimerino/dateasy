@@ -1,15 +1,15 @@
 interface BaseTask {
   room_name: string;
-  name: string;
+  name?: string;
+  text?: string;
   task_type:
     | "multichoice"
     | "numbers_task"
     | "short_task"
     | "description"
-    | "table"
-    | "map";
+    | "table_task"
+    | "map_task";
   order_number: number;
-  text: string;
 }
 
 interface BaseAnswer {
@@ -61,11 +61,11 @@ export interface ShortTask extends BaseTask {
 
 export interface DescriptionTask extends BaseTask {
   task_type: "description";
-  answers?: never;
+  description: string;
 }
 
 export interface TableTask extends BaseTask {
-  task_type: "table";
+  task_type: "table_task";
   headers: string[];
   rows: number;
   columns: number;
@@ -73,7 +73,7 @@ export interface TableTask extends BaseTask {
 }
 
 export interface MapTask extends BaseTask {
-  task_type: "map";
+  task_type: "map_task";
   center_latitude?: number;
   center_longitude?: number;
   zoom_level?: number;
@@ -109,11 +109,11 @@ export const isDescriptionTask = (task: Task): task is DescriptionTask => {
 };
 
 export const isTableTask = (task: Task): task is TableTask => {
-  return task.task_type === "table";
+  return task.task_type === "table_task";
 };
 
 export const isMapTask = (task: Task): task is MapTask => {
-  return task.task_type === "map";
+  return task.task_type === "map_task";
 };
 
 // Form state with all fields optional

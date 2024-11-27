@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Heading, VStack } from "@chakra-ui/react";
+import { Box, Heading, VStack, Text } from "@chakra-ui/react";
 import { TagCloud } from "react-tagcloud";
 import { useTranslation } from "react-i18next";
 import { ShortAnswer } from "../../../types/Tasks";
@@ -13,8 +13,18 @@ interface WordCount {
   count: number;
 }
 
-const ShortTaskAnswers: React.FC<ShortTaskAnswersProps> = ({ answers }) => {
+const ShortTaskAnswers: React.FC<ShortTaskAnswersProps> = ({
+  answers = [],
+}) => {
   const { t } = useTranslation();
+
+  if (!answers?.length) {
+    return (
+      <Box textAlign="center" py={8}>
+        <Text color="gray.500">{t("noAnswersYet")}</Text>
+      </Box>
+    );
+  }
 
   const wordCounts = answers.reduce((acc: Record<string, number>, answer) => {
     const words = answer.answer

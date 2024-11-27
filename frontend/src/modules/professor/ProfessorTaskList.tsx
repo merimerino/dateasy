@@ -44,9 +44,9 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
         return { color: "blue" };
       case "short_task":
         return { color: "green" };
-      case "table":
+      case "table_task":
         return { color: "orange" };
-      case "map":
+      case "map_task":
         return { color: "red" };
       case "description":
         return { color: "gray" };
@@ -54,6 +54,17 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
         return { color: "gray" };
     }
   };
+
+  const handleEditClick = (e: React.MouseEvent, task: Task) => {
+    e.stopPropagation();
+    onEdit(task);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, taskId: string) => {
+    e.stopPropagation();
+    onDelete(taskId);
+  };
+
   const showTask = (orderNumber: number) => {
     navigate(`/room/${roomName}/view/${orderNumber}`);
   };
@@ -118,6 +129,7 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
                     }}
                     transition="all 0.2s"
                     onClick={() => showTask(task.order_number)}
+                    cursor="pointer"
                   >
                     <HStack justify="space-between" align="start">
                       <VStack align="start" spacing={2} flex={1}>
@@ -144,9 +156,15 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
                         <Heading size="md" color="gray.700">
                           {task.name}
                         </Heading>
-                        <Text color="gray.600" fontSize="sm" noOfLines={2}>
-                          {task.text}
-                        </Text>
+                        {task.task_type === "description" ? (
+                          <Heading size="md" color="gray.700">
+                            {task.description}
+                          </Heading>
+                        ) : (
+                          <Text color="gray.600" fontSize="sm" noOfLines={2}>
+                            {task.text}
+                          </Text>
+                        )}
                       </VStack>
                       <HStack spacing={2}>
                         <Tooltip label={t("editTask")} placement="top">
@@ -156,7 +174,7 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
                             size="sm"
                             colorScheme="teal"
                             variant="ghost"
-                            onClick={() => onEdit(task)}
+                            onClick={(e) => handleEditClick(e, task)}
                             _hover={{ bg: "teal.50" }}
                           />
                         </Tooltip>
@@ -167,8 +185,8 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
                             size="sm"
                             colorScheme="red"
                             variant="ghost"
-                            onClick={() =>
-                              onDelete(task.order_number.toString())
+                            onClick={(e) =>
+                              handleDeleteClick(e, task.order_number.toString())
                             }
                             _hover={{ bg: "red.50" }}
                           />

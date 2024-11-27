@@ -105,7 +105,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
               />
             )}
 
-            {formData.task_type === "table" && (
+            {formData.task_type === "table_task" && (
               <TableTaskFields
                 headers={formData.headers || []}
                 rows={formData.rows || 3}
@@ -121,7 +121,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
               />
             )}
 
-            {formData.task_type === "map" && (
+            {formData.task_type === "map_task" && (
               <MapTaskFields
                 centerLatitude={formData.center_latitude}
                 centerLongitude={formData.center_longitude}

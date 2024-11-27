@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Heading, VStack } from "@chakra-ui/react";
+import { Box, Heading, VStack, Text } from "@chakra-ui/react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import L from "leaflet";
 import { useTranslation } from "react-i18next";
@@ -25,25 +25,32 @@ const defaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = defaultIcon;
 
-const MapTaskAnswers: React.FC<MapTaskAnswersProps> = ({ answers }) => {
+const defaultCenter = { lat: 45.815399, lng: 15.966568 }; // Zagreb coordinates
+
+const MapTaskAnswers: React.FC<MapTaskAnswersProps> = ({ answers = [] }) => {
   const { t } = useTranslation();
-
-  const center = answers.reduce(
-    (acc, answer) => {
-      acc.lat += answer.answer.latitude;
-      acc.lng += answer.answer.longitude;
-      return acc;
-    },
-    { lat: 0, lng: 0 }
-  );
-
-  center.lat /= answers.length || 1;
-  center.lng /= answers.length || 1;
-
   const mapRef = React.useRef<L.Map | null>(null);
   const markerClusterRef = React.useRef<L.MarkerClusterGroup | null>(null);
 
+  const center = answers.length
+    ? answers.reduce(
+        (acc, answer) => {
+          acc.lat += answer.answer.latitude;
+          acc.lng += answer.answer.longitude;
+          return acc;
+        },
+        { lat: 0, lng: 0 }
+      )
+    : defaultCenter;
+
+  if (answers.length) {
+    center.lat /= answers.length;
+    center.lng /= answers.length;
+  }
+
   React.useEffect(() => {
+    if (!answers.length) return;
+
     if (mapRef.current) {
       if (markerClusterRef.current) {
         markerClusterRef.current.remove();
@@ -67,6 +74,14 @@ const MapTaskAnswers: React.FC<MapTaskAnswersProps> = ({ answers }) => {
       mapRef.current.addLayer(markerCluster);
     }
   }, [answers, t]);
+
+  if (!answers.length) {
+    return (
+      <Box textAlign="center" py={8}>
+        <Text color="gray.500">{t("noAnswersYet")}</Text>
+      </Box>
+    );
+  }
 
   return (
     <VStack spacing={4} align="stretch">

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Radio, RadioGroup, VStack, Text } from "@chakra-ui/react";
-import TaskWrapper from "./TaskWrapper";
+import TaskWrapper from "../TaskWrapper";
 
 interface MultiChoiceTaskProps {
   title: string;

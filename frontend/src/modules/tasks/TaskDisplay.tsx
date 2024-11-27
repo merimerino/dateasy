@@ -1,10 +1,10 @@
 import { Task } from "../../types/Tasks";
-import ShortTextTask from "./ShortTextTask";
-import NumbersTask from "./NumbersTask";
-import MultiChoiceTask from "./MultiChoiceTask";
-import DescriptionTask from "./DescriptionTask";
-import TableTask from "./TableTask";
-import MapTask from "./MapTask";
+import ShortTextTask from "./questions/ShortTextTask";
+import NumbersTask from "./questions/NumbersTask";
+import MultiChoiceTask from "./questions/MultiChoiceTask";
+import DescriptionTask from "./questions/DescriptionTask";
+import TableTask from "./questions/TableTask";
+import MapTask from "./questions/MapTask";
 
 type SubmissionValue =
   | string
@@ -19,9 +19,7 @@ interface TaskDisplayProps {
 }
 
 const TaskDisplay: React.FC<TaskDisplayProps> = ({ task, onSubmit }) => {
-  if (!task) {
-    return null;
-  }
+  if (!task) return null;
 
   const handleTaskSubmit = (value: SubmissionValue): void => {
     onSubmit(task.room_name, value);
@@ -31,8 +29,8 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ task, onSubmit }) => {
     case "short_task": {
       return (
         <ShortTextTask
-          title={task.name}
-          description={task.text}
+          title={task.name ?? ""}
+          description={task.text ?? ""}
           maxLength={task.max_characters_allowed}
           onChange={(value: string) => handleTaskSubmit(value)}
         />
@@ -42,8 +40,8 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ task, onSubmit }) => {
     case "numbers_task": {
       return (
         <NumbersTask
-          title={task.name}
-          description={task.text}
+          title={task.name ?? ""}
+          description={task.text ?? ""}
           min={task.min_num}
           max={task.max_num}
           onChange={(value: string) => handleTaskSubmit(Number(value))}
@@ -54,8 +52,8 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ task, onSubmit }) => {
     case "multichoice": {
       return (
         <MultiChoiceTask
-          title={task.name}
-          description={task.text}
+          title={task.name ?? ""}
+          description={task.text ?? ""}
           options={task.options}
           onChange={(value: string) => handleTaskSubmit(value)}
         />
@@ -63,15 +61,17 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ task, onSubmit }) => {
     }
 
     case "description": {
-      return <DescriptionTask title={task.name} description={task.text} />;
+      return (
+        <DescriptionTask description={task.description ?? task.text ?? ""} />
+      );
     }
 
-    case "table": {
+    case "table_task": {
       if ("headers" in task && "rows" in task) {
         return (
           <TableTask
-            title={task.name}
-            description={task.text}
+            title={task.name ?? ""}
+            description={task.text ?? ""}
             headers={task.headers}
             rows={task.rows}
             onChange={(value: string[][]) => handleTaskSubmit(value)}
@@ -81,11 +81,11 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ task, onSubmit }) => {
       return null;
     }
 
-    case "map": {
+    case "map_task": {
       return (
         <MapTask
-          title={task.name}
-          description={task.text}
+          title={task.name ?? ""}
+          description={task.text ?? ""}
           onLocationSelect={(lat: number, lng: number) =>
             handleTaskSubmit({ latitude: lat, longitude: lng })
           }

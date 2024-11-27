@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Heading, HStack, VStack } from "@chakra-ui/react";
+import { Box, Heading, HStack, VStack, Text } from "@chakra-ui/react";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -28,10 +28,18 @@ interface MultiChoiceAnswersProps {
 }
 
 const MultiChoiceAnswers: React.FC<MultiChoiceAnswersProps> = ({
-  answers,
-  options,
+  answers = [],
+  options = [],
 }) => {
   const { t } = useTranslation();
+
+  if (!answers?.length) {
+    return (
+      <Box textAlign="center" py={8}>
+        <Text color="gray.500">{t("noAnswersYet")}</Text>
+      </Box>
+    );
+  }
 
   const answerCounts = options.reduce((acc, option) => {
     acc[option] = answers.filter((a) => a.answer === option).length;

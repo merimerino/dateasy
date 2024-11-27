@@ -25,8 +25,8 @@ type SubmissionValue =
   | null;
 
 const TaskViewPage: React.FC = () => {
-  const { taskId } = useParams();
-  const { tasks, loading } = useTasks();
+  const { taskId, roomName } = useParams();
+  const { tasks, loading } = useTasks({ filterByRoom: false });
   const { t } = useTranslation();
   const toast = useToast();
 
@@ -44,7 +44,9 @@ const TaskViewPage: React.FC = () => {
     );
   }
 
-  const task = tasks?.find((t) => t.order_number === Number(taskId));
+  const task = tasks?.find(
+    (t) => t.order_number === Number(taskId) && t.room_name === roomName
+  );
 
   if (!task) {
     return (

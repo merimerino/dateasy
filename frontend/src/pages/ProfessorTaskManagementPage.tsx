@@ -3,14 +3,20 @@ import { useTasks } from "../hooks/useTasks";
 import ProfessorTaskList from "../modules/professor/ProfessorTaskList";
 import LoadingSpinner from "../modules/LoadingSpinner";
 import { Task } from "../types/Tasks";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Header from "../modules/Header";
+import { useEffect } from "react";
 
 const ProfessorTaskManagementPage: React.FC = () => {
-  const { tasks, loading } = useTasks();
+  const { tasks, loading, refetch } = useTasks();
   const toast = useToast();
   const navigate = useNavigate();
   const { roomName } = useParams();
+  const location = useLocation();
+
+  useEffect(() => {
+    refetch();
+  }, [location.pathname, refetch]);
 
   const handleEditTask = (task: Task) => {
     navigate(`/room/${roomName}/edit-task/${task.order_number}`, {
@@ -39,10 +45,9 @@ const ProfessorTaskManagementPage: React.FC = () => {
         isClosable: true,
       });
 
-      // Refresh tasks list
-      // You might want to implement a refetch function in your useTasks hook
+      refetch();
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast({
         title: "Error",
         description: "Failed to delete task",

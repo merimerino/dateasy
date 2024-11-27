@@ -29,10 +29,10 @@ const TaskAnswers: React.FC<TaskAnswersProps> = ({ task }) => {
         />
       );
 
-    case "table":
+    case "table_task":
       return <TableTaskAnswers answers={task.answers} headers={task.headers} />;
 
-    case "map":
+    case "map_task":
       return <MapTaskAnswers answers={task.answers} />;
 
     case "description":

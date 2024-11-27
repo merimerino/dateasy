@@ -25,10 +25,10 @@ export const validateForm = (data: TaskFormData, t: TFunction): FormErrors => {
     case "short_task":
       validateShortTask(data, errors, t);
       break;
-    case "table":
+    case "table_task":
       validateTableTask(data, errors, t);
       break;
-    case "map":
+    case "map_task":
       validateMapTask(data, errors, t);
       break;
   }
