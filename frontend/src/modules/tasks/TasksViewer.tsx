@@ -23,7 +23,7 @@ type SubmissionValue =
 
 interface TaskAnswer {
   taskId: number;
-  taskName: string;
+  taskName: string | undefined;
   taskType: Task["task_type"];
   value: SubmissionValue;
 }

@@ -1,10 +1,10 @@
 import { Task } from "../../types/Tasks";
 import ShortTextTask from "./questions/ShortTextTask";
 import NumbersTask from "./questions/NumbersTask";
-import MultiChoiceTask from "./questions/MultiChoiceTask";
 import DescriptionTask from "./questions/DescriptionTask";
 import TableTask from "./questions/TableTask";
 import MapTask from "./questions/MapTask";
+import ProfessorMultiChoiceTask from "./professorTask/ProfessorMultiChoiceTask";
 
 type SubmissionValue =
   | string
@@ -51,11 +51,10 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ task, onSubmit }) => {
 
     case "multichoice": {
       return (
-        <MultiChoiceTask
+        <ProfessorMultiChoiceTask
           title={task.name ?? ""}
           description={task.text ?? ""}
           options={task.options}
-          onChange={(value: string) => handleTaskSubmit(value)}
         />
       );
     }

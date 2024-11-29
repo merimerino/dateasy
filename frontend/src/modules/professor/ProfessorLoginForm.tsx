@@ -8,6 +8,7 @@ import {
   FormErrorMessage,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
+import { useUser } from "../../contexts/useUser";
 
 interface FormData {
   room_name: string;
@@ -35,9 +36,12 @@ const ProfessorLoginForm: React.FC<ProfessorLoginFormProps> = ({
   errors = {},
 }) => {
   const { t } = useTranslation();
+  const { updateRole, role } = useUser();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    updateRole();
+    console.log(role);
     onSubmit();
   };
 

@@ -10,6 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import TaskWrapper from "../tasks/TaskWrapper";
+import { useUser } from "../../contexts/useUser";
 
 interface FormData {
   room_name: string;
@@ -30,9 +31,12 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({
   onChange,
 }) => {
   const { t } = useTranslation();
+  const { updateRole, role } = useUser();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    updateRole();
+    console.log(role);
     onSubmit();
   };
 
