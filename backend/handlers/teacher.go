@@ -26,10 +26,8 @@ func (s *APIServer) HandleGetAllTasks(w http.ResponseWriter, r *http.Request, ro
 	}
 	for _, task := range multipleChoiceTasks {
 		allTasks = append(allTasks, task)
-		log.Println("HEJ")
 		log.Println(task.OrderNumber)
 		log.Println(task.TaskType)
-		log.Println("HEJ")
 	}
 
 	shortTasks, err := s.store.GetShortTasks(room_name)

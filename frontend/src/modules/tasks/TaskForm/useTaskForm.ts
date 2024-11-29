@@ -155,7 +155,7 @@ export const useTaskForm = ({ mode, initialData }: TaskFormProps) => {
       const url =
         mode === "create"
           ? `http://localhost:3000/addTask/${formData.task_type}`
-          : `http://localhost:3000/tasks/${formData.order_number}`;
+          : `http://localhost:3000/tasks`;
 
       console.log("Making request to:", url);
       const payload = formatPayloadByType(formData);

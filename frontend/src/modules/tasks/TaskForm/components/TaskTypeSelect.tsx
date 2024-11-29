@@ -29,8 +29,8 @@ const TaskTypeSelect: React.FC<TaskTypeSelectProps> = ({
         <option value="multichoice">{t("taskTypes.multichoice")}</option>
         <option value="numbers_task">{t("taskTypes.numbers_task")}</option>
         <option value="description">{t("taskTypes.description")}</option>
-        <option value="table">{t("taskTypes.table")}</option>
-        <option value="map">{t("taskTypes.map")}</option>
+        <option value="table_task">{t("taskTypes.table_task")}</option>
+        <option value="map_task">{t("taskTypes.map_task")}</option>
       </Select>
     </FormControl>
   );

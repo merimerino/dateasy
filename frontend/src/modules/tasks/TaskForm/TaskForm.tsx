@@ -8,7 +8,6 @@ import {
   HStack,
   Button,
   VStack,
-  Divider,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 
@@ -21,6 +20,7 @@ import MultiChoiceFields from "./components/MultiChoiceFields";
 import TableTaskFields from "./components/TableTaskFields";
 import MapTaskFields from "./components/MapTaskFields";
 import { TaskFormProps } from "./types";
+import DescriptionTaskFields from "./components/DescriptionTaskFields";
 
 const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
   const { t } = useTranslation();
@@ -50,96 +50,157 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
               onChange={handleTypeChange}
               isSubmitting={isSubmitting}
             />
+            <h2>{formData.task_type}</h2>
 
-            <BasicTaskFields
-              name={formData.name}
-              text={formData.text}
-              errors={{
-                name: errors.name,
-                text: errors.text,
-              }}
-              onChange={handleInputChange}
-              isSubmitting={isSubmitting}
-            />
-
-            <Divider />
-
+            {formData.task_type === "description" && (
+              <>
+                <DescriptionTaskFields
+                  description={formData.text}
+                  errors={{
+                    text: errors.text,
+                  }}
+                  onChange={handleInputChange}
+                  isSubmitting={isSubmitting}
+                />
+              </>
+            )}
             {formData.task_type === "short_task" && (
-              <ShortTaskFields
-                maxCharacters={formData.max_characters_allowed}
-                error={errors.max_characters_allowed}
-                onChange={(value) =>
-                  handleInputChange("max_characters_allowed", value)
-                }
-                isSubmitting={isSubmitting}
-              />
+              <>
+                <BasicTaskFields
+                  name={formData.name}
+                  text={formData.text}
+                  errors={{
+                    name: errors.name,
+                    text: errors.text,
+                  }}
+                  onChange={handleInputChange}
+                  isSubmitting={isSubmitting}
+                />
+                <ShortTaskFields
+                  maxCharacters={formData.max_characters_allowed}
+                  error={errors.max_characters_allowed}
+                  onChange={(value) =>
+                    handleInputChange("max_characters_allowed", value)
+                  }
+                  isSubmitting={isSubmitting}
+                />
+              </>
             )}
 
             {formData.task_type === "numbers_task" && (
-              <NumberTaskFields
-                minNum={formData.min_num}
-                maxNum={formData.max_num}
-                errors={{
-                  min_num: errors.min_num,
-                  max_num: errors.max_num,
-                }}
-                onChange={{
-                  min_num: (value) => handleInputChange("min_num", value),
-                  max_num: (value) => handleInputChange("max_num", value),
-                }}
-                isSubmitting={isSubmitting}
-              />
+              <>
+                <BasicTaskFields
+                  name={formData.name}
+                  text={formData.text}
+                  errors={{
+                    name: errors.name,
+                    text: errors.text,
+                  }}
+                  onChange={handleInputChange}
+                  isSubmitting={isSubmitting}
+                />
+                <NumberTaskFields
+                  minNum={formData.min_num}
+                  maxNum={formData.max_num}
+                  errors={{
+                    min_num: errors.min_num,
+                    max_num: errors.max_num,
+                  }}
+                  onChange={{
+                    min_num: (value) => handleInputChange("min_num", value),
+                    max_num: (value) => handleInputChange("max_num", value),
+                  }}
+                  isSubmitting={isSubmitting}
+                />
+              </>
             )}
 
             {formData.task_type === "multichoice" && (
-              <MultiChoiceFields
-                options={formData.options || []}
-                multipleAnswers={formData.multiple_answers || false}
-                error={errors.options}
-                onChange={{
-                  options: (value) => handleInputChange("options", value),
-                  multipleAnswers: (value) =>
-                    handleInputChange("multiple_answers", value),
-                }}
-                isSubmitting={isSubmitting}
-              />
+              <>
+                <BasicTaskFields
+                  name={formData.name}
+                  text={formData.text}
+                  errors={{
+                    name: errors.name,
+                    text: errors.text,
+                  }}
+                  onChange={handleInputChange}
+                  isSubmitting={isSubmitting}
+                />
+                <MultiChoiceFields
+                  options={formData.options || []}
+                  multipleAnswers={formData.multiple_answers || false}
+                  error={errors.options}
+                  onChange={{
+                    options: (value) => handleInputChange("options", value),
+                    multipleAnswers: (value) =>
+                      handleInputChange("multiple_answers", value),
+                  }}
+                  isSubmitting={isSubmitting}
+                />
+              </>
             )}
 
             {formData.task_type === "table_task" && (
-              <TableTaskFields
-                headers={formData.headers || []}
-                rows={formData.rows || 3}
-                errors={{
-                  headers: errors.headers,
-                  rows: errors.rows,
-                }}
-                onChange={{
-                  headers: (value) => handleInputChange("headers", value),
-                  rows: (value) => handleInputChange("rows", value),
-                }}
-                isSubmitting={isSubmitting}
-              />
+              <>
+                <BasicTaskFields
+                  name={formData.name}
+                  text={formData.text}
+                  errors={{
+                    name: errors.name,
+                    text: errors.text,
+                  }}
+                  onChange={handleInputChange}
+                  isSubmitting={isSubmitting}
+                />
+                <TableTaskFields
+                  headers={formData.headers || []}
+                  rows={formData.rows || 3}
+                  errors={{
+                    headers: errors.headers,
+                    rows: errors.rows,
+                  }}
+                  onChange={{
+                    headers: (value) => handleInputChange("headers", value),
+                    rows: (value) => handleInputChange("rows", value),
+                  }}
+                  isSubmitting={isSubmitting}
+                />
+              </>
             )}
 
             {formData.task_type === "map_task" && (
-              <MapTaskFields
-                centerLatitude={formData.center_latitude}
-                centerLongitude={formData.center_longitude}
-                zoomLevel={formData.zoom_level}
-                errors={{
-                  center_latitude: errors.center_latitude,
-                  center_longitude: errors.center_longitude,
-                  zoom_level: errors.zoom_level,
-                }}
-                onChange={{
-                  centerLatitude: (value) =>
-                    handleInputChange("center_latitude", value),
-                  centerLongitude: (value) =>
-                    handleInputChange("center_longitude", value),
-                  zoomLevel: (value) => handleInputChange("zoom_level", value),
-                }}
-                isSubmitting={isSubmitting}
-              />
+              <>
+                <BasicTaskFields
+                  name={formData.name}
+                  text={formData.text}
+                  errors={{
+                    name: errors.name,
+                    text: errors.text,
+                  }}
+                  onChange={handleInputChange}
+                  isSubmitting={isSubmitting}
+                />
+                <MapTaskFields
+                  centerLatitude={formData.center_latitude}
+                  centerLongitude={formData.center_longitude}
+                  zoomLevel={formData.zoom_level}
+                  errors={{
+                    center_latitude: errors.center_latitude,
+                    center_longitude: errors.center_longitude,
+                    zoom_level: errors.zoom_level,
+                  }}
+                  onChange={{
+                    centerLatitude: (value) =>
+                      handleInputChange("center_latitude", value),
+                    centerLongitude: (value) =>
+                      handleInputChange("center_longitude", value),
+                    zoomLevel: (value) =>
+                      handleInputChange("zoom_level", value),
+                  }}
+                  isSubmitting={isSubmitting}
+                />
+              </>
             )}
           </VStack>
         </CardBody>

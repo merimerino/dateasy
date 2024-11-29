@@ -76,8 +76,8 @@ const resources = {
         multichoice: "Multiple Choice",
         numbers_task: "Number Task",
         short_task: "Short Answer",
-        table: "Table Task",
-        map: "Map Task",
+        table_task: "Table Task",
+        map_task: "Map Task",
         description: "Description",
       },
 
