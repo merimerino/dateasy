@@ -63,7 +63,7 @@ func (s *APIServer) Run() {
 	router.HandleFunc("/joinAsAdmin", makeHTTPHandleFunc(s.HandleJoinAsAdmin))
 
 	router.HandleFunc("/tasks", withJWTAuth(s.HandleGetAllTasks))
-	router.HandleFunc("/addTask/multiplechoice", withJWTAuth(s.HandleAddMultipleChoice))
+	router.HandleFunc("/addTask/multichoice", withJWTAuth(s.HandleAddMultipleChoice))
 	router.HandleFunc("/addTask/short_task", withJWTAuth(s.HandleAddShortTask))
 	router.HandleFunc("/addTask/description", withJWTAuth(s.HandleAddDescription))
 	router.HandleFunc("/addTask/numbers_task", withJWTAuth(s.HandleAddNumbersTask))

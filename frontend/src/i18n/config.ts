@@ -80,6 +80,7 @@ const resources = {
         map_task: "Map Task",
         description: "Description",
       },
+      noAnswersYet: "No answers yet.",
 
       error: {
         roomRequired: "Room name is required",
@@ -88,6 +89,8 @@ const resources = {
         usernameTaken: "Nickname already taken in this room",
         failedToJoin: "Failed to join room",
         failedToCreate: "Failed to create room",
+        failedLogin: "Room name or password is incorrect",
+
         invalidCredentials: "Invalid credentials",
         roomNotFound: "Room not found",
         serverError: "Server error occurred",
@@ -254,10 +257,11 @@ const resources = {
         multichoice: "Višestruki izbor",
         numbers_task: "Numerički zadatak",
         short_task: "Kratki odgovor",
-        table: "Tablični zadatak",
-        map: "Zadatak s kartom",
+        table_task: "Tablični zadatak",
+        map_task: "Zadatak s kartom",
         description: "Opis",
       },
+      noAnswersYet: "Još nema odgovora",
 
       error: {
         roomRequired: "Naziv sobe je obavezan",
@@ -265,6 +269,7 @@ const resources = {
         usernameRequired: "Nadimak je obavezan",
         usernameTaken: "Nadimak je već zauzet u ovoj sobi",
         failedToJoin: "Neuspješan ulazak u sobu",
+        failedLogin: "Naziv sobe ili lozinka nisu točni",
         failedToCreate: "Neuspješno stvaranje sobe",
         invalidCredentials: "Nevažeći podaci za prijavu",
         roomNotFound: "Soba nije pronađena",

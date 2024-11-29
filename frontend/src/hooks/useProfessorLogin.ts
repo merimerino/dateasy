@@ -35,7 +35,7 @@ export const useProfessorLogin = () => {
     } catch (error) {
       console.error("Login error:", error);
       toast({
-        title: t("error.loginFailed"),
+        title: t("error.failedLogin"),
         description:
           error instanceof Error ? error.message : t("error.failedRequest"),
         status: "error",
