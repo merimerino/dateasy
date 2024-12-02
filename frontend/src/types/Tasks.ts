@@ -16,6 +16,14 @@ interface BaseAnswer {
   username: string;
 }
 
+export type SubmissionValue =
+  | string
+  | string[]
+  | number
+  | string[][]
+  | { latitude: number; longitude: number }
+  | null;
+
 export interface MultipleChoiceAnswer extends BaseAnswer {
   answer: string;
 }

@@ -1,18 +1,28 @@
 import { Task } from "../../types/Tasks";
-import ShortTextTask from "./questions/ShortTextTask";
 import NumbersTask from "./questions/NumbersTask";
-import MultiChoiceTask from "./questions/MultiChoiceTask";
 import DescriptionTask from "./questions/DescriptionTask";
 import TableTask from "./questions/TableTask";
 import MapTask from "./questions/MapTask";
-import { SubmissionValue } from "../../types/Tasks";
+import ProfessorMultiChoiceTask from "./professorTask/ProfessorMultiChoiceTask";
+import ProfessorShortTextTask from "./professorTask/ProfessorShortTextTask";
 
-interface TaskDisplayProps {
+type SubmissionValue =
+  | string
+  | string[]
+  | number
+  | string[][]
+  | { latitude: number; longitude: number }
+  | null;
+
+interface ProfessorTaskDisplayProps {
   task: Task;
   onSubmit: (roomName: string, value: SubmissionValue) => void;
 }
 
-const TaskDisplay: React.FC<TaskDisplayProps> = ({ task, onSubmit }) => {
+const ProfessorTaskDisplay: React.FC<ProfessorTaskDisplayProps> = ({
+  task,
+  onSubmit,
+}) => {
   if (!task) return null;
 
   const handleTaskSubmit = (value: SubmissionValue): void => {
@@ -22,7 +32,7 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ task, onSubmit }) => {
   switch (task.task_type) {
     case "short_task": {
       return (
-        <ShortTextTask
+        <ProfessorShortTextTask
           title={task.name ?? ""}
           description={task.text ?? ""}
           maxLength={task.max_characters_allowed}
@@ -45,12 +55,10 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ task, onSubmit }) => {
 
     case "multichoice": {
       return (
-        <MultiChoiceTask
+        <ProfessorMultiChoiceTask
           title={task.name ?? ""}
           description={task.text ?? ""}
           options={task.options}
-          multiple_answers={task.multiple_answers}
-          onChange={(value: string | string[]) => handleTaskSubmit(value)}
         />
       );
     }
@@ -94,4 +102,4 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ task, onSubmit }) => {
   }
 };
 
-export default TaskDisplay;
+export default ProfessorTaskDisplay;

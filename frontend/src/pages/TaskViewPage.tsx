@@ -13,9 +13,9 @@ import {
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useTasks } from "../hooks/useTasks";
-import TaskDisplay from "../modules/tasks/TaskDisplay";
 import TaskAnswers from "../modules/tasks/TaskAnswers";
 import Header from "../modules/Header";
+import ProfessorTaskDisplay from "../modules/tasks/ProfessorTaskDisplay";
 
 type SubmissionValue =
   | string
@@ -97,7 +97,7 @@ const TaskViewPage: React.FC = () => {
       <Container maxW="container.lg" py={8}>
         <VStack spacing={8} align="stretch">
           <Box>
-            <TaskDisplay task={task} onSubmit={handleSubmit} />
+            <ProfessorTaskDisplay task={task} onSubmit={handleSubmit} />
           </Box>
           <Divider />
           <Box>

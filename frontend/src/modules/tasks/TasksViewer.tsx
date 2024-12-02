@@ -13,13 +13,7 @@ import { useTasks } from "../../hooks/useTasks";
 import TaskDisplay from "./TaskDisplay";
 import { useTranslation } from "react-i18next";
 import { Task } from "../../types/Tasks";
-
-type SubmissionValue =
-  | string
-  | number
-  | string[][]
-  | { latitude: number; longitude: number }
-  | null;
+import { SubmissionValue } from "../../types/Tasks";
 
 interface TaskAnswer {
   taskId: number;
