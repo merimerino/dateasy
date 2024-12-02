@@ -275,3 +275,35 @@ func (s *APIServer) HandleAddTableTask(w http.ResponseWriter, r *http.Request, r
 
 	return WriteJSON(w, http.StatusOK, "Successfully added a task")
 }
+
+func (s *APIServer) HandleGiveAnswer(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
+	answersReq := new([]types.GiveAnswer)
+	if err := json.NewDecoder(r.Body).Decode(answersReq); err != nil {
+		return err
+	}
+	log.Println(answersReq)
+
+	for _, answerReq := range *answersReq {
+		taskID := answerReq.ID
+
+		// Get the task by ID
+		task, collectionName, err := s.store.GetTaskByID(taskID)
+		if err != nil {
+			log.Println(err)
+			return WriteJSON(w, http.StatusInternalServerError, err)
+		}
+		if task == nil {
+			log.Printf("No task found with id %s", taskID.Hex())
+			continue
+		}
+
+		// Update the task with the answer
+		err = s.store.UpdateTaskWithAnswer(collectionName, task, username, answerReq.Answer)
+		if err != nil {
+			log.Println(err)
+			return WriteJSON(w, http.StatusInternalServerError, err)
+		}
+	}
+
+	return WriteJSON(w, http.StatusOK, "Added all answers")
+}

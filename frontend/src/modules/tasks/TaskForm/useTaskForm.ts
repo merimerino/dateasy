@@ -14,6 +14,7 @@ export const useTaskForm = ({ mode, initialData }: TaskFormProps) => {
   const [formData, setFormData] = useState<TaskFormData>(() => {
     const taskType = initialData?.task_type || "short_task";
     return {
+      id: initialData?.id || "",
       name: initialData?.name || "",
       text: initialData?.text || "",
       task_type: taskType,
@@ -68,6 +69,7 @@ export const useTaskForm = ({ mode, initialData }: TaskFormProps) => {
 
   const handleTypeChange = (newType: Task["task_type"]) => {
     setFormData((prev) => ({
+      id: prev.id,
       name: prev.name,
       text: prev.text,
       task_type: newType,

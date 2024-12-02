@@ -8,6 +8,7 @@ import (
 	types "backend/types"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -26,7 +27,61 @@ type TeacherStore interface {
 	AddTableTask(*types.TableTask) error
 	AddMultipleChoiceTask(*types.MultipleChoice) error
 	GetHighestTaskOrder(string) (int, error)
-	getHighestOrderFromCollection(string, types.Task, string) (int, error)
+	GetTaskByID(primitive.ObjectID) (types.Task, string, error)
+	UpdateTaskWithAnswer(string, types.Task, string, string) error
+}
+
+func (s *MongoStore) GetTaskByID(taskID primitive.ObjectID) (types.Task, string, error) {
+	collections := map[string]types.Task{
+		"MultipleChoice": &types.MultipleChoice{},
+		"ShortTask":      &types.ShortTask{},
+		"Description":    &types.Description{},
+		"TableTask":      &types.TableTask{},
+		"MapTask":        &types.MapTask{},
+		"NumbersTask":    &types.NumbersTask{},
+	}
+
+	for collectionName, taskType := range collections {
+		task, err := s.getTaskFromCollectionByID(collectionName, taskType, taskID)
+		if err != nil {
+			return nil, "", err
+		}
+		if task != nil {
+			return task, collectionName, nil
+		}
+	}
+
+	return nil, "", fmt.Errorf("no task found with id %s", taskID.Hex())
+}
+
+func (s *MongoStore) getTaskFromCollectionByID(collectionName string, taskType types.Task, taskID primitive.ObjectID) (types.Task, error) {
+	collection := s.client.Database("taskdb").Collection(collectionName)
+
+	filter := bson.M{"_id": taskID}
+	err := collection.FindOne(context.Background(), filter).Decode(taskType)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil // No documents found in this collection
+		}
+		return nil, fmt.Errorf("error finding task in collection %s: %v", collectionName, err)
+	}
+
+	return taskType, nil
+}
+func (s *MongoStore) UpdateTaskWithAnswer(collectionName string, task types.Task, username string, answer string) error {
+	collection := s.client.Database("taskdb").Collection(collectionName)
+
+	filter := bson.M{"_id": task.GetID()}
+	update := bson.M{
+		"$push": bson.M{"answers": bson.M{"username": username, "answer": answer}},
+	}
+
+	_, err := collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return fmt.Errorf("error updating task with answer: %v", err)
+	}
+
+	return nil
 }
 
 func (s *MongoStore) AddNumbersTask(task *types.NumbersTask) error {

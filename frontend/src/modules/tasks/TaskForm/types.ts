@@ -6,6 +6,7 @@ export interface TaskFormProps {
 }
 
 export interface TaskFormData {
+  id: string;
   task_type: Task["task_type"];
   name: string;
   text: string;

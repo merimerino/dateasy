@@ -8,38 +8,73 @@ import {
   Heading,
   Text,
   Spinner,
+  useToast,
 } from "@chakra-ui/react";
 import { useTasks } from "../../hooks/useTasks";
 import TaskDisplay from "./TaskDisplay";
 import { useTranslation } from "react-i18next";
-import { Task } from "../../types/Tasks";
 import { SubmissionValue } from "../../types/Tasks";
-
-interface TaskAnswer {
-  taskId: number;
-  taskName: string | undefined;
-  taskType: Task["task_type"];
-  value: SubmissionValue;
-}
+import { useNavigate } from "react-router-dom";
 
 const TasksViewer: React.FC = () => {
   const { tasks, loading } = useTasks();
   const { t } = useTranslation();
   const taskRefs = useRef<Record<number, SubmissionValue>>({});
+  const toast = useToast();
+  const navigate = useNavigate();
 
-  const handleSubmitAll = () => {
+  const handleSubmitAll = async () => {
     if (!tasks) return;
 
-    const allAnswers: TaskAnswer[] = tasks
+    const allAnswers = tasks
       .sort((a, b) => a.order_number - b.order_number)
       .map((task) => ({
-        taskId: task.order_number,
-        taskName: task.name,
-        taskType: task.task_type,
-        value: taskRefs.current[task.order_number] || null,
+        id: task.id,
+        answer: taskRefs.current[task.order_number] || null,
       }));
 
     console.log("All form inputs:", allAnswers);
+
+    try {
+      const authToken = localStorage.getItem("token");
+      if (!authToken) {
+        navigate("/");
+        throw new Error("Not authenticated");
+      }
+
+      const response = await fetch("http://localhost:3000/giveAnswer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-jwt-token": authToken,
+        },
+        body: JSON.stringify(allAnswers),
+      });
+      console.log("all ", allAnswers);
+
+      if (!response.ok) {
+        const error = await response.text();
+        try {
+          const parsedError = JSON.parse(error);
+          throw new Error(parsedError.error || "Failed to submit answers");
+        } catch {
+          throw new Error("Failed to submit answers");
+        }
+      }
+
+      toast({
+        title: t("submissionSuccessful"),
+        status: "success",
+        duration: 3000,
+      });
+    } catch (error) {
+      toast({
+        title: t("submissionFailed"),
+        status: "error",
+        duration: 3000,
+      });
+      console.error("Error submitting answers:", error);
+    }
   };
 
   if (loading) {

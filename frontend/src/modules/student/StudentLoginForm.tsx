@@ -31,12 +31,11 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({
   onChange,
 }) => {
   const { t } = useTranslation();
-  const { updateRole, role } = useUser();
+  const { updateRole } = useUser();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateRole();
-    console.log(role);
     onSubmit();
   };
 

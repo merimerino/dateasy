@@ -10,6 +10,7 @@ interface BaseTask {
     | "table_task"
     | "map_task";
   order_number: number;
+  id: string;
 }
 
 interface BaseAnswer {

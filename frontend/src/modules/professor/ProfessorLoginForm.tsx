@@ -36,12 +36,11 @@ const ProfessorLoginForm: React.FC<ProfessorLoginFormProps> = ({
   errors = {},
 }) => {
   const { t } = useTranslation();
-  const { updateRole, role } = useUser();
+  const { updateRole } = useUser();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateRole();
-    console.log(role);
     onSubmit();
   };
 

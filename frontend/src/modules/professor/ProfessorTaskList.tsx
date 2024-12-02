@@ -20,7 +20,7 @@ interface ProfessorTaskListProps {
   tasks: Task[] | null;
   roomName?: string;
   onEdit: (task: Task) => void;
-  onDelete: (taskId: string) => void;
+  onDelete: (orderNumber: string) => void;
   onAdd: () => void;
 }
 
@@ -60,9 +60,9 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
     onEdit(task);
   };
 
-  const handleDeleteClick = (e: React.MouseEvent, taskId: string) => {
+  const handleDeleteClick = (e: React.MouseEvent, orderNumber: string) => {
     e.stopPropagation();
-    onDelete(taskId);
+    onDelete(orderNumber);
   };
 
   const showTask = (orderNumber: number) => {

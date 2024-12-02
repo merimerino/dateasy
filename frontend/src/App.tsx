@@ -37,7 +37,7 @@ function App() {
                 }
               />
               <Route
-                path="/room/:roomName/view/:taskId"
+                path="/room/:roomName/view/:orderNumber"
                 element={
                   <ProtectedRoute allowedRoles={["professor"]}>
                     <TaskViewPage />
@@ -55,7 +55,7 @@ function App() {
               />
 
               <Route
-                path="/room/:roomName/edit-task/:taskId"
+                path="/room/:roomName/edit-task/:orderNumber"
                 element={
                   <ProtectedRoute allowedRoles={["professor"]}>
                     <EditTaskPage />

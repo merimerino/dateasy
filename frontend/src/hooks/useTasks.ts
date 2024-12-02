@@ -50,7 +50,6 @@ export const useTasks = (options: UseTasksOptions = { filterByRoom: true }) => {
         options.filterByRoom && roomName
           ? data.filter((task) => task.room_name === roomName)
           : data;
-
       setTasks(filteredTasks);
     } catch (error) {
       console.error("Error details:", error);

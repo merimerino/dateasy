@@ -5,21 +5,24 @@ import { useParams } from "react-router-dom";
 import { TaskFormData } from "../modules/tasks/TaskForm/types";
 
 const EditTaskPage = () => {
-  const { taskId } = useParams<{ taskId: string }>();
+  const { orderNumber } = useParams<{ orderNumber: string }>();
   const { tasks } = useTasks();
 
-  if (!taskId) {
+  if (!orderNumber) {
     return <div>Task ID is required</div>;
   }
 
-  const taskIdNum = parseInt(taskId, 10);
-  const selectedTask = tasks?.find((task) => task.order_number === taskIdNum);
+  const orderNumberNum = parseInt(orderNumber, 10);
+  const selectedTask = tasks?.find(
+    (task) => task.order_number === orderNumberNum
+  );
 
   if (!selectedTask) {
     return <div>Task not found</div>;
   }
 
   const initialData: TaskFormData = {
+    id: selectedTask.id,
     task_type: selectedTask.task_type,
     name: selectedTask.name || "",
     text: selectedTask.text || "",
