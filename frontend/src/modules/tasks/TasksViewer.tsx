@@ -14,14 +14,22 @@ import { useTasks } from "../../hooks/useTasks";
 import TaskDisplay from "./TaskDisplay";
 import { useTranslation } from "react-i18next";
 import { SubmissionValue } from "../../types/Tasks";
-import { useNavigate } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
 
 const TasksViewer: React.FC = () => {
   const { tasks, loading } = useTasks();
   const { t } = useTranslation();
   const taskRefs = useRef<Record<number, SubmissionValue>>({});
   const toast = useToast();
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
+
+  const convertToString = (value: SubmissionValue): string => {
+    if (value === null || value === undefined) return "";
+    if (Array.isArray(value)) {
+      return value.map(String).join(",");
+    }
+    return String(value);
+  };
 
   const handleSubmitAll = async () => {
     if (!tasks) return;
@@ -30,15 +38,12 @@ const TasksViewer: React.FC = () => {
       .sort((a, b) => a.order_number - b.order_number)
       .map((task) => ({
         id: task.id,
-        answer: taskRefs.current[task.order_number] || null,
+        answer: convertToString(taskRefs.current[task.order_number] || null),
       }));
-
-    console.log("All form inputs:", allAnswers);
 
     try {
       const authToken = localStorage.getItem("token");
       if (!authToken) {
-        navigate("/");
         throw new Error("Not authenticated");
       }
 
@@ -50,7 +55,6 @@ const TasksViewer: React.FC = () => {
         },
         body: JSON.stringify(allAnswers),
       });
-      console.log("all ", allAnswers);
 
       if (!response.ok) {
         const error = await response.text();
@@ -75,6 +79,7 @@ const TasksViewer: React.FC = () => {
       });
       console.error("Error submitting answers:", error);
     }
+    //navigate("/");
   };
 
   if (loading) {

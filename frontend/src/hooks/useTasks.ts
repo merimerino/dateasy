@@ -46,11 +46,13 @@ export const useTasks = (options: UseTasksOptions = { filterByRoom: true }) => {
       }
 
       const data: Task[] = await response.json();
-      const filteredTasks =
-        options.filterByRoom && roomName
-          ? data.filter((task) => task.room_name === roomName)
-          : data;
-      setTasks(filteredTasks);
+      if (data) {
+        const filteredTasks =
+          options.filterByRoom && roomName
+            ? data.filter((task) => task.room_name === roomName)
+            : data;
+        setTasks(filteredTasks);
+      }
     } catch (error) {
       console.error("Error details:", error);
       toast({

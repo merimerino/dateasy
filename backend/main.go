@@ -17,6 +17,6 @@ func main() {
 	if err := store.Init(); err != nil {
 		log.Fatal(err)
 	}
-	server := handlers.NewAPIServer(":3000", store)
+	server := handlers.NewAPIServer("0.0.0.0:3000", store)
 	server.Run()
 }

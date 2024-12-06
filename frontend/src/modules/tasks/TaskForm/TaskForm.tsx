@@ -50,7 +50,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
               onChange={handleTypeChange}
               isSubmitting={isSubmitting}
             />
-            <h2>{formData.task_type}</h2>
 
             {formData.task_type === "description" && (
               <>

@@ -1,10 +1,10 @@
 import { Task } from "../../types/Tasks";
-import NumbersTask from "./questions/NumbersTask";
 import DescriptionTask from "./questions/DescriptionTask";
 import TableTask from "./questions/TableTask";
 import MapTask from "./questions/MapTask";
 import ProfessorMultiChoiceTask from "./professorTask/ProfessorMultiChoiceTask";
 import ProfessorShortTextTask from "./professorTask/ProfessorShortTextTask";
+import ProfessorNumberTask from "./professorTask/ProfessorNumberTask";
 
 type SubmissionValue =
   | string
@@ -43,12 +43,9 @@ const ProfessorTaskDisplay: React.FC<ProfessorTaskDisplayProps> = ({
 
     case "numbers_task": {
       return (
-        <NumbersTask
+        <ProfessorNumberTask
           title={task.name ?? ""}
           description={task.text ?? ""}
-          min={task.min_num}
-          max={task.max_num}
-          onChange={(value: string) => handleTaskSubmit(Number(value))}
         />
       );
     }
