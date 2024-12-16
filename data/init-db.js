@@ -347,14 +347,14 @@ db.MapTask.insertMany([
     coord_y: new Double("6.4000"),
   },
   {
-    room_name: "idonthaveinspiration",
+    room_name: "testing",
     name: "reallydont",
     task_type: "map_task",
-    order_number: 1,
+    order_number: 10,
     text: "This is another test description",
     add_mark: true,
-    coord_x: new Double("6.4000"),
-    coord_y: new Double("6.4000"),
+    coord_x: new Double("45.812648959048516"),
+    coord_y: new Double("15.963821411132814"),
   },
 ]);
 db.createCollection("NumbersTask", {
