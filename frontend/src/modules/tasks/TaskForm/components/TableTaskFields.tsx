@@ -17,21 +17,21 @@ import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 import { useTranslation } from "react-i18next";
 
 interface TableTaskFieldsProps {
-  headers: string[];
+  columns: string[];
   rows: number;
   errors: {
-    headers?: string;
+    columns?: string;
     rows?: string;
   };
   onChange: {
-    headers: (headers: string[]) => void;
+    columns: (columns: string[]) => void;
     rows: (value: number) => void;
   };
   isSubmitting: boolean;
 }
 
 const TableTaskFields: React.FC<TableTaskFieldsProps> = ({
-  headers,
+  columns,
   rows,
   errors,
   onChange,
@@ -40,16 +40,16 @@ const TableTaskFields: React.FC<TableTaskFieldsProps> = ({
   const { t } = useTranslation();
 
   const handleAddHeader = () => {
-    onChange.headers([...headers, ""]);
+    onChange.columns([...columns, ""]);
   };
 
   const handleRemoveHeader = (index: number) => {
-    onChange.headers(headers.filter((_, i) => i !== index));
+    onChange.columns(columns.filter((_, i) => i !== index));
   };
 
   const handleHeaderChange = (index: number, value: string) => {
-    onChange.headers(
-      headers.map((header, i) => (i === index ? value : header))
+    onChange.columns(
+      columns.map((header, i) => (i === index ? value : header))
     );
   };
 
@@ -69,7 +69,7 @@ const TableTaskFields: React.FC<TableTaskFieldsProps> = ({
         {errors.rows && <FormErrorMessage>{errors.rows}</FormErrorMessage>}
       </FormControl>
 
-      <FormControl isInvalid={!!errors.headers}>
+      <FormControl isInvalid={!!errors.columns}>
         <Box>
           <HStack justify="space-between" mb={2}>
             <FormLabel mb="0">{t("tableHeaders")}</FormLabel>
@@ -85,7 +85,7 @@ const TableTaskFields: React.FC<TableTaskFieldsProps> = ({
             </Button>
           </HStack>
           <VStack spacing={2} align="stretch">
-            {headers.map((header, index) => (
+            {columns.map((header, index) => (
               <InputGroup key={index} size="lg">
                 <Input
                   value={header}
@@ -108,8 +108,8 @@ const TableTaskFields: React.FC<TableTaskFieldsProps> = ({
               </InputGroup>
             ))}
           </VStack>
-          {errors.headers && (
-            <FormErrorMessage>{errors.headers}</FormErrorMessage>
+          {errors.columns && (
+            <FormErrorMessage>{errors.columns}</FormErrorMessage>
           )}
         </Box>
       </FormControl>

@@ -1,10 +1,10 @@
 import { Task } from "../../types/Tasks";
 import DescriptionTask from "./questions/DescriptionTask";
 import TableTask from "./questions/TableTask";
-import MapTask from "./questions/MapTask";
 import ProfessorMultiChoiceTask from "./professorTask/ProfessorMultiChoiceTask";
 import ProfessorShortTextTask from "./professorTask/ProfessorShortTextTask";
 import ProfessorNumberTask from "./professorTask/ProfessorNumberTask";
+import ProfessorMapTask from "./professorTask/ProfessorMapTask";
 
 type SubmissionValue =
   | string
@@ -83,12 +83,9 @@ const ProfessorTaskDisplay: React.FC<ProfessorTaskDisplayProps> = ({
 
     case "map_task": {
       return (
-        <MapTask
+        <ProfessorMapTask
           title={task.name ?? ""}
           description={task.text ?? ""}
-          onLocationSelect={(lat: number, lng: number) =>
-            handleTaskSubmit({ latitude: lat, longitude: lng })
-          }
         />
       );
     }

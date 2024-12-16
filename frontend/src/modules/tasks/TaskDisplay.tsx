@@ -81,9 +81,15 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ task, onSubmit }) => {
         <MapTask
           title={task.name ?? ""}
           description={task.text ?? ""}
-          onLocationSelect={(lat: number, lng: number) =>
-            handleTaskSubmit({ latitude: lat, longitude: lng })
-          }
+          onLocationSelect={(
+            positions: Array<{ lat: number; lng: number }>
+          ) => {
+            const coordinatesString = positions
+              .map((pos) => `${pos.lat},${pos.lng}`)
+              .join(";");
+            console.log(coordinatesString);
+            handleTaskSubmit(coordinatesString);
+          }}
         />
       );
     }

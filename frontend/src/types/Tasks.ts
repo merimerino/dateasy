@@ -22,7 +22,7 @@ export type SubmissionValue =
   | string[]
   | number
   | string[][]
-  | { latitude: number; longitude: number }
+  | Array<{ lat: number; lng: number }>
   | null;
 
 export interface MultipleChoiceAnswer extends BaseAnswer {

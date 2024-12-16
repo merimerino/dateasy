@@ -33,7 +33,6 @@ export const useTaskForm = ({ mode, initialData }: TaskFormProps) => {
           max_characters_allowed: initialData.max_characters_allowed,
         }),
         ...(taskType === "table_task" && {
-          headers: initialData.headers,
           rows: initialData.rows,
           columns: initialData.columns,
         }),
@@ -94,6 +93,7 @@ export const useTaskForm = ({ mode, initialData }: TaskFormProps) => {
         };
 
       case "description":
+        console.log("tu sam");
         return {
           description: data.text,
         };
@@ -107,7 +107,7 @@ export const useTaskForm = ({ mode, initialData }: TaskFormProps) => {
       case "table_task":
         return {
           ...basePayload,
-          columns: data.columns || "",
+          columns: data.columns?.join(",") || "",
           rows: data.rows || "",
           show_graf: true,
           allow_adding_of_rows: true,
@@ -139,7 +139,6 @@ export const useTaskForm = ({ mode, initialData }: TaskFormProps) => {
     console.log("Submitting form with data:", formData);
 
     const validationErrors: FormErrors = {};
-    if (!formData.name) validationErrors.name = "Name is required";
     if (!formData.text) validationErrors.text = "Text is required";
 
     if (Object.keys(validationErrors).length > 0) {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Heading, VStack, Text } from "@chakra-ui/react";
+import { Box, Heading, VStack } from "@chakra-ui/react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import L from "leaflet";
 import { useTranslation } from "react-i18next";
@@ -10,7 +10,8 @@ import "leaflet.markercluster";
 import { MapAnswer } from "../../../types/Tasks";
 
 interface MapTaskAnswersProps {
-  answers: MapAnswer[];
+  answers: MapAnswer[] | null;
+  initialCenter?: { lat: number; lng: number };
 }
 
 const defaultIcon = L.icon({
@@ -27,67 +28,67 @@ L.Marker.prototype.options.icon = defaultIcon;
 
 const defaultCenter = { lat: 45.815399, lng: 15.966568 }; // Zagreb coordinates
 
-const MapTaskAnswers: React.FC<MapTaskAnswersProps> = ({ answers = [] }) => {
+const MapTaskAnswers: React.FC<MapTaskAnswersProps> = ({
+  answers = null,
+  initialCenter = defaultCenter,
+}) => {
   const { t } = useTranslation();
   const mapRef = React.useRef<L.Map | null>(null);
   const markerClusterRef = React.useRef<L.MarkerClusterGroup | null>(null);
 
-  const center = answers.length
-    ? answers.reduce(
-        (acc, answer) => {
-          acc.lat += answer.answer.latitude;
-          acc.lng += answer.answer.longitude;
-          return acc;
-        },
-        { lat: 0, lng: 0 }
-      )
-    : defaultCenter;
+  const center =
+    answers && answers.length > 0
+      ? answers.reduce(
+          (acc, answer) => {
+            acc.lat += answer.answer.latitude;
+            acc.lng += answer.answer.longitude;
+            return acc;
+          },
+          { lat: 0, lng: 0 }
+        )
+      : initialCenter;
 
-  if (answers.length) {
+  if (answers && answers.length > 0) {
     center.lat /= answers.length;
     center.lng /= answers.length;
   }
 
   React.useEffect(() => {
-    if (!answers.length) return;
+    if (!answers || !answers.length || !mapRef.current) return;
 
-    if (mapRef.current) {
-      if (markerClusterRef.current) {
-        markerClusterRef.current.remove();
-      }
-
-      const markerCluster = L.markerClusterGroup();
-      markerClusterRef.current = markerCluster;
-
-      answers.forEach((answer) => {
-        const marker = L.marker([
-          answer.answer.latitude,
-          answer.answer.longitude,
-        ]).bindPopup(`
-          <b>${answer.username}</b><br/>
-          ${t("latitude")}: ${answer.answer.latitude.toFixed(6)}<br/>
-          ${t("longitude")}: ${answer.answer.longitude.toFixed(6)}
-        `);
-        markerCluster.addLayer(marker);
-      });
-
-      mapRef.current.addLayer(markerCluster);
+    if (markerClusterRef.current) {
+      markerClusterRef.current.remove();
     }
+
+    const markerCluster = L.markerClusterGroup();
+    markerClusterRef.current = markerCluster;
+
+    answers.forEach((answer) => {
+      const marker = L.marker([answer.answer.latitude, answer.answer.longitude])
+        .bindPopup(`
+        <b>${answer.username}</b><br/>
+        ${t("latitude")}: ${answer.answer.latitude.toFixed(6)}<br/>
+        ${t("longitude")}: ${answer.answer.longitude.toFixed(6)}
+      `);
+      markerCluster.addLayer(marker);
+    });
+
+    mapRef.current.addLayer(markerCluster);
+
+    return () => {
+      markerCluster.remove();
+    };
   }, [answers, t]);
 
-  if (!answers.length) {
-    return (
-      <Box textAlign="center" py={8}>
-        <Text color="gray.500">{t("noAnswersYet")}</Text>
-      </Box>
-    );
-  }
+  const hasAnswers = answers && answers.length > 0;
 
   return (
     <VStack spacing={4} align="stretch">
-      <Heading size="sm">
-        {t("answerLocations", { count: answers.length })}
-      </Heading>
+      {hasAnswers && (
+        <Heading size="sm">
+          {t("answerLocations", { count: answers.length })}
+        </Heading>
+      )}
 
       <Box h="500px" position="relative" borderRadius="lg" overflow="hidden">
         <MapContainer
@@ -103,26 +104,28 @@ const MapTaskAnswers: React.FC<MapTaskAnswersProps> = ({ answers = [] }) => {
         </MapContainer>
       </Box>
 
-      <Box maxH="200px" overflowY="auto">
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: "left" }}>{t("user")}</th>
-              <th>{t("latitude")}</th>
-              <th>{t("longitude")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {answers.map((answer, index) => (
-              <tr key={`${answer.username}-${index}`}>
-                <td>{answer.username}</td>
-                <td>{answer.answer.latitude.toFixed(6)}</td>
-                <td>{answer.answer.longitude.toFixed(6)}</td>
+      {hasAnswers && (
+        <Box maxH="200px" overflowY="auto">
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: "left" }}>{t("user")}</th>
+                <th>{t("latitude")}</th>
+                <th>{t("longitude")}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </Box>
+            </thead>
+            <tbody>
+              {answers.map((answer, index) => (
+                <tr key={`${answer.username}-${index}`}>
+                  <td>{answer.username}</td>
+                  <td>{answer.answer.latitude.toFixed(6)}</td>
+                  <td>{answer.answer.longitude.toFixed(6)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Box>
+      )}
     </VStack>
   );
 };

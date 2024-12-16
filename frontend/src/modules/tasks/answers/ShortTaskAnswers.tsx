@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Heading, VStack, Text } from "@chakra-ui/react";
+import { Box, VStack, Text } from "@chakra-ui/react";
 import { TagCloud } from "react-tagcloud";
 import { useTranslation } from "react-i18next";
 import { ShortAnswer } from "../../../types/Tasks";
@@ -52,7 +52,6 @@ const ShortTaskAnswers: React.FC<ShortTaskAnswersProps> = ({
 
   return (
     <VStack spacing={6}>
-      <Heading size="sm">{t("wordCloudAnswers")}</Heading>
       <Box
         h="400px"
         w="100%"

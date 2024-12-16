@@ -19,7 +19,7 @@ export interface TaskFormData {
   max_characters_allowed?: number;
   headers?: string[];
   rows?: number;
-  columns?: number;
+  columns?: string[];
   center_latitude?: number;
   center_longitude?: number;
   zoom_level?: number;

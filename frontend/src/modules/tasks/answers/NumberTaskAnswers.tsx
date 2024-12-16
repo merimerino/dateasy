@@ -57,21 +57,34 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
     );
   }
 
+  // Ensure min and max are valid numbers and min is less than max
+  const validMin = Number.isFinite(min) ? min : 0;
+  const validMax = Number.isFinite(max) ? max : 100;
   const binCount = 10;
-  const binSize = (max - min) / binCount;
+  const binSize = Math.max((validMax - validMin) / binCount, 0.0001); // Prevent division by zero
+
   const bins = Array.from({ length: binCount }, (_, i) => ({
-    start: min + i * binSize,
-    end: min + (i + 1) * binSize,
+    start: validMin + i * binSize,
+    end: validMin + (i + 1) * binSize,
     count: 0,
   }));
 
   answers.forEach((answer) => {
     const value = Number(answer.answer);
-    const binIndex = Math.min(
-      Math.floor((value - min) / binSize),
-      binCount - 1
-    );
-    bins[binIndex].count++;
+    if (!Number.isFinite(value)) return; // Skip invalid numbers
+
+    const binIndex = Math.floor((value - validMin) / binSize);
+
+    // Ensure binIndex is within valid bounds
+    if (binIndex >= 0 && binIndex < binCount) {
+      bins[binIndex].count++;
+    } else if (binIndex >= binCount) {
+      // Add to the last bin if value is greater than max
+      bins[binCount - 1].count++;
+    } else if (binIndex < 0) {
+      // Add to the first bin if value is less than min
+      bins[0].count++;
+    }
   });
 
   const chartData = {

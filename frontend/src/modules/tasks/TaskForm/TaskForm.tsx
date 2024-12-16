@@ -153,14 +153,14 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
                   isSubmitting={isSubmitting}
                 />
                 <TableTaskFields
-                  headers={formData.headers || []}
+                  columns={formData.columns || []}
                   rows={formData.rows || 3}
                   errors={{
-                    headers: errors.headers,
+                    columns: errors.columns,
                     rows: errors.rows,
                   }}
                   onChange={{
-                    headers: (value) => handleInputChange("headers", value),
+                    columns: (value) => handleInputChange("columns", value),
                     rows: (value) => handleInputChange("rows", value),
                   }}
                   isSubmitting={isSubmitting}
@@ -183,19 +183,15 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
                 <MapTaskFields
                   centerLatitude={formData.center_latitude}
                   centerLongitude={formData.center_longitude}
-                  zoomLevel={formData.zoom_level}
                   errors={{
                     center_latitude: errors.center_latitude,
                     center_longitude: errors.center_longitude,
-                    zoom_level: errors.zoom_level,
                   }}
                   onChange={{
                     centerLatitude: (value) =>
                       handleInputChange("center_latitude", value),
                     centerLongitude: (value) =>
                       handleInputChange("center_longitude", value),
-                    zoomLevel: (value) =>
-                      handleInputChange("zoom_level", value),
                   }}
                   isSubmitting={isSubmitting}
                 />

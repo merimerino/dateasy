@@ -3,17 +3,12 @@ import TaskWrapper from "../TaskWrapper";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowBigLeft } from "lucide-react";
 
-interface ProfessorShortTextTaskProps {
+interface MapTaskProps {
   title: string;
   description: string;
-  maxLength: number;
-  onChange: (value: string) => void;
 }
 
-const ProfessorShortTextTask: React.FC<ProfessorShortTextTaskProps> = ({
-  title,
-  description,
-}) => {
+const ProfessorMapTask: React.FC<MapTaskProps> = ({ title, description }) => {
   const navigate = useNavigate();
   const params = useParams();
   return (
@@ -26,10 +21,10 @@ const ProfessorShortTextTask: React.FC<ProfessorShortTextTaskProps> = ({
         <ArrowBigLeft color="white" />
       </Button>
       <TaskWrapper title={title} description={description}>
-        <Box></Box>
+        <Box> </Box>
       </TaskWrapper>
     </>
   );
 };
 
-export default ProfessorShortTextTask;
+export default ProfessorMapTask;
