@@ -37,8 +37,7 @@ const userColors = [
   "#1ABC9C", // Turquoise
 ];
 
-// Get consistent color for a username
-const getUserColor = (username: string, index: number): string => {
+const getUserColor = (index: number): string => {
   return userColors[index % userColors.length];
 };
 
@@ -133,7 +132,7 @@ const MapTaskAnswers: React.FC<MapTaskAnswersProps> = ({
 
     answers.forEach((answer, userIndex) => {
       const coordinates = parseCoordinates(answer.answer);
-      const userColor = getUserColor(answer.username, userIndex);
+      const userColor = getUserColor(userIndex);
       const icon = createColoredIcon(userColor);
 
       coordinates.forEach((coord, coordIndex) => {
@@ -192,7 +191,7 @@ const MapTaskAnswers: React.FC<MapTaskAnswersProps> = ({
             <tbody>
               {answers.map((answer, userIndex) => {
                 const coordinates = parseCoordinates(answer.answer);
-                const userColor = getUserColor(answer.username, userIndex);
+                const userColor = getUserColor(userIndex);
                 return (
                   <tr key={`${answer.username}-${userIndex}`}>
                     <td>
