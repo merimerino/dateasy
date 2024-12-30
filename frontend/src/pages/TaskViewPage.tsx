@@ -101,7 +101,7 @@ const TaskViewPage: React.FC = () => {
           </Box>
           <Divider />
           <Box>
-            <Heading size="md" mb={4}>
+            <Heading size="md" mb={4} color={"teal.500"}>
               {t("answers")}
             </Heading>
             <TaskAnswers task={task} />

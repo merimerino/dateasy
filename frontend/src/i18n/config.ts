@@ -71,7 +71,7 @@ const resources = {
       numberOfAnswers: "Number of Answers",
       distributionOfAnswers: "Distribution of Answers",
       wordCloudAnswers: "Word Cloud of Answers",
-      wordAppears: "{{word}} appears {{count}} times",
+      allAnswers: "All answers",
       taskTypes: {
         multichoice: "Multiple Choice",
         numbers_task: "Number Task",
@@ -243,6 +243,7 @@ const resources = {
       numberOfAnswers: "Broj odgovora",
       distributionOfAnswers: "Distribucija odgovora",
       wordCloudAnswers: "Oblak riječi iz odgovora",
+      allAnswers: "Svi odgovori",
       wordAppears: "{{word}} se pojavljuje {{count}} puta",
       columnStatistics: "Statistika stupaca",
       column: "Stupac",

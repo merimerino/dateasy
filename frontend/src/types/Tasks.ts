@@ -30,7 +30,7 @@ export interface MultipleChoiceAnswer extends BaseAnswer {
 }
 
 export interface NumberAnswer extends BaseAnswer {
-  answer: string; // Could be number, but keeping string for consistency with API
+  answer: string;
 }
 
 export interface ShortAnswer extends BaseAnswer {
@@ -42,10 +42,7 @@ export interface TableAnswer extends BaseAnswer {
 }
 
 export interface MapAnswer extends BaseAnswer {
-  answer: {
-    latitude: number;
-    longitude: number;
-  };
+  answer: string;
 }
 
 export interface MultipleChoiceTask extends BaseTask {
