@@ -72,7 +72,7 @@ export interface DescriptionTask extends BaseTask {
 
 export interface TableTask extends BaseTask {
   task_type: "table_task";
-  headers: string;
+  headers: string[];
   rows: number;
   columns: number;
   answers: TableAnswer[];

@@ -1,8 +1,6 @@
 import React, { useMemo } from "react";
 import {
   Box,
-  Heading,
-  VStack,
   Table,
   Thead,
   Tbody,
@@ -10,119 +8,190 @@ import {
   Th,
   Td,
   Text,
+  useColorModeValue,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
 } from "@chakra-ui/react";
 import {
   Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
+  ArcElement,
   Tooltip,
   Legend,
-  BarElement,
-} from "chart.js";
-import { Bar, Line } from "react-chartjs-2";
-import { useTranslation } from "react-i18next";
-import { TableAnswer } from "../../../types/Tasks";
-
-ChartJS.register(
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
   BarElement,
-  Title,
+  ChartData,
+  ChartOptions,
+} from "chart.js";
+import { Pie, Bar } from "react-chartjs-2";
+import { useTranslation } from "react-i18next";
+
+ChartJS.register(
+  ArcElement,
   Tooltip,
-  Legend
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement
 );
 
-interface TableTaskAnswersProps {
-  answers: TableAnswer[];
+interface Answer {
+  username: string;
+  answer: string | Array<Array<string | number>>;
+}
+
+interface CombinedTableViewProps {
+  answers: Answer[];
   headers: string;
 }
 
-const TableTaskAnswers: React.FC<TableTaskAnswersProps> = ({
+interface ColumnStats {
+  header: string;
+  values: number[];
+  sum: number;
+  avg: number;
+  min: number;
+  max: number;
+  count: number;
+}
+
+const TableTaskAnswers: React.FC<CombinedTableViewProps> = ({
   answers = [],
   headers = "",
 }) => {
   const { t } = useTranslation();
+
+  const bgColor = useColorModeValue("white", "gray.800");
+  const textColor = useColorModeValue("gray.600", "gray.400");
 
   const headerArray = useMemo(
     () => headers.split(",").map((header) => header.trim()),
     [headers]
   );
 
-  const stats = useMemo(() => {
+  const processedData = useMemo<ColumnStats[]>(() => {
     if (!answers?.length || !headers) return [];
 
-    return headerArray
-      .map((header, colIndex) => {
-        const columnValues = answers
-          .map((answer) =>
-            answer.answer.map((row) => parseFloat(row[colIndex]))
-          )
-          .flat()
-          .filter((value) => !isNaN(value));
+    const parsedAnswers = answers.map((answer) => {
+      if (typeof answer.answer === "string") {
+        const cleanAnswer = answer.answer.trim().replace(/^"|"$/g, "");
+        return cleanAnswer.split(";").map((row) =>
+          row.split(",").map((cell) => {
+            const num = parseFloat(cell.trim());
+            return isNaN(num) ? 0 : num;
+          })
+        );
+      }
+      return answer.answer.map((row) =>
+        row.map((cell) => {
+          const num =
+            typeof cell === "string" ? parseFloat(cell.trim()) : Number(cell);
+          return isNaN(num) ? 0 : num;
+        })
+      );
+    });
 
-        if (columnValues.length === 0) return null;
+    const combinedData: ColumnStats[] = headerArray.map((header) => ({
+      header,
+      values: [],
+      sum: 0,
+      avg: 0,
+      min: Infinity,
+      max: -Infinity,
+      count: 0,
+    }));
 
-        return {
-          header,
-          average:
-            columnValues.reduce((a, b) => a + b, 0) / columnValues.length,
-          min: Math.min(...columnValues),
-          max: Math.max(...columnValues),
-          count: columnValues.length,
-        };
-      })
-      .filter(Boolean);
+    parsedAnswers.forEach((studentAnswer) => {
+      studentAnswer.forEach((row) => {
+        row.forEach((value, colIndex) => {
+          if (!isNaN(value) && colIndex < combinedData.length) {
+            combinedData[colIndex].values.push(value);
+            combinedData[colIndex].sum += value;
+            combinedData[colIndex].min = Math.min(
+              combinedData[colIndex].min,
+              value
+            );
+            combinedData[colIndex].max = Math.max(
+              combinedData[colIndex].max,
+              value
+            );
+            combinedData[colIndex].count++;
+          }
+        });
+      });
+    });
+
+    combinedData.forEach((column) => {
+      column.avg = column.count > 0 ? column.sum / column.count : 0;
+    });
+
+    return combinedData;
   }, [answers, headerArray, headers]);
 
-  if (!answers?.length || !headers) {
-    return (
-      <Box textAlign="center" py={8}>
-        <Text color="gray.500">{t("noAnswersYet")}</Text>
-      </Box>
-    );
-  }
-
-  const chartData = {
-    labels: stats.map((stat) => stat!.header),
+  const barChartData: ChartData<"bar"> = {
+    labels: processedData.map((column) => column.header),
     datasets: [
       {
-        label: t("averageValue"),
-        data: stats.map((stat) => stat!.average),
-        backgroundColor: "rgba(54, 162, 235, 0.6)",
-        borderColor: "rgba(54, 162, 235, 1)",
+        label: t("charts.average"),
+        data: processedData.map((column) => column.avg),
+        backgroundColor: "rgba(128, 90, 213, 0.6)",
+        borderColor: "rgba(128, 90, 213, 1)",
         borderWidth: 1,
       },
       {
-        label: t("minValue"),
-        data: stats.map((stat) => stat!.min),
-        backgroundColor: "rgba(255, 99, 132, 0.6)",
-        borderColor: "rgba(255, 99, 132, 1)",
+        label: t("charts.min"),
+        data: processedData.map((column) => column.min),
+        backgroundColor: "rgba(56, 178, 172, 0.6)",
+        borderColor: "rgba(56, 178, 172, 1)",
         borderWidth: 1,
       },
       {
-        label: t("maxValue"),
-        data: stats.map((stat) => stat!.max),
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderColor: "rgba(75, 192, 192, 1)",
+        label: t("charts.max"),
+        data: processedData.map((column) => column.max),
+        backgroundColor: "rgba(221, 107, 32, 0.6)",
+        borderColor: "rgba(221, 107, 32, 1)",
         borderWidth: 1,
       },
     ],
   };
 
-  const options = {
+  const pieChartData: ChartData<"pie"> = {
+    labels: processedData.map((column) => column.header),
+    datasets: [
+      {
+        data: processedData.map((column) => column.avg),
+        backgroundColor: [
+          "rgba(128, 90, 213, 0.6)",
+          "rgba(56, 178, 172, 0.6)",
+          "rgba(221, 107, 32, 0.6)",
+          "rgba(49, 151, 149, 0.6)",
+          "rgba(113, 128, 150, 0.6)",
+        ],
+        borderColor: [
+          "rgba(128, 90, 213, 1)",
+          "rgba(56, 178, 172, 1)",
+          "rgba(221, 107, 32, 1)",
+          "rgba(49, 151, 149, 1)",
+          "rgba(113, 128, 150, 1)",
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const barChartOptions: ChartOptions<"bar"> = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: "top" as const,
       },
       title: {
         display: true,
-        text: t("columnStatistics"),
+        text: t("charts.columnStatistics"),
       },
     },
     scales: {
@@ -132,92 +201,127 @@ const TableTaskAnswers: React.FC<TableTaskAnswersProps> = ({
     },
   };
 
-  if (!stats.length) {
+  const pieChartOptions: ChartOptions<"pie"> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top" as const,
+      },
+      title: {
+        display: true,
+        text: t("charts.averageValues"),
+      },
+    },
+  };
+
+  if (!answers?.length || !headers) {
     return (
       <Box textAlign="center" py={8}>
-        <Text color="gray.500">{t("noValidData")}</Text>
+        <Text color={textColor}>No answers available</Text>
       </Box>
     );
   }
 
-  return (
-    <VStack spacing={8} align="stretch">
-      <Box overflowX="auto">
-        <Heading size="sm" mb={4}>
-          {t("columnStatistics")}
-        </Heading>
-        <Table variant="simple" size="sm">
+  const StatsPanel = () => (
+    <Box>
+      <Box bg={bgColor} p={4} rounded="lg" shadow="sm" mb={8}>
+        <Table variant="simple">
           <Thead>
             <Tr>
-              <Th>{t("column")}</Th>
-              <Th isNumeric>{t("average")}</Th>
-              <Th isNumeric>{t("min")}</Th>
-              <Th isNumeric>{t("max")}</Th>
-              <Th isNumeric>{t("count")}</Th>
+              <Th>{t("charts.column")}</Th>
+              <Th isNumeric>{t("charts.average")}</Th>
+              <Th isNumeric>{t("charts.min")}</Th>
+              <Th isNumeric>{t("charts.max")}</Th>
+              <Th isNumeric>{t("charts.count")}</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {stats.map((stat) => (
-              <Tr key={stat!.header}>
-                <Td>{stat!.header}</Td>
-                <Td isNumeric>{stat!.average.toFixed(2)}</Td>
-                <Td isNumeric>{stat!.min.toFixed(2)}</Td>
-                <Td isNumeric>{stat!.max.toFixed(2)}</Td>
-                <Td isNumeric>{stat!.count}</Td>
+            {processedData.map((column, idx) => (
+              <Tr key={idx}>
+                <Td fontWeight="medium">{column.header}</Td>
+                <Td isNumeric>{column.avg.toFixed(2)}</Td>
+                <Td isNumeric>{column.min.toFixed(2)}</Td>
+                <Td isNumeric>{column.max.toFixed(2)}</Td>
+                <Td isNumeric>{column.count}</Td>
               </Tr>
             ))}
           </Tbody>
         </Table>
       </Box>
-
-      <Box h="400px">
-        <Bar options={options} data={chartData} />
+      <Box bg={bgColor} p={4} rounded="lg" shadow="sm" mb={8} height="400px">
+        <Bar data={barChartData} options={barChartOptions} />
       </Box>
-
-      <Box h="400px">
-        <Line
-          options={{
-            ...options,
-            plugins: {
-              ...options.plugins,
-              title: {
-                display: true,
-                text: t("valueTrends"),
-              },
-            },
-          }}
-          data={chartData}
-        />
+      <Box bg={bgColor} p={4} rounded="lg" shadow="sm" height="400px">
+        <Pie data={pieChartData} options={pieChartOptions} />
       </Box>
+    </Box>
+  );
 
-      <Box>
-        <Heading size="sm" mb={4}>
-          {t("rawAnswers")}
-        </Heading>
-        <Box maxH="300px" overflowY="auto">
-          <Table variant="simple" size="sm">
+  const DataPanel = () => {
+    const getRowsFromAnswer = (answer: Answer) => {
+      if (typeof answer.answer === "string") {
+        return answer.answer
+          .trim()
+          .replace(/^"|"$/g, "")
+          .split(";")
+          .map((row) => row.split(","));
+      }
+      return answer.answer.map((row) => row.map((v) => v.toString()));
+    };
+
+    return (
+      <Box bg={bgColor} rounded="lg" shadow="sm">
+        <Box maxH="700px" overflowY="auto">
+          <Table variant="simple">
             <Thead>
               <Tr>
-                <Th>{t("user")}</Th>
-                {headerArray.map((header) => (
-                  <Th key={header}>{header}</Th>
+                <Th>{t("charts.user")}</Th>
+                <Th>{t("charts.row")}</Th>
+                {headerArray.map((header, idx) => (
+                  <Th key={idx}>{header}</Th>
                 ))}
               </Tr>
             </Thead>
             <Tbody>
-              {answers.map((answer, idx) => (
-                <Tr key={`${answer.username}-${idx}`}>
-                  <Td fontWeight="medium">{answer.username}</Td>
-                  {answer.answer.map((row, colIdx) => (
-                    <Td key={colIdx}>{row.join(", ")}</Td>
-                  ))}
-                </Tr>
-              ))}
+              {answers.map((answer) => {
+                const rows = getRowsFromAnswer(answer);
+                return rows.map((row, rowIdx) => (
+                  <Tr key={`${answer.username}-${rowIdx}`}>
+                    {rowIdx === 0 && (
+                      <Td rowSpan={rows.length} fontWeight="medium">
+                        {answer.username}
+                      </Td>
+                    )}
+                    <Td>{rowIdx + 1}</Td>
+                    {row.map((value, colIdx) => (
+                      <Td key={colIdx}>{value}</Td>
+                    ))}
+                  </Tr>
+                ));
+              })}
             </Tbody>
           </Table>
         </Box>
       </Box>
-    </VStack>
+    );
+  };
+
+  return (
+    <Tabs variant="enclosed" colorScheme="blue">
+      <TabList>
+        <Tab>{t("charts.statistics")}</Tab>
+        <Tab>{t("charts.all")}</Tab>
+      </TabList>
+      <TabPanels pt={4}>
+        <TabPanel>
+          <StatsPanel />
+        </TabPanel>
+        <TabPanel>
+          <DataPanel />
+        </TabPanel>
+      </TabPanels>
+    </Tabs>
   );
 };
 
