@@ -1,4 +1,4 @@
-import { Task } from "../../types/Tasks";
+import { ExtendedTask } from "./TaskForm/types";
 import ShortTextTask from "./questions/ShortTextTask";
 import NumbersTask from "./questions/NumbersTask";
 import MultiChoiceTask from "./questions/MultiChoiceTask";
@@ -8,7 +8,7 @@ import MapTask from "./questions/MapTask";
 import { SubmissionValue } from "../../types/Tasks";
 
 interface TaskDisplayProps {
-  task: Task;
+  task: ExtendedTask;
   onSubmit: (roomName: string, value: SubmissionValue) => void;
 }
 
@@ -56,20 +56,25 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ task, onSubmit }) => {
     }
 
     case "description": {
-      return (
-        <DescriptionTask description={task.description ?? task.text ?? ""} />
-      );
+      return <DescriptionTask description={task.text ?? task.text ?? ""} />;
     }
 
     case "table_task": {
-      if ("headers" in task && "rows" in task) {
+      if ("columns" in task && "rows" in task) {
         return (
           <TableTask
-            title={task.name ?? ""}
-            description={task.text ?? ""}
-            headers={task.headers}
+            id={task.id}
+            task_type="table_task"
+            name={task.name ?? ""}
+            text={task.text ?? ""}
+            room_name={task.room_name ?? ""}
+            order_number={task.order_number}
+            columns={task.columns}
             rows={task.rows}
-            onChange={(value: string[][]) => handleTaskSubmit(value)}
+            onChange={(tableData) => {
+              const stringifiedData = JSON.stringify(tableData);
+              handleTaskSubmit(stringifiedData);
+            }}
           />
         );
       }

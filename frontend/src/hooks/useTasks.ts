@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@chakra-ui/react";
-import { Task } from "../types/Tasks";
 import { roomHandler } from "../utils/roomHandler";
 import { useNavigate, useParams } from "react-router-dom";
+import { ExtendedTask } from "../modules/tasks/TaskForm/types";
 
 export interface UseTasksOptions {
   filterByRoom?: boolean;
 }
 
 export const useTasks = (options: UseTasksOptions = { filterByRoom: true }) => {
-  const [tasks, setTasks] = useState<Task[] | null>(null);
+  const [tasks, setTasks] = useState<ExtendedTask[] | null>(null);
   const [loading, setLoading] = useState(true);
   const toast = useToast();
   const navigate = useNavigate();
@@ -45,7 +45,7 @@ export const useTasks = (options: UseTasksOptions = { filterByRoom: true }) => {
         }
       }
 
-      const data: Task[] = await response.json();
+      const data: ExtendedTask[] = await response.json();
       if (data) {
         const filteredTasks =
           options.filterByRoom && roomName

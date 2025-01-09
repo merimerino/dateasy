@@ -1,8 +1,8 @@
-import { TaskFormData, FormErrors } from "./types";
+import { ExtendedTask, FormErrors } from "./types";
 import { TFunction } from "i18next";
 
 // Main validation function
-export const validateForm = (data: TaskFormData, t: TFunction): FormErrors => {
+export const validateForm = (data: ExtendedTask, t: TFunction): FormErrors => {
   const errors: FormErrors = {};
 
   // Validate common fields
@@ -37,7 +37,7 @@ export const validateForm = (data: TaskFormData, t: TFunction): FormErrors => {
 };
 
 const validateMultiChoiceTask = (
-  data: TaskFormData,
+  data: ExtendedTask,
   errors: FormErrors,
   t: TFunction
 ): void => {
@@ -58,7 +58,7 @@ const validateMultiChoiceTask = (
 };
 
 const validateNumberTask = (
-  data: TaskFormData,
+  data: ExtendedTask,
   errors: FormErrors,
   t: TFunction
 ): void => {
@@ -78,7 +78,7 @@ const validateNumberTask = (
 };
 
 const validateShortTask = (
-  data: TaskFormData,
+  data: ExtendedTask,
   errors: FormErrors,
   t: TFunction
 ): void => {
@@ -96,24 +96,24 @@ const validateShortTask = (
 };
 
 const validateTableTask = (
-  data: TaskFormData,
+  data: ExtendedTask,
   errors: FormErrors,
   t: TFunction
 ): void => {
-  if (!Array.isArray(data.headers) || data.headers.length === 0) {
-    errors.headers = t("error.headersRequired");
+  if (!Array.isArray(data.columns) || data.columns.length === 0) {
+    errors.columns = t("error.headersRequired");
     return;
   }
 
-  if (data.headers.some((header) => !header?.trim())) {
-    errors.headers = t("error.emptyHeaders");
+  if (data.columns.some((columns) => !columns?.trim())) {
+    errors.columns = t("error.emptyHeaders");
     return;
   }
 
   // Check for duplicate headers
-  const uniqueHeaders = new Set(data.headers.map((h) => h.trim()));
-  if (uniqueHeaders.size !== data.headers.length) {
-    errors.headers = t("error.duplicateHeaders");
+  const uniqueHeaders = new Set(data.columns.map((h) => h.trim()));
+  if (uniqueHeaders.size !== data.columns.length) {
+    errors.columns = t("error.duplicateHeaders");
   }
 
   if (typeof data.rows !== "number" || data.rows < 1) {
@@ -126,7 +126,7 @@ const validateTableTask = (
 };
 
 const validateMapTask = (
-  data: TaskFormData,
+  data: ExtendedTask,
   errors: FormErrors,
   t: TFunction
 ): void => {
@@ -143,19 +143,12 @@ const validateMapTask = (
   ) {
     errors.center_longitude = t("error.invalidLongitude");
   }
-
-  if (
-    typeof data.zoom_level === "number" &&
-    (data.zoom_level < 1 || data.zoom_level > 20)
-  ) {
-    errors.zoom_level = t("error.invalidZoomLevel");
-  }
 };
 
 // Helper for single field validation
 export const validateField = (
-  field: keyof TaskFormData,
-  value: TaskFormData[keyof TaskFormData],
+  field: keyof ExtendedTask,
+  value: ExtendedTask[keyof ExtendedTask],
   t: TFunction
 ): string | undefined => {
   switch (field) {

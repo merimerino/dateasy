@@ -36,6 +36,7 @@ const TasksViewer: React.FC = () => {
 
     const allAnswers = tasks
       .sort((a, b) => a.order_number - b.order_number)
+      .filter((task) => task.task_type !== "description")
       .map((task) => ({
         id: task.id,
         answer: convertToString(taskRefs.current[task.order_number] || null),
@@ -46,6 +47,7 @@ const TasksViewer: React.FC = () => {
       if (!authToken) {
         throw new Error("Not authenticated");
       }
+      console.log(allAnswers);
 
       const response = await fetch("http://localhost:3000/giveAnswer", {
         method: "POST",

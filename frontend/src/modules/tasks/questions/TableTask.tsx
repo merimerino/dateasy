@@ -1,52 +1,69 @@
-import { useState } from "react";
-import { Box, Table, Thead, Tbody, Tr, Th, Td, Input } from "@chakra-ui/react";
+import React, { useState } from "react";
+import { Table, Thead, Tbody, Tr, Th, Td, Input, Box } from "@chakra-ui/react";
 import TaskWrapper from "../TaskWrapper";
 
 interface TableTaskProps {
-  title: string;
-  description: string;
-  headers: string[];
-  rows: number;
-  onChange: (tableData: string[][]) => void;
+  id: string;
+  task_type: string;
+  name: string;
+  text: string;
+  room_name: string;
+  order_number: number;
+  columns?: string;
+  rows?: number;
+  onChange?: (data: string) => void;
 }
 
 const TableTask: React.FC<TableTaskProps> = ({
-  title,
-  description,
-  headers,
-  rows,
+  name,
+  text,
+  columns = "",
+  rows = 3,
   onChange,
 }) => {
-  // Initialize the table with proper empty arrays
-  const [tableData, setTableData] = useState<string[][]>(() =>
-    Array.from({ length: rows }, () =>
-      Array.from({ length: headers.length }, () => "")
-    )
+  const columnNames = columns
+    ? columns.split(",").map((col) => col.trim())
+    : [];
+
+  const [tableData, setTableData] = useState<Array<{ [key: string]: string }>>(
+    Array(rows)
+      .fill(null)
+      .map(() => columnNames.reduce((acc, col) => ({ ...acc, [col]: "" }), {}))
   );
+
+  const formatTableDataForSubmission = (
+    data: Array<{ [key: string]: string }>
+  ): string => {
+    return data
+      .map((row) => columnNames.map((col) => row[col]).join(","))
+      .join(";");
+  };
 
   const handleCellChange = (
     rowIndex: number,
-    colIndex: number,
+    columnName: string,
     value: string
   ) => {
-    const newData = tableData.map((row, rIndex) =>
-      rIndex === rowIndex
-        ? [...row.slice(0, colIndex), value, ...row.slice(colIndex + 1)]
-        : [...row]
-    );
+    const newData = [...tableData];
+    newData[rowIndex] = {
+      ...newData[rowIndex],
+      [columnName]: value,
+    };
     setTableData(newData);
-    onChange(newData);
+
+    const formattedData = formatTableDataForSubmission(newData);
+    onChange?.(formattedData);
   };
 
   return (
-    <TaskWrapper title={title} description={description}>
+    <TaskWrapper title={name} description={text}>
       <Box overflowX="auto">
-        <Table variant="simple" colorScheme="teal">
+        <Table variant="simple" size="md">
           <Thead>
             <Tr>
-              {headers.map((header, index) => (
-                <Th key={index} textAlign="center" color="teal.600">
-                  {header}
+              {columnNames.map((col, index) => (
+                <Th key={index} bg="gray.50" borderColor="gray.200">
+                  {col}
                 </Th>
               ))}
             </Tr>
@@ -54,15 +71,14 @@ const TableTask: React.FC<TableTaskProps> = ({
           <Tbody>
             {tableData.map((row, rowIndex) => (
               <Tr key={rowIndex}>
-                {headers.map((_, colIndex) => (
-                  <Td key={colIndex}>
+                {columnNames.map((col, colIndex) => (
+                  <Td key={colIndex} borderColor="gray.200" padding="1">
                     <Input
-                      value={row[colIndex]}
+                      value={row[col]}
                       onChange={(e) =>
-                        handleCellChange(rowIndex, colIndex, e.target.value)
+                        handleCellChange(rowIndex, col, e.target.value)
                       }
-                      size="sm"
-                      textAlign="center"
+                      size="md"
                       borderColor="teal.200"
                       _focus={{ borderColor: "teal.400" }}
                     />

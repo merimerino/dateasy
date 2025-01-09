@@ -1,10 +1,10 @@
 import { FormControl, FormLabel, Select } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { TaskFormData } from "../types";
+import { ExtendedTask } from "../types";
 
 interface TaskTypeSelectProps {
-  value: TaskFormData["task_type"];
-  onChange: (type: TaskFormData["task_type"]) => void;
+  value: ExtendedTask["task_type"];
+  onChange: (type: ExtendedTask["task_type"]) => void;
   isSubmitting: boolean;
 }
 
@@ -20,7 +20,7 @@ const TaskTypeSelect: React.FC<TaskTypeSelectProps> = ({
       <FormLabel>{t("taskType")}</FormLabel>
       <Select
         value={value}
-        onChange={(e) => onChange(e.target.value as TaskFormData["task_type"])}
+        onChange={(e) => onChange(e.target.value as ExtendedTask["task_type"])}
         size="lg"
         bg="white"
         isDisabled={isSubmitting}

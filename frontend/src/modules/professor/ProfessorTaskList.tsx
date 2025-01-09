@@ -60,9 +60,9 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
     onEdit(task);
   };
 
-  const handleDeleteClick = (e: React.MouseEvent, orderNumber: string) => {
+  const handleDeleteClick = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    onDelete(orderNumber);
+    onDelete(id);
   };
 
   const showTask = (orderNumber: number) => {
@@ -158,7 +158,7 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
                         </Heading>
                         {task.task_type === "description" ? (
                           <Heading size="md" color="gray.700">
-                            {task.description}
+                            {task.text}
                           </Heading>
                         ) : (
                           <Text color="gray.600" fontSize="sm" noOfLines={2}>
@@ -186,7 +186,7 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
                             colorScheme="red"
                             variant="ghost"
                             onClick={(e) =>
-                              handleDeleteClick(e, task.order_number.toString())
+                              handleDeleteClick(e, task.id.toString())
                             }
                             _hover={{ bg: "red.50" }}
                           />

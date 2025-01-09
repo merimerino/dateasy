@@ -25,7 +25,9 @@ const BasicTaskFields: React.FC<BasicTaskFieldsProps> = ({
   isSubmitting,
 }) => {
   const { t } = useTranslation();
-
+  console.log("HEJ dobio sam");
+  console.log(name);
+  console.log(text);
   return (
     <VStack spacing={6} align="stretch">
       <FormControl isRequired isInvalid={!!errors.name}>

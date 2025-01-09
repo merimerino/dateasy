@@ -6,7 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 interface ProfessorMultiChoiceTaskProps {
   title: string;
   description: string;
-  options: string[];
+  options?: string[];
 }
 
 const ProfessorMultiChoiceTask = ({
@@ -27,7 +27,7 @@ const ProfessorMultiChoiceTask = ({
       </Button>
       <TaskWrapper title={title} description={description}>
         <VStack align="stretch" spacing={3}>
-          {options.map((option, index) => (
+          {options?.map((option, index) => (
             <Flex
               key={index}
               p={3}

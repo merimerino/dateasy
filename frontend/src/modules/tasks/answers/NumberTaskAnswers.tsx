@@ -1,5 +1,21 @@
 import React, { useMemo } from "react";
-import { Box, Heading, HStack, VStack, Text } from "@chakra-ui/react";
+import {
+  Box,
+  VStack,
+  Text,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  SimpleGrid,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+} from "@chakra-ui/react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,7 +27,6 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import { useTranslation } from "react-i18next";
-import { NumberAnswer } from "../../../types/Tasks";
 
 ChartJS.register(
   CategoryScale,
@@ -22,11 +37,31 @@ ChartJS.register(
   Legend
 );
 
+interface NumberAnswer {
+  answer: string;
+  username: string;
+}
+
 interface NumberTaskAnswersProps {
   answers: NumberAnswer[];
   min: number;
   max: number;
 }
+
+const StatBox = ({ label, value }: { label: string; value: string }) => (
+  <Box
+    p={4}
+    borderRadius="lg"
+    border="1px"
+    borderColor="gray.200"
+    textAlign="center"
+  >
+    <Text fontWeight="bold" mb={2} color="gray.600">
+      {label}
+    </Text>
+    <Text fontSize="xl">{value}</Text>
+  </Box>
+);
 
 const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
   answers = [],
@@ -57,11 +92,10 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
     );
   }
 
-  // Ensure min and max are valid numbers and min is less than max
   const validMin = Number.isFinite(min) ? min : 0;
   const validMax = Number.isFinite(max) ? max : 100;
   const binCount = 10;
-  const binSize = Math.max((validMax - validMin) / binCount, 0.0001); // Prevent division by zero
+  const binSize = Math.max((validMax - validMin) / binCount, 0.0001);
 
   const bins = Array.from({ length: binCount }, (_, i) => ({
     start: validMin + i * binSize,
@@ -71,18 +105,15 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
 
   answers.forEach((answer) => {
     const value = Number(answer.answer);
-    if (!Number.isFinite(value)) return; // Skip invalid numbers
+    if (!Number.isFinite(value)) return;
 
     const binIndex = Math.floor((value - validMin) / binSize);
 
-    // Ensure binIndex is within valid bounds
     if (binIndex >= 0 && binIndex < binCount) {
       bins[binIndex].count++;
     } else if (binIndex >= binCount) {
-      // Add to the last bin if value is greater than max
       bins[binCount - 1].count++;
     } else if (binIndex < 0) {
-      // Add to the first bin if value is less than min
       bins[0].count++;
     }
   });
@@ -104,6 +135,7 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: { position: "top" as const },
       title: {
@@ -122,35 +154,53 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
   if (!stats) return null;
 
   return (
-    <VStack spacing={8} align="stretch">
-      <Box>
-        <Heading size="sm" mb={4}>
-          {t("statistics")}
-        </Heading>
-        <HStack spacing={8} justify="center">
-          <VStack>
-            <Text fontWeight="bold">{t("average")}</Text>
-            <Text>{stats.average.toFixed(2)}</Text>
-          </VStack>
-          <VStack>
-            <Text fontWeight="bold">{t("median")}</Text>
-            <Text>{stats.median.toFixed(2)}</Text>
-          </VStack>
-          <VStack>
-            <Text fontWeight="bold">{t("min")}</Text>
-            <Text>{stats.min.toFixed(2)}</Text>
-          </VStack>
-          <VStack>
-            <Text fontWeight="bold">{t("max")}</Text>
-            <Text>{stats.max.toFixed(2)}</Text>
-          </VStack>
-        </HStack>
-      </Box>
+    <Box w="100%">
+      <Tabs variant="enclosed" colorScheme="blue">
+        <TabList>
+          <Tab>{t("analysis")}</Tab>
+          <Tab>{t("allAnswers")}</Tab>
+        </TabList>
 
-      <Box h="400px">
-        <Bar options={options} data={chartData} />
-      </Box>
-    </VStack>
+        <TabPanels>
+          <TabPanel>
+            <VStack spacing={8}>
+              <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} w="100%">
+                <StatBox
+                  label={t("average")}
+                  value={stats.average.toFixed(2)}
+                />
+                <StatBox label={t("median")} value={stats.median.toFixed(2)} />
+                <StatBox label={t("min")} value={stats.min.toFixed(2)} />
+                <StatBox label={t("max")} value={stats.max.toFixed(2)} />
+              </SimpleGrid>
+
+              <Box h="400px" w="100%">
+                <Bar options={options} data={chartData} />
+              </Box>
+            </VStack>
+          </TabPanel>
+
+          <TabPanel>
+            <Table variant="simple">
+              <Thead>
+                <Tr>
+                  <Th>{t("username")}</Th>
+                  <Th>{t("answer")}</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {answers.map((answer, index) => (
+                  <Tr key={`${answer.username}-${index}`}>
+                    <Td>{answer.username}</Td>
+                    <Td>{answer.answer}</Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    </Box>
   );
 };
 

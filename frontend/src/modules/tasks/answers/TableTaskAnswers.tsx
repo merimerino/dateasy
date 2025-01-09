@@ -39,19 +39,24 @@ ChartJS.register(
 
 interface TableTaskAnswersProps {
   answers: TableAnswer[];
-  headers: string[];
+  headers: string;
 }
 
 const TableTaskAnswers: React.FC<TableTaskAnswersProps> = ({
   answers = [],
-  headers = [],
+  headers = "",
 }) => {
   const { t } = useTranslation();
 
-  const stats = useMemo(() => {
-    if (!answers?.length || !headers?.length) return [];
+  const headerArray = useMemo(
+    () => headers.split(",").map((header) => header.trim()),
+    [headers]
+  );
 
-    return headers
+  const stats = useMemo(() => {
+    if (!answers?.length || !headers) return [];
+
+    return headerArray
       .map((header, colIndex) => {
         const columnValues = answers
           .map((answer) =>
@@ -72,9 +77,9 @@ const TableTaskAnswers: React.FC<TableTaskAnswersProps> = ({
         };
       })
       .filter(Boolean);
-  }, [answers, headers]);
+  }, [answers, headerArray, headers]);
 
-  if (!answers?.length || !headers?.length) {
+  if (!answers?.length || !headers) {
     return (
       <Box textAlign="center" py={8}>
         <Text color="gray.500">{t("noAnswersYet")}</Text>
@@ -194,7 +199,7 @@ const TableTaskAnswers: React.FC<TableTaskAnswersProps> = ({
             <Thead>
               <Tr>
                 <Th>{t("user")}</Th>
-                {headers.map((header) => (
+                {headerArray.map((header) => (
                   <Th key={header}>{header}</Th>
                 ))}
               </Tr>

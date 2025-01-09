@@ -1,17 +1,12 @@
-import { Box, Button } from "@chakra-ui/react";
-import TaskWrapper from "../TaskWrapper";
+import { Box, Button, Text } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowBigLeft } from "lucide-react";
 
-interface ProfessorShortTextTaskProps {
-  title: string;
+interface ProfessorDescriptionProps {
   description: string;
-  maxLength?: number;
-  onChange: (value: string) => void;
 }
 
-const ProfessorShortTextTask: React.FC<ProfessorShortTextTaskProps> = ({
-  title,
+const ProfessorDescription: React.FC<ProfessorDescriptionProps> = ({
   description,
 }) => {
   const navigate = useNavigate();
@@ -25,11 +20,13 @@ const ProfessorShortTextTask: React.FC<ProfessorShortTextTaskProps> = ({
       >
         <ArrowBigLeft color="white" />
       </Button>
-      <TaskWrapper title={title} description={description}>
-        <Box></Box>
-      </TaskWrapper>
+      <Box borderWidth="1px" borderRadius="lg" p={4} bg="white" shadow="sm">
+        <Text fontWeight="bold" fontSize="lg" color="teal.600">
+          {description}
+        </Text>
+      </Box>
     </>
   );
 };
 
-export default ProfessorShortTextTask;
+export default ProfessorDescription;

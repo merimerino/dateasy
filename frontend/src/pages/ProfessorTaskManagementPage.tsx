@@ -26,13 +26,18 @@ const ProfessorTaskManagementPage: React.FC = () => {
 
   const handleDeleteTask = async (taskId: string) => {
     try {
-      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+      console.log("TU SAM", taskId);
+      const response = await fetch(`http://localhost:3000/deleteTask`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
           "x-jwt-token": localStorage.getItem("token") || "",
         },
+        body: JSON.stringify({
+          id: taskId,
+        }),
       });
+      console.log(response);
 
       if (!response.ok) {
         throw new Error("Failed to delete task");

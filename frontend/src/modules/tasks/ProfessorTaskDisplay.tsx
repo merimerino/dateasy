@@ -1,10 +1,10 @@
-import { Task } from "../../types/Tasks";
-import DescriptionTask from "./questions/DescriptionTask";
-import TableTask from "./questions/TableTask";
 import ProfessorMultiChoiceTask from "./professorTask/ProfessorMultiChoiceTask";
 import ProfessorShortTextTask from "./professorTask/ProfessorShortTextTask";
 import ProfessorNumberTask from "./professorTask/ProfessorNumberTask";
 import ProfessorMapTask from "./professorTask/ProfessorMapTask";
+import ProfessorDescription from "./professorTask/ProfessorDescription";
+import ProfessorTableTask from "./professorTask/ProfessorTableTask";
+import { ExtendedTask } from "./TaskForm/types";
 
 type SubmissionValue =
   | string
@@ -15,7 +15,7 @@ type SubmissionValue =
   | null;
 
 interface ProfessorTaskDisplayProps {
-  task: Task;
+  task: ExtendedTask;
   onSubmit: (roomName: string, value: SubmissionValue) => void;
 }
 
@@ -62,22 +62,20 @@ const ProfessorTaskDisplay: React.FC<ProfessorTaskDisplayProps> = ({
 
     case "description": {
       return (
-        <DescriptionTask description={task.description ?? task.text ?? ""} />
+        <ProfessorDescription description={task.text ?? task.text ?? ""} />
       );
     }
 
     case "table_task": {
-      if ("headers" in task && "rows" in task) {
-        return (
-          <TableTask
-            title={task.name ?? ""}
-            description={task.text ?? ""}
-            headers={task.headers}
-            rows={task.rows}
-            onChange={(value: string[][]) => handleTaskSubmit(value)}
-          />
-        );
-      }
+      console.log(task);
+      return (
+        <ProfessorTableTask
+          name={task.name ?? ""}
+          text={task.text ?? ""}
+          columns={task.columns}
+        />
+      );
+
       return null;
     }
 

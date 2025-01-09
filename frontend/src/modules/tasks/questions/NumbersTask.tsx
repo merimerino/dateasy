@@ -6,8 +6,8 @@ import TaskWrapper from "../TaskWrapper";
 interface NumbersTaskProps {
   title: string;
   description: string;
-  min: number;
-  max: number;
+  min?: number;
+  max?: number;
   onChange: (value: string) => void;
 }
 

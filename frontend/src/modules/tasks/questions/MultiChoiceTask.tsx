@@ -5,8 +5,8 @@ import TaskWrapper from "../TaskWrapper";
 interface MultiChoiceTaskProps {
   title: string;
   description: string;
-  options: string[];
-  multiple_answers: boolean;
+  options?: string[];
+  multiple_answers?: boolean;
   onChange: (value: string | string[]) => void;
 }
 
@@ -38,7 +38,7 @@ const MultiChoiceTask: React.FC<MultiChoiceTaskProps> = ({
     return (
       <TaskWrapper title={title} description={description}>
         <VStack align="stretch" spacing={3}>
-          {options.map((option, index) => (
+          {options?.map((option, index) => (
             <Checkbox
               key={index}
               isChecked={multipleValues.includes(option)}
@@ -59,7 +59,7 @@ const MultiChoiceTask: React.FC<MultiChoiceTaskProps> = ({
     <TaskWrapper title={title} description={description}>
       <RadioGroup value={singleValue} onChange={handleSingleChange}>
         <VStack align="stretch" spacing={3}>
-          {options.map((option, index) => (
+          {options?.map((option, index) => (
             <Radio
               key={index}
               value={option}

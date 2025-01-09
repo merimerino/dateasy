@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
   Card,
@@ -8,10 +10,11 @@ import {
   HStack,
   Button,
   VStack,
+  useToast,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
+import { FormErrors, ExtendedTask, TaskType } from "./types";
 
-import { useTaskForm } from "./useTaskForm";
 import TaskTypeSelect from "./components/TaskTypeSelect";
 import BasicTaskFields from "./components/BasicTaskFields";
 import ShortTaskFields from "./components/ShortTaskFields";
@@ -19,20 +22,185 @@ import NumberTaskFields from "./components/NumberTaskFields";
 import MultiChoiceFields from "./components/MultiChoiceFields";
 import TableTaskFields from "./components/TableTaskFields";
 import MapTaskFields from "./components/MapTaskFields";
-import { TaskFormProps } from "./types";
 import DescriptionTaskFields from "./components/DescriptionTaskFields";
+interface TaskFormProps {
+  mode: "create" | "edit";
+  initialData?: ExtendedTask;
+}
 
 const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
   const { t } = useTranslation();
-  const {
-    formData,
-    errors,
-    isSubmitting,
-    handleInputChange,
-    handleTypeChange,
-    handleSubmit,
-    handleCancel,
-  } = useTaskForm({ mode, initialData });
+  const navigate = useNavigate();
+  const { roomName } = useParams();
+  const toast = useToast();
+
+  const getInitialState = (): ExtendedTask => {
+    const baseState: ExtendedTask = {
+      id: initialData?.id || "",
+      name: initialData?.name || "",
+      text: initialData?.text || "",
+      task_type: initialData?.task_type || "short_task",
+      room_name: roomName || "",
+      order_number: initialData?.order_number || 0,
+    };
+
+    if (initialData) {
+      return {
+        ...baseState,
+        ...initialData,
+      };
+    }
+
+    return baseState;
+  };
+
+  const [task, setTask] = useState<ExtendedTask>(getInitialState);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleInputChange = <K extends keyof ExtendedTask>(
+    field: K,
+    value: ExtendedTask[K]
+  ) => {
+    setTask((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    if (field in errors) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: undefined,
+      }));
+    }
+  };
+
+  const handleTypeChange = (newType: TaskType) => {
+    setTask((prev) => ({
+      ...getInitialState(),
+      id: prev.id,
+      name: prev.name,
+      text: prev.text,
+      task_type: newType,
+      room_name: prev.room_name,
+      order_number: prev.order_number,
+    }));
+    setErrors({});
+  };
+
+  const formatPayload = (data: ExtendedTask): ExtendedTask => {
+    const basePayload = {
+      id: data.id,
+      name: data.name,
+      text: data.text,
+      room_name: roomName || "",
+      order_number: data.order_number,
+      task_type: data.task_type,
+    };
+
+    switch (data.task_type) {
+      case "multichoice":
+        return {
+          ...basePayload,
+          multiple_answers: data.multiple_answers ?? false,
+          options: data.options || [],
+        };
+
+      case "description":
+        return {
+          ...basePayload,
+        };
+
+      case "short_task":
+        return {
+          ...basePayload,
+          max_characters_allowed: data.max_characters_allowed ?? 100,
+        };
+
+      case "table_task":
+        return {
+          ...basePayload,
+          columns: data.columns,
+          rows: data.rows || 3,
+          show_graf: true,
+          allow_adding_of_rows: true,
+          new_row_name: data.name,
+        };
+
+      case "map_task":
+        return {
+          ...basePayload,
+          add_mark: true,
+          coord_x: data.center_latitude ?? 0,
+          coord_y: data.center_longitude ?? 0,
+        };
+
+      case "numbers_task":
+        return {
+          ...basePayload,
+          min_num: data.min_num ?? 0,
+          max_num: data.max_num ?? 100,
+        };
+
+      default:
+        throw new Error(`Unknown task type: ${data.task_type}`);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const validationErrors: FormErrors = {};
+    if (!task.text) validationErrors.text = "Text is required";
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      toast({
+        title: t("error.validationFailed"),
+        status: "error",
+        duration: 3000,
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const url = `http://localhost:3000/${
+        mode === "create" ? "addTask" : "editTask"
+      }/${task.task_type}`;
+      const payload = formatPayload(task);
+
+      const response = await fetch(url, {
+        method: mode === "create" ? "POST" : "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "x-jwt-token": localStorage.getItem("token") || "",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error((await response.text()) || "Failed to save task");
+      }
+
+      toast({
+        title: t("success.taskSaved"),
+        status: "success",
+        duration: 3000,
+      });
+
+      navigate(`/room/${roomName}/edit`);
+    } catch (error) {
+      console.error("Error saving task:", error);
+      toast({
+        title: t("error.failedToSave"),
+        status: "error",
+        duration: 5000,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Box maxW="800px" mx="auto" py={8} px={4}>
@@ -46,28 +214,25 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
         <CardBody>
           <VStack spacing={6} align="stretch">
             <TaskTypeSelect
-              value={formData.task_type}
+              value={task.task_type}
               onChange={handleTypeChange}
               isSubmitting={isSubmitting}
             />
 
-            {formData.task_type === "description" && (
-              <>
-                <DescriptionTaskFields
-                  description={formData.text}
-                  errors={{
-                    text: errors.text,
-                  }}
-                  onChange={handleInputChange}
-                  isSubmitting={isSubmitting}
-                />
-              </>
+            {task.task_type === "description" && (
+              <DescriptionTaskFields
+                description={task.text}
+                errors={{ text: errors.text }}
+                onChange={handleInputChange}
+                isSubmitting={isSubmitting}
+              />
             )}
-            {formData.task_type === "short_task" && (
+
+            {task.task_type === "short_task" && (
               <>
                 <BasicTaskFields
-                  name={formData.name}
-                  text={formData.text}
+                  name={task.name}
+                  text={task.text}
                   errors={{
                     name: errors.name,
                     text: errors.text,
@@ -76,7 +241,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
                   isSubmitting={isSubmitting}
                 />
                 <ShortTaskFields
-                  maxCharacters={formData.max_characters_allowed}
+                  maxCharacters={task.max_characters_allowed}
                   error={errors.max_characters_allowed}
                   onChange={(value) =>
                     handleInputChange("max_characters_allowed", value)
@@ -86,11 +251,11 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
               </>
             )}
 
-            {formData.task_type === "numbers_task" && (
+            {task.task_type === "numbers_task" && (
               <>
                 <BasicTaskFields
-                  name={formData.name}
-                  text={formData.text}
+                  name={task.name}
+                  text={task.text}
                   errors={{
                     name: errors.name,
                     text: errors.text,
@@ -99,8 +264,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
                   isSubmitting={isSubmitting}
                 />
                 <NumberTaskFields
-                  minNum={formData.min_num}
-                  maxNum={formData.max_num}
+                  minNum={task.min_num}
+                  maxNum={task.max_num}
                   errors={{
                     min_num: errors.min_num,
                     max_num: errors.max_num,
@@ -114,11 +279,11 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
               </>
             )}
 
-            {formData.task_type === "multichoice" && (
+            {task.task_type === "multichoice" && (
               <>
                 <BasicTaskFields
-                  name={formData.name}
-                  text={formData.text}
+                  name={task.name}
+                  text={task.text}
                   errors={{
                     name: errors.name,
                     text: errors.text,
@@ -127,8 +292,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
                   isSubmitting={isSubmitting}
                 />
                 <MultiChoiceFields
-                  options={formData.options || []}
-                  multipleAnswers={formData.multiple_answers || false}
+                  options={task.options || []}
+                  multipleAnswers={task.multiple_answers || false}
                   error={errors.options}
                   onChange={{
                     options: (value) => handleInputChange("options", value),
@@ -140,11 +305,11 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
               </>
             )}
 
-            {formData.task_type === "table_task" && (
+            {task.task_type === "table_task" && (
               <>
                 <BasicTaskFields
-                  name={formData.name}
-                  text={formData.text}
+                  name={task.name}
+                  text={task.text}
                   errors={{
                     name: errors.name,
                     text: errors.text,
@@ -153,8 +318,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
                   isSubmitting={isSubmitting}
                 />
                 <TableTaskFields
-                  columns={formData.columns || []}
-                  rows={formData.rows || 3}
+                  columns={task.columns || ""}
+                  rows={task.rows || 3}
                   errors={{
                     columns: errors.columns,
                     rows: errors.rows,
@@ -168,11 +333,11 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
               </>
             )}
 
-            {formData.task_type === "map_task" && (
+            {task.task_type === "map_task" && (
               <>
                 <BasicTaskFields
-                  name={formData.name}
-                  text={formData.text}
+                  name={task.name}
+                  text={task.text}
                   errors={{
                     name: errors.name,
                     text: errors.text,
@@ -181,8 +346,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
                   isSubmitting={isSubmitting}
                 />
                 <MapTaskFields
-                  centerLatitude={formData.center_latitude}
-                  centerLongitude={formData.center_longitude}
+                  centerLatitude={task.center_latitude}
+                  centerLongitude={task.center_longitude}
                   errors={{
                     center_latitude: errors.center_latitude,
                     center_longitude: errors.center_longitude,
@@ -202,7 +367,11 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
 
         <CardFooter>
           <HStack spacing={4} justify="flex-end" w="100%">
-            <Button onClick={handleCancel} size="lg" isDisabled={isSubmitting}>
+            <Button
+              onClick={() => navigate(`/room/${roomName}/edit`)}
+              size="lg"
+              isDisabled={isSubmitting}
+            >
               {t("cancel")}
             </Button>
             <Button

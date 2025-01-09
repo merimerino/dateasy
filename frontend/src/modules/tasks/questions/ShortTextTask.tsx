@@ -6,7 +6,7 @@ import TaskWrapper from "../TaskWrapper";
 interface ShortTextTaskProps {
   title: string;
   description: string;
-  maxLength: number;
+  maxLength?: number;
   onChange: (value: string) => void;
 }
 

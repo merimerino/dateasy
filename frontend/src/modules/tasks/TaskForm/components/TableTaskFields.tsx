@@ -17,14 +17,14 @@ import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 import { useTranslation } from "react-i18next";
 
 interface TableTaskFieldsProps {
-  columns: string[];
+  columns: string;
   rows: number;
   errors: {
     columns?: string;
     rows?: string;
   };
   onChange: {
-    columns: (columns: string[]) => void;
+    columns: (columns: string) => void;
     rows: (value: number) => void;
   };
   isSubmitting: boolean;
@@ -39,19 +39,39 @@ const TableTaskFields: React.FC<TableTaskFieldsProps> = ({
 }) => {
   const { t } = useTranslation();
 
+  // Convert string to array, handling empty string case
+  const getColumnsArray = (columnsStr: string) => {
+    if (!columnsStr) return [];
+    const cols = columnsStr.split(",").map((col) => col.trim());
+    return cols.filter((col) => col !== undefined); // Keep empty strings but filter undefined
+  };
+
   const handleAddHeader = () => {
-    onChange.columns([...columns, ""]);
+    const currentColumns = getColumnsArray(columns);
+    if (currentColumns.length === 0) {
+      onChange.columns(" "); // Using space to ensure it's not an empty string
+      return;
+    }
+    const newColumns = [...currentColumns, ""];
+    onChange.columns(newColumns.join(","));
   };
 
   const handleRemoveHeader = (index: number) => {
-    onChange.columns(columns.filter((_, i) => i !== index));
+    const currentColumns = getColumnsArray(columns);
+    const newColumns = currentColumns.filter((_, i) => i !== index);
+    onChange.columns(newColumns.join(","));
   };
 
   const handleHeaderChange = (index: number, value: string) => {
-    onChange.columns(
-      columns.map((header, i) => (i === index ? value : header))
+    const currentColumns = getColumnsArray(columns);
+    const newColumns = currentColumns.map((header, i) =>
+      i === index ? value : header
     );
+    onChange.columns(newColumns.join(","));
   };
+
+  // Get array for rendering, ensuring we show empty strings
+  const columnArray = columns === "" ? [] : getColumnsArray(columns);
 
   return (
     <VStack spacing={4} align="stretch">
@@ -85,7 +105,7 @@ const TableTaskFields: React.FC<TableTaskFieldsProps> = ({
             </Button>
           </HStack>
           <VStack spacing={2} align="stretch">
-            {columns.map((header, index) => (
+            {columnArray.map((header, index) => (
               <InputGroup key={index} size="lg">
                 <Input
                   value={header}

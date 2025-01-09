@@ -1,7 +1,7 @@
-import { TaskFormData } from "./types";
+import { ExtendedTask } from "./types";
 
 export const getDefaultValuesForType = (
-  taskType: TaskFormData["task_type"]
+  taskType: ExtendedTask["task_type"]
 ) => {
   switch (taskType) {
     case "multichoice":

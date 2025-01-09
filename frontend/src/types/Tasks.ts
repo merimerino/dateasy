@@ -67,12 +67,12 @@ export interface ShortTask extends BaseTask {
 
 export interface DescriptionTask extends BaseTask {
   task_type: "description";
-  description: string;
+  text: string;
 }
 
 export interface TableTask extends BaseTask {
   task_type: "table_task";
-  headers: string[];
+  headers: string;
   rows: number;
   columns: number;
   answers: TableAnswer[];
@@ -95,7 +95,6 @@ export type Task =
   | TableTask
   | MapTask;
 
-// Type guard functions with proper typing
 export const isMultipleChoiceTask = (
   task: Task
 ): task is MultipleChoiceTask => {

@@ -1,5 +1,21 @@
 import React from "react";
-import { Box, Heading, HStack, VStack, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Heading,
+  HStack,
+  Text,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+} from "@chakra-ui/react";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -11,7 +27,6 @@ import {
 } from "chart.js";
 import { Pie, Bar } from "react-chartjs-2";
 import { useTranslation } from "react-i18next";
-import { MultipleChoiceAnswer } from "../../../types/Tasks";
 
 ChartJS.register(
   ArcElement,
@@ -21,6 +36,11 @@ ChartJS.register(
   LinearScale,
   BarElement
 );
+
+interface MultipleChoiceAnswer {
+  answer: string;
+  username: string;
+}
 
 interface MultiChoiceAnswersProps {
   answers: MultipleChoiceAnswer[];
@@ -63,36 +83,71 @@ const MultiChoiceAnswers: React.FC<MultiChoiceAnswersProps> = ({
     ],
   };
 
+  const barOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1,
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+  };
+
   return (
-    <VStack spacing={8} align="stretch">
-      <HStack spacing={8} justify="center">
-        <Box w="300px" h="300px">
-          <Heading size="sm" textAlign="center" mb={4}>
-            {t("pieDistribution")}
-          </Heading>
-          <Pie data={chartData} />
-        </Box>
-        <Box w="400px" h="300px">
-          <Heading size="sm" textAlign="center" mb={4}>
-            {t("barDistribution")}
-          </Heading>
-          <Bar
-            data={chartData}
-            options={{
-              responsive: true,
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  ticks: {
-                    stepSize: 1,
-                  },
-                },
-              },
-            }}
-          />
-        </Box>
-      </HStack>
-    </VStack>
+    <Box w="100%">
+      <Tabs variant="enclosed" colorScheme="blue">
+        <TabList>
+          <Tab>{t("analysis")}</Tab>
+          <Tab>{t("allAnswers")}</Tab>
+        </TabList>
+
+        <TabPanels>
+          <TabPanel>
+            <HStack spacing={8} justify="center" align="start">
+              <Box w="300px" h="300px">
+                <Heading size="sm" textAlign="center" mb={4}>
+                  {t("pieDistribution")}
+                </Heading>
+                <Pie data={chartData} />
+              </Box>
+              <Box w="400px" h="300px">
+                <Heading size="sm" textAlign="center" mb={4}>
+                  {t("barDistribution")}
+                </Heading>
+                <Bar data={chartData} options={barOptions} />
+              </Box>
+            </HStack>
+          </TabPanel>
+
+          <TabPanel>
+            <Table variant="simple">
+              <Thead>
+                <Tr>
+                  <Th>{t("username")}</Th>
+                  <Th>{t("answer")}</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {answers.map((answer, index) => (
+                  <Tr key={`${answer.username}-${index}`}>
+                    <Td>{answer.username}</Td>
+                    <Td>{answer.answer}</Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    </Box>
   );
 };
 

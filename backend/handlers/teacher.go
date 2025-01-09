@@ -101,6 +101,7 @@ func (s *APIServer) HandleAddMultipleChoice(w http.ResponseWriter, r *http.Reque
 		MultipleAnswers: add_multiple_req.MultipleAnswers,
 		Text:            add_multiple_req.Text,
 		Options:         add_multiple_req.Options,
+		Answers:         []types.Answer{},
 	}
 
 	// Save the new task to the database
@@ -135,6 +136,7 @@ func (s *APIServer) HandleAddNumbersTask(w http.ResponseWriter, r *http.Request,
 		Text:        add_multiple_req.Text,
 		MinNum:      add_multiple_req.MinNum,
 		MaxNum:      add_multiple_req.MaxNum,
+		Answers:     []types.Answer{},
 	}
 
 	// Save the new task to the database
@@ -167,6 +169,7 @@ func (s *APIServer) HandleAddShortTask(w http.ResponseWriter, r *http.Request, r
 		OrderNumber:          highestOrder + 1,
 		Text:                 add_multiple_req.Text,
 		MaxCharactersAllowed: add_multiple_req.MaxCharactersAllowed,
+		Answers:              []types.Answer{},
 	}
 
 	// Save the new task to the database
@@ -194,7 +197,7 @@ func (s *APIServer) HandleAddDescription(w http.ResponseWriter, r *http.Request,
 	// Create a new MultipleChoice task
 	newTask := &types.Description{
 		RoomName:    room_name,
-		Description: add_multiple_req.Description,
+		Text: add_multiple_req.Text,
 		TaskType:    "description",
 		OrderNumber: highestOrder + 1,
 	}
@@ -231,6 +234,7 @@ func (s *APIServer) HandleAddMapTask(w http.ResponseWriter, r *http.Request, roo
 		AddMark:     add_multiple_req.AddMark,
 		CoordX:      add_multiple_req.CoordX,
 		CoordY:      add_multiple_req.CoordY,
+		Answers:     []types.Answer{},
 	}
 
 	// Save the new task to the database
@@ -260,12 +264,14 @@ func (s *APIServer) HandleAddTableTask(w http.ResponseWriter, r *http.Request, r
 		RoomName:          room_name,
 		Name:              add_multiple_req.Name,
 		TaskType:          "table_task",
+		Text: 				add_multiple_req.Text,
 		OrderNumber:       highestOrder + 1,
 		Columns:           add_multiple_req.Columns,
 		Rows:              add_multiple_req.Rows,
 		ShowGraf:          add_multiple_req.ShowGraf,
 		AllowAddingOfRows: add_multiple_req.AllowAddingOfRows,
 		NewRowName:        add_multiple_req.NewRowName,
+		Answers:           []types.Answer{},
 	}
 
 	// Save the new task to the database
@@ -306,4 +312,221 @@ func (s *APIServer) HandleGiveAnswer(w http.ResponseWriter, r *http.Request, roo
 	}
 
 	return WriteJSON(w, http.StatusOK, "Added all answers")
+}
+
+func (s *APIServer) HandleDeleteTask(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
+	if r.Method != http.MethodDelete {
+		return WriteJSON(w, http.StatusMethodNotAllowed, "Invalid request method")
+	}
+	deleteReq := new(types.Delete)
+	if err := json.NewDecoder(r.Body).Decode(deleteReq); err != nil {
+		return err
+	}
+
+	taskID := deleteReq.ID
+
+	// Get the task by ID
+	_, collectionName, err := s.store.GetTaskByID(taskID)
+	if err != nil {
+		log.Println(err)
+		return WriteJSON(w, http.StatusInternalServerError, err)
+	}
+
+	// Update the task with the answer
+	err = s.store.DeleteTask(collectionName, taskID)
+	if err != nil {
+		log.Println(err)
+		return WriteJSON(w, http.StatusInternalServerError, err)
+	}
+
+	return WriteJSON(w, http.StatusOK, "Task successfully deleted!")
+}
+
+func (s *APIServer) HandleEditMultipleChoice(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
+	if r.Method != http.MethodPut {
+		return WriteJSON(w, http.StatusMethodNotAllowed, "Invalid request method")
+	}
+	if username != "Admin" {
+		return WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+	}
+	edit_multiple_req := new(types.EditMultipleChoice)
+	if err := json.NewDecoder(r.Body).Decode(edit_multiple_req); err != nil {
+		return err
+	}
+
+	// Create a new MultipleChoice task
+	task := &types.MultipleChoice{
+		ID:              edit_multiple_req.ID,
+		RoomName:        room_name,
+		Name:            edit_multiple_req.Name,
+		TaskType:        "multichoice",
+		OrderNumber:     edit_multiple_req.OrderNumber,
+		MultipleAnswers: edit_multiple_req.MultipleAnswers,
+		Text:            edit_multiple_req.Text,
+		Options:         edit_multiple_req.Options,
+		Answers:         []types.Answer{},
+	}
+	err_update := s.store.UpdateMultipleChoice(*task)
+	if err_update != nil {
+		return WriteJSON(w, http.StatusInternalServerError, err_update.Error())
+	}
+
+	return WriteJSON(w, http.StatusOK, "Successfully edited a task")
+}
+func (s *APIServer) HandleEditShortTask(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
+	if r.Method != http.MethodPut {
+		return WriteJSON(w, http.StatusMethodNotAllowed, "Invalid request method")
+	}
+	if username != "Admin" {
+		return WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+	}
+	edit_short_req := new(types.EditShortTask)
+	if err := json.NewDecoder(r.Body).Decode(edit_short_req); err != nil {
+		return err
+	}
+
+	// Create a new ShortTask
+	task := &types.ShortTask{
+		ID:                   edit_short_req.ID,
+		RoomName:             room_name,
+		Name:                 edit_short_req.Name,
+		TaskType:             "short_task",
+		OrderNumber:          edit_short_req.OrderNumber,
+		Text:                 edit_short_req.Text,
+		MaxCharactersAllowed: edit_short_req.MaxCharactersAllowed,
+		Answers:              []types.Answer{},
+	}
+	err_update := s.store.UpdateShortTask(*task)
+	if err_update != nil {
+		return WriteJSON(w, http.StatusInternalServerError, err_update.Error())
+	}
+
+	return WriteJSON(w, http.StatusOK, "Successfully edited a task")
+}
+func (s *APIServer) HandleEditDescription(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
+	if r.Method != http.MethodPut {
+		return WriteJSON(w, http.StatusMethodNotAllowed, "Invalid request method")
+	}
+	if username != "Admin" {
+		return WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+	}
+	edit_description_req := new(types.EditDescription)
+	if err := json.NewDecoder(r.Body).Decode(edit_description_req); err != nil {
+		return err
+	}
+
+	// Create a new DescriptionTask
+	task := &types.Description{
+		ID:          edit_description_req.ID,
+		RoomName:    room_name,
+		Text: edit_description_req.Text,
+		TaskType:    "description",
+		OrderNumber: edit_description_req.OrderNumber,
+		Answers:     []types.Answer{},
+	}
+	err_update := s.store.UpdateDescription(*task)
+	if err_update != nil {
+		return WriteJSON(w, http.StatusInternalServerError, err_update.Error())
+	}
+
+	return WriteJSON(w, http.StatusOK, "Successfully edited a task")
+}
+
+func (s *APIServer) HandleEditTableTask(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
+	if r.Method != http.MethodPut {
+		return WriteJSON(w, http.StatusMethodNotAllowed, "Invalid request method")
+	}
+	if username != "Admin" {
+		return WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+	}
+	edit_table_req := new(types.EditTableTask)
+	if err := json.NewDecoder(r.Body).Decode(edit_table_req); err != nil {
+		return err
+	}
+
+	// Create a new TableTask
+	task := &types.TableTask{
+		ID:                edit_table_req.ID,
+		RoomName:          room_name,
+		Name:              edit_table_req.Name,
+		Text:				edit_table_req.Text,
+		TaskType:          "table_task",
+		OrderNumber:       edit_table_req.OrderNumber,
+		Columns:           edit_table_req.Columns,
+		Rows:              edit_table_req.Rows,
+		ShowGraf:          edit_table_req.ShowGraf,
+		AllowAddingOfRows: edit_table_req.AllowAddingOfRows,
+		NewRowName:        edit_table_req.NewRowName,
+		Answers:           []types.Answer{},
+	}
+	err_update := s.store.UpdateTableTask(*task)
+	if err_update != nil {
+		return WriteJSON(w, http.StatusInternalServerError, err_update.Error())
+	}
+
+	return WriteJSON(w, http.StatusOK, "Successfully edited a task")
+}
+
+func (s *APIServer) HandleEditMapTask(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
+	if r.Method != http.MethodPut {
+		return WriteJSON(w, http.StatusMethodNotAllowed, "Invalid request method")
+	}
+	if username != "Admin" {
+		return WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+	}
+	edit_map_req := new(types.EditMapTask)
+	if err := json.NewDecoder(r.Body).Decode(edit_map_req); err != nil {
+		return err
+	}
+
+	// Create a new MapTask
+	task := &types.MapTask{
+		ID:          edit_map_req.ID,
+		RoomName:    room_name,
+		Name:        edit_map_req.Name,
+		TaskType:    "map_task",
+		OrderNumber: edit_map_req.OrderNumber,
+		Text:        edit_map_req.Text,
+		AddMark:     edit_map_req.AddMark,
+		CoordX:      edit_map_req.CoordX,
+		CoordY:      edit_map_req.CoordY,
+		Answers:     []types.Answer{},
+	}
+	err_update := s.store.UpdateMapTask(*task)
+	if err_update != nil {
+		return WriteJSON(w, http.StatusInternalServerError, err_update.Error())
+	}
+
+	return WriteJSON(w, http.StatusOK, "Successfully edited a task")
+}
+func (s *APIServer) HandleEditNumbersTask(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
+	if r.Method != http.MethodPut {
+		return WriteJSON(w, http.StatusMethodNotAllowed, "Invalid request method")
+	}
+	if username != "Admin" {
+		return WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+	}
+	edit_numbers_req := new(types.EditNumbersTask)
+	if err := json.NewDecoder(r.Body).Decode(edit_numbers_req); err != nil {
+		return err
+	}
+
+	// Create a new NumbersTask
+	task := &types.NumbersTask{
+		ID:          edit_numbers_req.ID,
+		RoomName:    room_name,
+		Name:        edit_numbers_req.Name,
+		TaskType:    "numbers_task",
+		OrderNumber: edit_numbers_req.OrderNumber,
+		Text:        edit_numbers_req.Text,
+		MinNum:      edit_numbers_req.MinNum,
+		MaxNum:      edit_numbers_req.MaxNum,
+		Answers:     []types.Answer{},
+	}
+	err_update := s.store.UpdateNumbersTask(*task)
+	if err_update != nil {
+		return WriteJSON(w, http.StatusInternalServerError, err_update.Error())
+	}
+
+	return WriteJSON(w, http.StatusOK, "Successfully edited a task")
 }

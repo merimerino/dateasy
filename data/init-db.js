@@ -39,6 +39,7 @@ db.createCollection("MultipleChoice", {
         "multiple_answers",
         "text",
         "options",
+        "answers",
       ],
       properties: {
         room_name: {
@@ -72,6 +73,23 @@ db.createCollection("MultipleChoice", {
           },
           description: "must be an array of strings and is required",
         },
+        answers: {
+          bsonType: "array",
+          items: {
+            bsonType: "object",
+            properties: {
+              username: {
+                bsonType: "string",
+                description: "must be a string and is required",
+              },
+              answer: {
+                bsonType: "string",
+                description: "must be a string and is required",
+              },
+            },
+          },
+          description: "must be an array of answer objects",
+        },
       },
     },
   },
@@ -86,6 +104,7 @@ db.MultipleChoice.insertMany([
     multiple_answers: false,
     text: "What is the capital of France?",
     options: ["Paris", "London", "Berlin", "Madrid"],
+    answers: [], // Initialize with empty answers array
   },
   {
     room_name: "againtest",
@@ -95,6 +114,7 @@ db.MultipleChoice.insertMany([
     multiple_answers: false,
     text: "What is 2 + 2?",
     options: ["3", "4", "5", "6"],
+    answers: [], // Initialize with empty answers array
   },
 ]);
 
@@ -109,6 +129,7 @@ db.createCollection("ShortTask", {
         "task_type",
         "text",
         "max_characters_allowed",
+        "answers",
       ],
       properties: {
         room_name: {
@@ -135,6 +156,23 @@ db.createCollection("ShortTask", {
           bsonType: "int",
           description: "must be an integer and is required",
         },
+        answers: {
+          bsonType: "array",
+          items: {
+            bsonType: "object",
+            properties: {
+              username: {
+                bsonType: "string",
+                description: "must be a string and is required",
+              },
+              answer: {
+                bsonType: "string",
+                description: "must be a string and is required",
+              },
+            },
+          },
+          description: "must be an array of answer objects",
+        },
       },
     },
   },
@@ -148,6 +186,7 @@ db.ShortTask.insertMany([
     order_number: 2,
     text: "Write a short description of your favorite book.",
     max_characters_allowed: 250,
+    answers: [], // Initialize with empty answers array
   },
   {
     room_name: "something_else",
@@ -156,6 +195,7 @@ db.ShortTask.insertMany([
     order_number: 1,
     text: "Describe your perfect day.",
     max_characters_allowed: 300,
+    answers: [], // Initialize with empty answers array
   },
 ]);
 
@@ -163,13 +203,13 @@ db.createCollection("Description", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: ["room_name", "description", "task_type", "order_number"],
+      required: ["room_name", "text", "task_type", "order_number"],
       properties: {
         room_name: {
           bsonType: "string",
           description: "must be an string and is required",
         },
-        description: {
+        text: {
           bsonType: "string",
           description: "must be a string and is required",
         },
@@ -191,13 +231,13 @@ db.Description.insertMany([
     room_name: "againtest",
     order_number: 2,
     task_type: "description",
-    description: "Write a short description of your favorite book.",
+    text: "Write a short description of your favorite book.",
   },
   {
     room_name: "something_else_else",
     order_number: 3,
     task_type: "description",
-    description: "Something to fill empty space",
+    text: "Something to fill empty space",
   },
 ]);
 
@@ -209,12 +249,14 @@ db.createCollection("TableTask", {
         "room_name",
         "name",
         "order_number",
+        "text",
         "task_type",
         "columns",
         "rows",
         "show_graf",
         "allow_adding_of_rows",
         "new_row_name",
+        "answers",
       ],
       properties: {
         room_name: {
@@ -229,6 +271,10 @@ db.createCollection("TableTask", {
           bsonType: "int",
           description: "must be a int and is required",
         },
+        text: {
+          bsonType: "string",
+          description: "must be a string and is required",
+        },
         task_type: {
           bsonType: "string",
           description: "must be a string and is required",
@@ -238,7 +284,7 @@ db.createCollection("TableTask", {
           description: "must be a string and is required",
         },
         rows: {
-          bsonType: "string",
+          bsonType: "int",
           description: "must be a string and is required",
         },
         show_graf: {
@@ -253,6 +299,23 @@ db.createCollection("TableTask", {
           bsonType: "string",
           description: "must be a string and is required",
         },
+        answers: {
+          bsonType: "array",
+          items: {
+            bsonType: "object",
+            properties: {
+              username: {
+                bsonType: "string",
+                description: "must be a string and is required",
+              },
+              answer: {
+                bsonType: "string",
+                description: "must be a string and is required",
+              },
+            },
+          },
+          description: "must be an array of answer objects",
+        },
       },
     },
   },
@@ -260,26 +323,30 @@ db.createCollection("TableTask", {
 
 db.TableTask.insertMany([
   {
-    room_name: "againtest",
+    room_name: "testing",
     name: "MyName of this task",
     task_type: "table_task",
+    text: "Ovo je test",
     order_number: 3,
     columns: "first,second,third",
-    rows: "last,last1",
+    rows: 2,
     show_graf: true,
     allow_adding_of_rows: true,
     new_row_name: "MarijaVoliMatiju",
+    answers: [], // Initialize with empty answers array
   },
   {
     room_name: "vidisnestodrugo",
     name: "MyName of this task",
+    text: "Ovo je test",
     task_type: "table_task",
     order_number: 1,
     columns: "first,second,third",
-    rows: "last,last1",
+    rows: 1,
     show_graf: false,
     allow_adding_of_rows: true,
     new_row_name: "MatijaVoliMariju",
+    answers: [], // Initialize with empty answers array
   },
 ]);
 
@@ -296,6 +363,7 @@ db.createCollection("MapTask", {
         "add_mark",
         "coord_x",
         "coord_y",
+        "answers",
       ],
       properties: {
         room_name: {
@@ -330,6 +398,23 @@ db.createCollection("MapTask", {
           bsonType: "double",
           description: "must be a double and is required",
         },
+        answers: {
+          bsonType: "array",
+          items: {
+            bsonType: "object",
+            properties: {
+              username: {
+                bsonType: "string",
+                description: "must be a string and is required",
+              },
+              answer: {
+                bsonType: "string",
+                description: "must be a string and is required",
+              },
+            },
+          },
+          description: "must be an array of answer objects",
+        },
       },
     },
   },
@@ -345,16 +430,18 @@ db.MapTask.insertMany([
     add_mark: false,
     coord_x: new Double("6.4000"),
     coord_y: new Double("6.4000"),
+    answers: [], // Initialize with empty answers array
   },
   {
-    room_name: "testing",
+    room_name: "idonthaveinspiration",
     name: "reallydont",
     task_type: "map_task",
-    order_number: 10,
+    order_number: 1,
     text: "This is another test description",
     add_mark: true,
-    coord_x: new Double("45.812648959048516"),
-    coord_y: new Double("15.963821411132814"),
+    coord_x: new Double("6.4000"),
+    coord_y: new Double("6.4000"),
+    answers: [], // Initialize with empty answers array
   },
 ]);
 db.createCollection("NumbersTask", {
@@ -369,6 +456,7 @@ db.createCollection("NumbersTask", {
         "text",
         "min_num",
         "max_num",
+        "answers",
       ],
       properties: {
         room_name: {
@@ -399,6 +487,23 @@ db.createCollection("NumbersTask", {
           bsonType: "int",
           description: "must be an integer and is required",
         },
+        answers: {
+          bsonType: "array",
+          items: {
+            bsonType: "object",
+            properties: {
+              username: {
+                bsonType: "string",
+                description: "must be a string and is required",
+              },
+              answer: {
+                bsonType: "string",
+                description: "must be a string and is required",
+              },
+            },
+          },
+          description: "must be an array of answer objects",
+        },
       },
     },
   },
@@ -413,6 +518,7 @@ db.NumbersTask.insertMany([
     text: "something something",
     min_num: 1,
     max_num: 100,
+    answers: [], // Initialize with empty answers array
   },
   {
     room_name: "testing",
@@ -422,5 +528,6 @@ db.NumbersTask.insertMany([
     text: "something i need to write about something",
     min_num: 1,
     max_num: 1900,
+    answers: [], // Initialize with empty answers array
   },
 ]);
