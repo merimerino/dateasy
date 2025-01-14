@@ -4,6 +4,7 @@ import { initReactI18next } from "react-i18next";
 const resources = {
   en: {
     translation: {
+      respondent: "Response",
       forProfessors: "For professors",
       forStudents: "For students",
       createRoom: "Create Room",
@@ -27,7 +28,10 @@ const resources = {
       unknownError: "An unknown error occurred",
       tasksList: "Tasks List",
       addNewTask: "Add New Task",
+      present: "Present",
       noTasksYet: "No tasks created yet",
+      anonymous: "Anonymous",
+      showUsernames: "Show Usernames",
       clickAddToCreate:
         "Click the Add New Task button to create your first task",
       editTask: "Edit Task",
@@ -60,6 +64,7 @@ const resources = {
       user: "User",
       latitude: "Latitude",
       longitude: "Longitude",
+      coordinate: "Coordinate",
       pieDistribution: "Distribution (Pie)",
       barDistribution: "Distribution (Bar)",
       statistics: "Statistics",
@@ -169,6 +174,7 @@ const resources = {
   },
   hr: {
     translation: {
+      respondent: "Odgovor",
       forProfessors: "Za profesore",
       forStudents: "Za učenike",
       createRoom: "Stvori sobu",
@@ -176,6 +182,8 @@ const resources = {
       roomName: "Naziv sobe",
       password: "Lozinka",
       username: "Nadimak",
+      anonymous: "Anonimni odgovori",
+      showUsernames: "Pokaži nadimke",
       enterRoomName: "Unesite naziv sobe",
       enterPassword: "Unesite lozinku",
       enterUsername: "Unesite svoj nadimak",
@@ -199,6 +207,7 @@ const resources = {
       cancel: "Odustani",
       tasksList: "Popis zadataka",
       addNewTask: "Dodaj novi zadatak",
+      present: "Prezentiraj",
       noTasksYet: "Još nema zadataka",
       clickAddToCreate:
         "Kliknite gumb Dodaj novi zadatak za stvaranje prvog zadatka",
@@ -245,10 +254,11 @@ const resources = {
       invalidLongitude: "Dužina mora biti između -180 i 180",
       invalidZoomLevel: "Razina zumiranja mora biti između 1 i 20",
       invalidNumber: "Unesite važeći broj",
-      answerLocations: "Answer Locations ({{count}} responses)",
-      user: "User",
-      latitude: "Latitude",
-      longitude: "Longitude",
+      answerLocations: "Oznake na karti ({{count}} odgovora)",
+      user: "Korisnik",
+      latitude: "Dužina",
+      longitude: "Širina",
+      coordinate: "Koordinata",
       pieDistribution: "Distribucija (Kružna)",
       barDistribution: "Distribucija (Stupčasta)",
       statistics: "Statistika",

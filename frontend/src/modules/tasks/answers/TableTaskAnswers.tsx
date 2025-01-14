@@ -28,6 +28,7 @@ import {
 } from "chart.js";
 import { Pie, Bar } from "react-chartjs-2";
 import { useTranslation } from "react-i18next";
+import { useAnonymity } from "../../../contexts/AnonimityProvider";
 
 ChartJS.register(
   ArcElement,
@@ -63,7 +64,7 @@ const TableTaskAnswers: React.FC<CombinedTableViewProps> = ({
   headers = "",
 }) => {
   const { t } = useTranslation();
-
+  const { isAnonymous } = useAnonymity();
   const bgColor = useColorModeValue("white", "gray.800");
   const textColor = useColorModeValue("gray.600", "gray.400");
 
@@ -215,14 +216,6 @@ const TableTaskAnswers: React.FC<CombinedTableViewProps> = ({
     },
   };
 
-  if (!answers?.length || !headers) {
-    return (
-      <Box textAlign="center" py={8}>
-        <Text color={textColor}>No answers available</Text>
-      </Box>
-    );
-  }
-
   const StatsPanel = () => (
     <Box>
       <Box bg={bgColor} p={4} rounded="lg" shadow="sm" mb={8}>
@@ -276,7 +269,7 @@ const TableTaskAnswers: React.FC<CombinedTableViewProps> = ({
           <Table variant="simple">
             <Thead>
               <Tr>
-                <Th>{t("charts.user")}</Th>
+                <Th>{isAnonymous ? t("respondent") : t("username")}</Th>
                 <Th>{t("charts.row")}</Th>
                 {headerArray.map((header, idx) => (
                   <Th key={idx}>{header}</Th>
@@ -284,13 +277,15 @@ const TableTaskAnswers: React.FC<CombinedTableViewProps> = ({
               </Tr>
             </Thead>
             <Tbody>
-              {answers.map((answer) => {
+              {answers.map((answer, answerIndex) => {
                 const rows = getRowsFromAnswer(answer);
                 return rows.map((row, rowIdx) => (
                   <Tr key={`${answer.username}-${rowIdx}`}>
                     {rowIdx === 0 && (
                       <Td rowSpan={rows.length} fontWeight="medium">
-                        {answer.username}
+                        {isAnonymous
+                          ? `${t("respondent")} ${answerIndex + 1}`
+                          : answer.username}
                       </Td>
                     )}
                     <Td>{rowIdx + 1}</Td>
@@ -306,6 +301,14 @@ const TableTaskAnswers: React.FC<CombinedTableViewProps> = ({
       </Box>
     );
   };
+
+  if (!answers?.length || !headers) {
+    return (
+      <Box textAlign="center" py={8}>
+        <Text color={textColor}>{t("charts.noAnswers")}</Text>
+      </Box>
+    );
+  }
 
   return (
     <Tabs variant="enclosed" colorScheme="blue">

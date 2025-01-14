@@ -2,10 +2,10 @@ import { Box, useToast } from "@chakra-ui/react";
 import { useTasks } from "../hooks/useTasks";
 import ProfessorTaskList from "../modules/professor/ProfessorTaskList";
 import LoadingSpinner from "../modules/LoadingSpinner";
-import { Task } from "../types/Tasks";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Header from "../modules/Header";
 import { useEffect } from "react";
+import { ExtendedTask } from "../modules/tasks/TaskForm/types";
 
 const ProfessorTaskManagementPage: React.FC = () => {
   const { tasks, loading, refetch } = useTasks();
@@ -18,7 +18,7 @@ const ProfessorTaskManagementPage: React.FC = () => {
     refetch();
   }, [location.pathname, refetch]);
 
-  const handleEditTask = (task: Task) => {
+  const handleEditTask = (task: ExtendedTask) => {
     navigate(`/room/${roomName}/edit-task/${task.order_number}`, {
       state: { task },
     });

@@ -1,13 +1,13 @@
 import React from "react";
-import { Task } from "../../types/Tasks";
 import MultiChoiceAnswers from "./answers/MultiChoiceAnswers";
 import ShortTaskAnswers from "./answers/ShortTaskAnswers";
 import NumberTaskAnswers from "./answers/NumberTaskAnswers";
 import TableTaskAnswers from "./answers/TableTaskAnswers";
 import MapTaskAnswers from "./answers/MapTaskAnswers";
+import { ExtendedTask } from "./TaskForm/types";
 
 interface TaskAnswersProps {
-  task: Task;
+  task: ExtendedTask;
 }
 
 const TaskAnswers: React.FC<TaskAnswersProps> = ({ task }) => {

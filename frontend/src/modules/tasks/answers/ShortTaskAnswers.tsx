@@ -18,14 +18,11 @@ import {
 import cloud from "d3-cloud";
 import * as d3 from "d3";
 import { useTranslation } from "react-i18next";
-
-interface ShortAnswer {
-  username: string;
-  answer: string;
-}
+import { GenericAnswer } from "../TaskForm/types";
+import { useAnonymity } from "../../../contexts/AnonimityProvider";
 
 interface ShortTaskAnswersProps {
-  answers: ShortAnswer[];
+  answers: GenericAnswer[];
 }
 
 interface CloudWord extends cloud.Word {
@@ -33,7 +30,7 @@ interface CloudWord extends cloud.Word {
   size: number;
 }
 
-const WordCloudView: React.FC<{ answers: ShortAnswer[] }> = ({ answers }) => {
+const WordCloudView: React.FC<{ answers: GenericAnswer[] }> = ({ answers }) => {
   const { t } = useTranslation();
   const svgRef = React.useRef<SVGSVGElement>(null);
 
@@ -119,24 +116,29 @@ const WordCloudView: React.FC<{ answers: ShortAnswer[] }> = ({ answers }) => {
   );
 };
 
-const AnswersTableView: React.FC<{ answers: ShortAnswer[] }> = ({
+const AnswersTableView: React.FC<{ answers: GenericAnswer[] }> = ({
   answers,
 }) => {
   const { t } = useTranslation();
+  const { isAnonymous } = useAnonymity();
 
   return (
     <Box w="100%" overflowX="auto">
       <Table variant="simple">
         <Thead>
           <Tr>
-            <Th>{t("username")}</Th>
+            <Th>{isAnonymous ? t("respondent") : t("username")}</Th>
             <Th>{t("answer")}</Th>
           </Tr>
         </Thead>
         <Tbody>
           {answers.map((answer, index) => (
             <Tr key={`${answer.username}-${index}`}>
-              <Td fontWeight="medium">{answer.username}</Td>
+              <Td fontWeight="medium">
+                {isAnonymous
+                  ? `${t("respondent")} ${index + 1}`
+                  : answer.username}
+              </Td>
               <Td>{answer.answer}</Td>
             </Tr>
           ))}

@@ -7,40 +7,45 @@ export type TaskType =
   | "table_task"
   | "map_task";
 
+export interface GenericAnswer {
+  username: string;
+  answer: string;
+}
 export interface ExtendedTask {
-  id: string;
+  id: string | "";
   task_type: TaskType;
-  name: string;
-  text: string;
-  room_name: string;
-  order_number: number;
+  name: string | "";
+  text: string | "";
+  room_name: string | "";
+  order_number: number | 0;
+  answers: GenericAnswer[];
 
   // Short task fields
-  max_characters_allowed?: number;
+  max_characters_allowed: number | 0;
 
   // Numbers task fields
-  min_num?: number;
-  max_num?: number;
+  min_num: number | 0;
+  max_num: number | 0;
 
   // Multiple choice fields
-  options?: string[];
-  multiple_answers?: boolean;
+  options: string[] | [];
+  multiple_answers: boolean | false;
 
   // Table task fields
-  columns?: string;
-  rows?: number;
-  show_graf?: boolean;
-  allow_adding_of_rows?: boolean;
-  new_row_name?: string;
+  columns: string | "";
+  rows: number | 0;
+  show_graf: boolean | false;
+  allow_adding_of_rows: boolean | false;
+  new_row_name: string | "";
 
   // Map task fields
-  center_latitude?: number;
-  center_longitude?: number;
-  zoom_level?: number;
-  allow_multiple_points?: boolean;
-  coord_x?: number;
-  coord_y?: number;
-  add_mark?: boolean;
+  center_latitude: number | 0;
+  center_longitude: number | 0;
+  zoom_level: number | 0;
+  allow_multiple_points?: boolean | false;
+  coord_x: number | 0;
+  coord_y: number | 0;
+  add_mark: boolean | false;
 }
 
 export interface FormErrors {

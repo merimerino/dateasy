@@ -27,6 +27,8 @@ import {
 } from "chart.js";
 import { Pie, Bar } from "react-chartjs-2";
 import { useTranslation } from "react-i18next";
+import { GenericAnswer } from "../TaskForm/types";
+import { useAnonymity } from "../../../contexts/AnonimityProvider";
 
 ChartJS.register(
   ArcElement,
@@ -37,13 +39,8 @@ ChartJS.register(
   BarElement
 );
 
-interface MultipleChoiceAnswer {
-  answer: string;
-  username: string;
-}
-
 interface MultiChoiceAnswersProps {
-  answers: MultipleChoiceAnswer[];
+  answers: GenericAnswer[];
   options: string[];
 }
 
@@ -52,6 +49,7 @@ const MultiChoiceAnswers: React.FC<MultiChoiceAnswersProps> = ({
   options = [],
 }) => {
   const { t } = useTranslation();
+  const { isAnonymous } = useAnonymity();
 
   if (!answers?.length) {
     return (
@@ -108,7 +106,6 @@ const MultiChoiceAnswers: React.FC<MultiChoiceAnswersProps> = ({
           <Tab>{t("analysis")}</Tab>
           <Tab>{t("allAnswers")}</Tab>
         </TabList>
-
         <TabPanels>
           <TabPanel>
             <HStack spacing={8} justify="center" align="start">
@@ -126,19 +123,22 @@ const MultiChoiceAnswers: React.FC<MultiChoiceAnswersProps> = ({
               </Box>
             </HStack>
           </TabPanel>
-
           <TabPanel>
             <Table variant="simple">
               <Thead>
                 <Tr>
-                  <Th>{t("username")}</Th>
+                  <Th>{isAnonymous ? t("respondent") : t("username")}</Th>
                   <Th>{t("answer")}</Th>
                 </Tr>
               </Thead>
               <Tbody>
                 {answers.map((answer, index) => (
                   <Tr key={`${answer.username}-${index}`}>
-                    <Td>{answer.username}</Td>
+                    <Td>
+                      {isAnonymous
+                        ? `${t("respondent")} ${index + 1}`
+                        : answer.username}
+                    </Td>
                     <Td>{answer.answer}</Td>
                   </Tr>
                 ))}

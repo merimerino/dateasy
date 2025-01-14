@@ -27,6 +27,8 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import { useTranslation } from "react-i18next";
+import { GenericAnswer } from "../TaskForm/types";
+import { useAnonymity } from "../../../contexts/AnonimityProvider";
 
 ChartJS.register(
   CategoryScale,
@@ -37,13 +39,8 @@ ChartJS.register(
   Legend
 );
 
-interface NumberAnswer {
-  answer: string;
-  username: string;
-}
-
 interface NumberTaskAnswersProps {
-  answers: NumberAnswer[];
+  answers: GenericAnswer[];
   min: number;
   max: number;
 }
@@ -69,6 +66,7 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
   max,
 }) => {
   const { t } = useTranslation();
+  const { isAnonymous } = useAnonymity();
 
   const stats = useMemo(() => {
     if (!answers?.length) return null;
@@ -184,14 +182,18 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
             <Table variant="simple">
               <Thead>
                 <Tr>
-                  <Th>{t("username")}</Th>
+                  <Th>{isAnonymous ? t("respondent") : t("username")}</Th>
                   <Th>{t("answer")}</Th>
                 </Tr>
               </Thead>
               <Tbody>
                 {answers.map((answer, index) => (
                   <Tr key={`${answer.username}-${index}`}>
-                    <Td>{answer.username}</Td>
+                    <Td>
+                      {isAnonymous
+                        ? `${t("respondent")} ${index + 1}`
+                        : answer.username}
+                    </Td>
                     <Td>{answer.answer}</Td>
                   </Tr>
                 ))}

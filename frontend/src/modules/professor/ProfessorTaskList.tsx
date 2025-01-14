@@ -12,14 +12,15 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { AddIcon, EditIcon, DeleteIcon } from "@chakra-ui/icons";
-import { Task } from "../../types/Tasks";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { TvIcon } from "lucide-react";
+import { ExtendedTask } from "../tasks/TaskForm/types";
 
 interface ProfessorTaskListProps {
-  tasks: Task[] | null;
+  tasks: ExtendedTask[] | null;
   roomName?: string;
-  onEdit: (task: Task) => void;
+  onEdit: (task: ExtendedTask) => void;
   onDelete: (orderNumber: string) => void;
   onAdd: () => void;
 }
@@ -55,7 +56,7 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
     }
   };
 
-  const handleEditClick = (e: React.MouseEvent, task: Task) => {
+  const handleEditClick = (e: React.MouseEvent, task: ExtendedTask) => {
     e.stopPropagation();
     onEdit(task);
   };
@@ -69,6 +70,10 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
     navigate(`/room/${roomName}/view/${orderNumber}`);
   };
 
+  const handlePresentResults = () => {
+    navigate(`/room/${roomName}/present`);
+  };
+
   return (
     <Box maxW="800px" mx="auto" p={4}>
       <VStack spacing={6} align="stretch">
@@ -76,19 +81,34 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
           <Heading size="lg" color="teal.600">
             {t("tasksList")}
           </Heading>
-          <Button
-            leftIcon={<AddIcon />}
-            colorScheme="teal"
-            size="md"
-            onClick={onAdd}
-            _hover={{
-              transform: "translateY(-2px)",
-              boxShadow: "lg",
-            }}
-            transition="all 0.2s"
-          >
-            {t("addNewTask")}
-          </Button>
+          <Box display="flex" gap={1}>
+            <Button
+              leftIcon={<TvIcon />}
+              colorScheme="teal"
+              size="md"
+              onClick={handlePresentResults}
+              _hover={{
+                transform: "translateY(-2px)",
+                boxShadow: "lg",
+              }}
+              transition="all 0.2s"
+            >
+              {t("present")}
+            </Button>
+            <Button
+              leftIcon={<AddIcon />}
+              colorScheme="teal"
+              size="md"
+              onClick={onAdd}
+              _hover={{
+                transform: "translateY(-2px)",
+                boxShadow: "lg",
+              }}
+              transition="all 0.2s"
+            >
+              {t("addNewTask")}
+            </Button>
+          </Box>
         </HStack>
 
         {!tasks || tasks.length === 0 ? (
