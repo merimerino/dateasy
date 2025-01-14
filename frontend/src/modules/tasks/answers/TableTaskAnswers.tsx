@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Box,
   Table,
@@ -14,6 +14,7 @@ import {
   TabPanels,
   Tab,
   TabPanel,
+  Select,
 } from "@chakra-ui/react";
 import {
   Chart as ChartJS,
@@ -57,6 +58,7 @@ interface ColumnStats {
   min: number;
   max: number;
   count: number;
+  frequencies: { [key: number]: number };
 }
 
 const TableTaskAnswers: React.FC<CombinedTableViewProps> = ({
@@ -67,6 +69,7 @@ const TableTaskAnswers: React.FC<CombinedTableViewProps> = ({
   const { isAnonymous } = useAnonymity();
   const bgColor = useColorModeValue("white", "gray.800");
   const textColor = useColorModeValue("gray.600", "gray.400");
+  const [selectedColumn, setSelectedColumn] = useState<number>(0);
 
   const headerArray = useMemo(
     () => headers.split(",").map((header) => header.trim()),
@@ -103,6 +106,7 @@ const TableTaskAnswers: React.FC<CombinedTableViewProps> = ({
       min: Infinity,
       max: -Infinity,
       count: 0,
+      frequencies: {},
     }));
 
     parsedAnswers.forEach((studentAnswer) => {
@@ -120,6 +124,8 @@ const TableTaskAnswers: React.FC<CombinedTableViewProps> = ({
               value
             );
             combinedData[colIndex].count++;
+            combinedData[colIndex].frequencies[value] =
+              (combinedData[colIndex].frequencies[value] || 0) + 1;
           }
         });
       });
@@ -183,6 +189,25 @@ const TableTaskAnswers: React.FC<CombinedTableViewProps> = ({
     ],
   };
 
+  const frequencyChartData: ChartData<"bar"> = {
+    labels: processedData[selectedColumn]
+      ? Object.keys(processedData[selectedColumn].frequencies).sort(
+          (a, b) => Number(a) - Number(b)
+        )
+      : [],
+    datasets: [
+      {
+        label: t("charts.frequency"),
+        data: processedData[selectedColumn]
+          ? Object.values(processedData[selectedColumn].frequencies)
+          : [],
+        backgroundColor: "rgba(128, 90, 213, 0.6)",
+        borderColor: "rgba(128, 90, 213, 1)",
+        borderWidth: 1,
+      },
+    ],
+  };
+
   const barChartOptions: ChartOptions<"bar"> = {
     responsive: true,
     maintainAspectRatio: false,
@@ -216,6 +241,28 @@ const TableTaskAnswers: React.FC<CombinedTableViewProps> = ({
     },
   };
 
+  const frequencyChartOptions: ChartOptions<"bar"> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top" as const,
+      },
+      title: {
+        display: true,
+        text: t("charts.valueDistribution"),
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1,
+        },
+      },
+    },
+  };
+
   const StatsPanel = () => (
     <Box>
       <Box bg={bgColor} p={4} rounded="lg" shadow="sm" mb={8}>
@@ -234,17 +281,40 @@ const TableTaskAnswers: React.FC<CombinedTableViewProps> = ({
               <Tr key={idx}>
                 <Td fontWeight="medium">{column.header}</Td>
                 <Td isNumeric>{column.avg.toFixed(2)}</Td>
-                <Td isNumeric>{column.min.toFixed(2)}</Td>
-                <Td isNumeric>{column.max.toFixed(2)}</Td>
+                <Td isNumeric>
+                  {column.min === Infinity ? "-" : column.min.toFixed(2)}
+                </Td>
+                <Td isNumeric>
+                  {column.max === -Infinity ? "-" : column.max.toFixed(2)}
+                </Td>
                 <Td isNumeric>{column.count}</Td>
               </Tr>
             ))}
           </Tbody>
         </Table>
       </Box>
+
+      <Box bg={bgColor} p={4} rounded="lg" shadow="sm" mb={8}>
+        <Select
+          value={selectedColumn}
+          onChange={(e) => setSelectedColumn(Number(e.target.value))}
+          mb={4}
+        >
+          {headerArray.map((header, idx) => (
+            <option key={idx} value={idx}>
+              {header}
+            </option>
+          ))}
+        </Select>
+        <Box height="400px">
+          <Bar data={frequencyChartData} options={frequencyChartOptions} />
+        </Box>
+      </Box>
+
       <Box bg={bgColor} p={4} rounded="lg" shadow="sm" mb={8} height="400px">
         <Bar data={barChartData} options={barChartOptions} />
       </Box>
+
       <Box bg={bgColor} p={4} rounded="lg" shadow="sm" height="400px">
         <Pie data={pieChartData} options={pieChartOptions} />
       </Box>

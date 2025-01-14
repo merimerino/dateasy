@@ -62,8 +62,6 @@ const StatBox = ({ label, value }: { label: string; value: string }) => (
 
 const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
   answers = [],
-  min,
-  max,
 }) => {
   const { t } = useTranslation();
   const { isAnonymous } = useAnonymity();
@@ -82,6 +80,28 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
     };
   }, [answers]);
 
+  const frequencyData = useMemo(() => {
+    if (!answers?.length) return { labels: [], counts: [] };
+
+    // Create a frequency map of values
+    const frequencies: { [key: number]: number } = {};
+    answers.forEach((answer) => {
+      const value = Number(answer.answer);
+      if (!Number.isFinite(value)) return;
+      frequencies[value] = (frequencies[value] || 0) + 1;
+    });
+
+    // Sort values numerically
+    const sortedValues = Object.keys(frequencies)
+      .map(Number)
+      .sort((a, b) => a - b);
+
+    return {
+      labels: sortedValues.map((value) => value.toString()),
+      counts: sortedValues.map((value) => frequencies[value]),
+    };
+  }, [answers]);
+
   if (!answers?.length) {
     return (
       <Box textAlign="center" py={8}>
@@ -90,40 +110,12 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
     );
   }
 
-  const validMin = Number.isFinite(min) ? min : 0;
-  const validMax = Number.isFinite(max) ? max : 100;
-  const binCount = 10;
-  const binSize = Math.max((validMax - validMin) / binCount, 0.0001);
-
-  const bins = Array.from({ length: binCount }, (_, i) => ({
-    start: validMin + i * binSize,
-    end: validMin + (i + 1) * binSize,
-    count: 0,
-  }));
-
-  answers.forEach((answer) => {
-    const value = Number(answer.answer);
-    if (!Number.isFinite(value)) return;
-
-    const binIndex = Math.floor((value - validMin) / binSize);
-
-    if (binIndex >= 0 && binIndex < binCount) {
-      bins[binIndex].count++;
-    } else if (binIndex >= binCount) {
-      bins[binCount - 1].count++;
-    } else if (binIndex < 0) {
-      bins[0].count++;
-    }
-  });
-
   const chartData = {
-    labels: bins.map(
-      (bin) => `${bin.start.toFixed(1)} - ${bin.end.toFixed(1)}`
-    ),
+    labels: frequencyData.labels,
     datasets: [
       {
         label: t("numberOfAnswers"),
-        data: bins.map((bin) => bin.count),
+        data: frequencyData.counts,
         backgroundColor: "rgba(54, 162, 235, 0.6)",
         borderColor: "rgba(54, 162, 235, 1)",
         borderWidth: 1,

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
@@ -11,6 +11,12 @@ import {
   Button,
   VStack,
   useToast,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { FormErrors, ExtendedTask, TaskType } from "./types";
@@ -23,6 +29,7 @@ import MultiChoiceFields from "./components/MultiChoiceFields";
 import TableTaskFields from "./components/TableTaskFields";
 import MapTaskFields from "./components/MapTaskFields";
 import DescriptionTaskFields from "./components/DescriptionTaskFields";
+
 interface TaskFormProps {
   mode: "create" | "edit";
   initialData?: ExtendedTask;
@@ -33,6 +40,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
   const navigate = useNavigate();
   const { roomName } = useParams();
   const toast = useToast();
+  const cancelRef = useRef<HTMLButtonElement>(null);
 
   const getInitialState = (): ExtendedTask => {
     const baseState: ExtendedTask = {
@@ -42,6 +50,24 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
       task_type: initialData?.task_type || "short_task",
       room_name: roomName || "",
       order_number: initialData?.order_number || 0,
+      answers: [],
+      max_characters_allowed: 0,
+      min_num: 0,
+      max_num: 0,
+      options: [],
+      multiple_answers: false,
+      columns: "",
+      rows: 0,
+      show_graf: false,
+      allow_adding_of_rows: false,
+      new_row_name: "",
+      center_latitude: 0,
+      center_longitude: 0,
+      zoom_level: 0,
+      allow_multiple_points: false,
+      coord_x: 0,
+      coord_y: 0,
+      add_mark: false,
     };
 
     if (initialData) {
@@ -57,6 +83,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
   const [task, setTask] = useState<ExtendedTask>(getInitialState);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const handleInputChange = <K extends keyof ExtendedTask>(
     field: K,
@@ -96,6 +123,24 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
       room_name: roomName || "",
       order_number: data.order_number,
       task_type: data.task_type,
+      answers: [],
+      max_characters_allowed: 0,
+      min_num: 0,
+      max_num: 0,
+      options: [],
+      multiple_answers: false,
+      columns: "",
+      rows: 0,
+      show_graf: false,
+      allow_adding_of_rows: false,
+      new_row_name: "",
+      center_latitude: 0,
+      center_longitude: 0,
+      zoom_level: 0,
+      allow_multiple_points: false,
+      coord_x: 0,
+      coord_y: 0,
+      add_mark: false,
     };
 
     switch (data.task_type) {
@@ -147,22 +192,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const validationErrors: FormErrors = {};
-    if (!task.text) validationErrors.text = "Text is required";
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      toast({
-        title: t("error.validationFailed"),
-        status: "error",
-        duration: 3000,
-      });
-      return;
-    }
-
+  const handleConfirmedSubmit = async () => {
     setIsSubmitting(true);
     try {
       const url = `http://localhost:3000/${
@@ -199,6 +229,30 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
       });
     } finally {
       setIsSubmitting(false);
+      setIsConfirmOpen(false);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const validationErrors: FormErrors = {};
+    if (!task.text) validationErrors.text = "Text is required";
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      toast({
+        title: t("error.validationFailed"),
+        status: "error",
+        duration: 3000,
+      });
+      return;
+    }
+
+    if (mode === "edit") {
+      setIsConfirmOpen(true);
+    } else {
+      handleConfirmedSubmit();
     }
   };
 
@@ -378,14 +432,50 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
               type="submit"
               colorScheme="teal"
               size="lg"
-              isLoading={isSubmitting}
-              loadingText={t("saving")}
+              isDisabled={isSubmitting}
             >
               {mode === "create" ? t("createTask") : t("saveChanges")}
             </Button>
           </HStack>
         </CardFooter>
       </Card>
+
+      {mode === "edit" && (
+        <AlertDialog
+          isOpen={isConfirmOpen}
+          leastDestructiveRef={cancelRef}
+          onClose={() => setIsConfirmOpen(false)}
+        >
+          <AlertDialogOverlay>
+            <AlertDialogContent>
+              <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                {t("confirmAction")}
+              </AlertDialogHeader>
+
+              <AlertDialogBody>{t("saveChangesConfirmation")}</AlertDialogBody>
+
+              <AlertDialogFooter>
+                <Button
+                  ref={cancelRef}
+                  onClick={() => setIsConfirmOpen(false)}
+                  isDisabled={isSubmitting}
+                >
+                  {t("cancel")}
+                </Button>
+                <Button
+                  colorScheme="teal"
+                  onClick={handleConfirmedSubmit}
+                  ml={3}
+                  isLoading={isSubmitting}
+                  loadingText={t("saving")}
+                >
+                  {t("save")}
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialogOverlay>
+        </AlertDialog>
+      )}
     </Box>
   );
 };

@@ -92,6 +92,8 @@ const resources = {
         count: "Count",
         columnStatistics: "Column statistics",
         averageValues: "Average values",
+        frequency: "Value frequency",
+        valueDistribution: "Input values statistics",
       },
       taskTypes: {
         multichoice: "Multiple Choice",
@@ -170,6 +172,9 @@ const resources = {
       maxValue: "Max Value",
       valueTrends: "Value Trends",
       rawAnswers: "Raw Answers",
+      confirmAction: "Confirm action",
+      saveChangesConfirmation:
+        "Are you sure you want to edit the task? All submitted answers will be deleted.",
     },
   },
   hr: {
@@ -296,6 +301,8 @@ const resources = {
         count: "Količina",
         columnStatistics: "Statistika po stupcima",
         averageValues: "Prosječne vrijednosti",
+        frequency: "Frekvencija vrijednosti",
+        valueDistribution: "Statistika unesenih vrijednosti",
       },
       taskTypes: {
         multichoice: "Višestruki izbor",
@@ -346,6 +353,10 @@ const resources = {
         taskSubmitted: "Zadatak uspješno predan",
         taskSaved: "Zadatak uspješno spremljen",
       },
+
+      confirmAction: "Jeste li sigurni?",
+      saveChangesConfirmation:
+        "Jeste li sigurni da želite obrisati zadatak? Svi predani odgovori će biti obrisani.",
     },
   },
 };
