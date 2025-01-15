@@ -179,6 +179,11 @@ const resources = {
       distance: "Distance",
       points: "Points",
       track: "Track",
+      reorderTasks: "Reorder Tasks",
+      cancelReorder: "Cancel Reorder",
+      saveOrder: "Save Order",
+      orderUpdated: "Task order updated successfully",
+      errorUpdatingOrder: "Error updating task order",
     },
   },
   hr: {
@@ -365,6 +370,11 @@ const resources = {
       distance: "Udaljenost",
       points: "Točke",
       track: "Traka",
+      reorderTasks: "Promjeni redoslijed",
+      cancelReorder: "Odustani od promjene",
+      saveOrder: "Spremi redoslijed",
+      orderUpdated: "Novi redoslijed zadataka spremljen!",
+      errorUpdatingOrder: "Greška prilikom spremanja redoslijeda.",
     },
   },
 };

@@ -1,21 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Button,
   VStack,
   Heading,
-  IconButton,
   HStack,
   Text,
-  Badge,
   useColorModeValue,
-  Tooltip,
+  useToast,
 } from "@chakra-ui/react";
-import { AddIcon, EditIcon, DeleteIcon } from "@chakra-ui/icons";
+import { AddIcon, DragHandleIcon } from "@chakra-ui/icons";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { TvIcon } from "lucide-react";
 import { ExtendedTask } from "../tasks/TaskForm/types";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import SortableTaskItem from "./SortableTaskItem";
 
 interface ProfessorTaskListProps {
   tasks: ExtendedTask[] | null;
@@ -34,46 +48,125 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const toast = useToast();
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
+  const [isReorderMode, setIsReorderMode] = useState<boolean>(false);
+  const [orderedTasks, setOrderedTasks] = useState<ExtendedTask[] | null>(
+    tasks
+  );
 
-  const getTaskTypeInfo = (type: string): { color: string } => {
-    switch (type) {
-      case "multichoice":
-        return { color: "purple" };
-      case "numbers_task":
-        return { color: "blue" };
-      case "short_task":
-        return { color: "green" };
-      case "table_task":
-        return { color: "orange" };
-      case "map_task":
-        return { color: "red" };
-      case "map_task_gpx":
-        return { color: "teal" };
-      case "description":
-        return { color: "gray" };
-      default:
-        return { color: "gray" };
-    }
-  };
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
-  const handleEditClick = (e: React.MouseEvent, task: ExtendedTask) => {
+  const handleEditClick = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    task: ExtendedTask
+  ): void => {
     e.stopPropagation();
     onEdit(task);
   };
 
-  const handleDeleteClick = (e: React.MouseEvent, id: string) => {
+  const handleDeleteClick = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    id: string
+  ): void => {
     e.stopPropagation();
     onDelete(id);
   };
 
-  const showTask = (orderNumber: number) => {
-    navigate(`/room/${roomName}/view/${orderNumber}`);
+  const showTask = (orderNumber: number): void => {
+    if (!isReorderMode) {
+      navigate(`/room/${roomName}/view/${orderNumber}`);
+    }
   };
 
-  const handlePresentResults = () => {
+  const handlePresentResults = (): void => {
     navigate(`/room/${roomName}/present`);
+  };
+
+  const handleDragEnd = (event: DragEndEvent): void => {
+    const { active, over } = event;
+
+    if (!over || !orderedTasks) return;
+
+    if (active.id !== over.id) {
+      const oldIndex = orderedTasks.findIndex(
+        (task) => task.id.toString() === active.id
+      );
+      const newIndex = orderedTasks.findIndex(
+        (task) => task.id.toString() === over.id
+      );
+
+      const newOrderedTasks = arrayMove(orderedTasks, oldIndex, newIndex).map(
+        (task, index) => ({
+          ...task,
+          order_number: index + 1,
+        })
+      );
+
+      setOrderedTasks(newOrderedTasks);
+    }
+  };
+
+  const handleSaveOrder = async (): Promise<void> => {
+    if (!orderedTasks) return;
+
+    interface OrderPayload {
+      id: string;
+      order_number: number;
+    }
+
+    const orderPayload: OrderPayload[] = orderedTasks.map((task) => ({
+      id: task.id.toString(),
+      order_number: task.order_number,
+    }));
+    console.log(orderPayload);
+    const authToken = localStorage.getItem("token");
+    if (!authToken) {
+      navigate("/");
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      const response = await fetch("http://localhost:3000/changeOrder", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-jwt-token": authToken,
+        },
+        body: JSON.stringify(orderPayload),
+      });
+
+      if (!response.ok) throw new Error("Failed to update order");
+
+      toast({
+        title: t("orderUpdated"),
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+
+      setIsReorderMode(false);
+    } catch {
+      toast({
+        title: t("errorUpdatingOrder"),
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const toggleReorderMode = (): void => {
+    if (isReorderMode) {
+      setOrderedTasks(tasks);
+    }
+    setIsReorderMode(!isReorderMode);
   };
 
   return (
@@ -83,37 +176,68 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
           <Heading size="lg" color="teal.600">
             {t("tasksList")}
           </Heading>
-          <Box display="flex" gap={1}>
+          <Box display="flex" gap={2}>
             <Button
-              leftIcon={<TvIcon />}
-              colorScheme="teal"
+              leftIcon={<DragHandleIcon />}
+              colorScheme={isReorderMode ? "gray" : "teal"}
               size="md"
-              onClick={handlePresentResults}
+              onClick={toggleReorderMode}
               _hover={{
                 transform: "translateY(-2px)",
                 boxShadow: "lg",
               }}
               transition="all 0.2s"
             >
-              {t("present")}
+              {isReorderMode ? t("cancelReorder") : t("reorderTasks")}
             </Button>
-            <Button
-              leftIcon={<AddIcon />}
-              colorScheme="teal"
-              size="md"
-              onClick={onAdd}
-              _hover={{
-                transform: "translateY(-2px)",
-                boxShadow: "lg",
-              }}
-              transition="all 0.2s"
-            >
-              {t("addNewTask")}
-            </Button>
+            {isReorderMode && (
+              <Button
+                colorScheme="teal"
+                size="md"
+                onClick={handleSaveOrder}
+                _hover={{
+                  transform: "translateY(-2px)",
+                  boxShadow: "lg",
+                }}
+                transition="all 0.2s"
+              >
+                {t("saveOrder")}
+              </Button>
+            )}
+            {!isReorderMode && (
+              <>
+                <Button
+                  leftIcon={<TvIcon />}
+                  colorScheme="teal"
+                  size="md"
+                  onClick={handlePresentResults}
+                  _hover={{
+                    transform: "translateY(-2px)",
+                    boxShadow: "lg",
+                  }}
+                  transition="all 0.2s"
+                >
+                  {t("present")}
+                </Button>
+                <Button
+                  leftIcon={<AddIcon />}
+                  colorScheme="teal"
+                  size="md"
+                  onClick={onAdd}
+                  _hover={{
+                    transform: "translateY(-2px)",
+                    boxShadow: "lg",
+                  }}
+                  transition="all 0.2s"
+                >
+                  {t("addNewTask")}
+                </Button>
+              </>
+            )}
           </Box>
         </HStack>
 
-        {!tasks || tasks.length === 0 ? (
+        {!orderedTasks || orderedTasks.length === 0 ? (
           <Box
             p={8}
             borderWidth="1px"
@@ -131,94 +255,32 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
             </Text>
           </Box>
         ) : (
-          <VStack spacing={4} align="stretch">
-            {tasks
-              .sort((a, b) => a.order_number - b.order_number)
-              .map((task) => {
-                const typeInfo = getTaskTypeInfo(task.task_type);
-                return (
-                  <Box
-                    key={`${task.task_type}-${task.order_number}`}
-                    p={5}
-                    borderWidth="1px"
-                    borderRadius="lg"
-                    bg={bgColor}
-                    shadow="sm"
-                    _hover={{
-                      shadow: "md",
-                      transform: "translateY(-2px)",
-                      borderColor: "teal.200",
-                    }}
-                    transition="all 0.2s"
-                    onClick={() => showTask(task.order_number)}
-                    cursor="pointer"
-                  >
-                    <HStack justify="space-between" align="start">
-                      <VStack align="start" spacing={2} flex={1}>
-                        <HStack>
-                          <Badge
-                            colorScheme={typeInfo.color}
-                            px={2}
-                            py={1}
-                            borderRadius="full"
-                            textTransform="none"
-                          >
-                            {t(`taskTypes.${task.task_type}`)}
-                          </Badge>
-                          <Badge
-                            colorScheme="teal"
-                            variant="outline"
-                            px={2}
-                            py={1}
-                            borderRadius="full"
-                          >
-                            #{task.order_number}
-                          </Badge>
-                        </HStack>
-                        <Heading size="md" color="gray.700">
-                          {task.name}
-                        </Heading>
-                        {task.task_type === "description" ? (
-                          <Heading size="md" color="gray.700">
-                            {task.text}
-                          </Heading>
-                        ) : (
-                          <Text color="gray.600" fontSize="sm" noOfLines={2}>
-                            {task.text}
-                          </Text>
-                        )}
-                      </VStack>
-                      <HStack spacing={2}>
-                        <Tooltip label={t("editTask")} placement="top">
-                          <IconButton
-                            icon={<EditIcon />}
-                            aria-label={t("editTask")}
-                            size="sm"
-                            colorScheme="teal"
-                            variant="ghost"
-                            onClick={(e) => handleEditClick(e, task)}
-                            _hover={{ bg: "teal.50" }}
-                          />
-                        </Tooltip>
-                        <Tooltip label={t("deleteTask")} placement="top">
-                          <IconButton
-                            icon={<DeleteIcon />}
-                            aria-label={t("deleteTask")}
-                            size="sm"
-                            colorScheme="red"
-                            variant="ghost"
-                            onClick={(e) =>
-                              handleDeleteClick(e, task.id.toString())
-                            }
-                            _hover={{ bg: "red.50" }}
-                          />
-                        </Tooltip>
-                      </HStack>
-                    </HStack>
-                  </Box>
-                );
-              })}
-          </VStack>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={orderedTasks.map((task) => task.id.toString())}
+              strategy={verticalListSortingStrategy}
+            >
+              <VStack spacing={4} align="stretch">
+                {orderedTasks
+                  .sort((a, b) => a.order_number - b.order_number)
+                  .map((task) => (
+                    <SortableTaskItem
+                      key={task.id}
+                      task={task}
+                      isReorderMode={isReorderMode}
+                      onEdit={handleEditClick}
+                      onDelete={handleDeleteClick}
+                      onShow={showTask}
+                      bgColor={bgColor}
+                    />
+                  ))}
+              </VStack>
+            </SortableContext>
+          </DndContext>
         )}
       </VStack>
     </Box>
