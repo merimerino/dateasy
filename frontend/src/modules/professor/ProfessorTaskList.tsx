@@ -126,7 +126,6 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
       id: task.id.toString(),
       order_number: task.order_number,
     }));
-    console.log(orderPayload);
     const authToken = localStorage.getItem("token");
     if (!authToken) {
       navigate("/");

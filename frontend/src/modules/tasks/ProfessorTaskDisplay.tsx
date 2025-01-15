@@ -68,7 +68,6 @@ const ProfessorTaskDisplay: React.FC<ProfessorTaskDisplayProps> = ({
     }
 
     case "table_task": {
-      console.log(task);
       return (
         <ProfessorTableTask
           name={task.name ?? ""}

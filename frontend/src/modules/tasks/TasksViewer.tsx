@@ -13,14 +13,14 @@ import {
 import { useTasks } from "../../hooks/useTasks";
 import TaskDisplay from "./TaskDisplay";
 import { useTranslation } from "react-i18next";
-//import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const TasksViewer: React.FC = () => {
   const { tasks, loading } = useTasks();
   const { t } = useTranslation();
   const taskRefs = useRef<Record<number, string>>({});
   const toast = useToast();
-  //const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const convertToString = (value: string | string[]): string => {
     if (Array.isArray(value)) {
@@ -40,14 +40,11 @@ const TasksViewer: React.FC = () => {
         answer: taskRefs.current[task.order_number] || "",
       }));
 
-    console.log(allAnswers);
-
     try {
       const authToken = localStorage.getItem("token");
       if (!authToken) {
         throw new Error("Not authenticated");
       }
-      console.log(allAnswers);
 
       const response = await fetch("http://localhost:3000/giveAnswer", {
         method: "POST",
@@ -81,7 +78,7 @@ const TasksViewer: React.FC = () => {
       });
       console.error("Error submitting answers:", error);
     }
-    //navigate("/");
+    navigate("/");
   };
 
   if (loading) {

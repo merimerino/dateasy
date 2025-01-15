@@ -106,10 +106,7 @@ const WordCloudView: React.FC<{ answers: GenericAnswer[] }> = ({ answers }) => {
             "transform",
             (d) => `translate(${d.x ?? 0},${d.y ?? 0})rotate(${d.rotate ?? 0})`
           )
-          .text((d) => d.text as string)
-          .on("click", (_, d) => {
-            console.log(t("wordAppears", { word: d.text, count: d.value }));
-          });
+          .text((d) => d.text as string);
       })
       .start();
   }, [answers, t]);
@@ -196,7 +193,6 @@ const EditableAnswersTableView: React.FC<{
           answer: answer.answer,
         })),
       };
-      console.log(payload);
 
       const response = await fetch("http://localhost:3000/editAnswers", {
         method: "POST",

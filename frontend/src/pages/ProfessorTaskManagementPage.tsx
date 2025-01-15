@@ -6,6 +6,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Header from "../modules/Header";
 import { useEffect } from "react";
 import { ExtendedTask } from "../modules/tasks/TaskForm/types";
+import { useTranslation } from "react-i18next";
 
 const ProfessorTaskManagementPage: React.FC = () => {
   const { tasks, loading, refetch } = useTasks();
@@ -13,6 +14,7 @@ const ProfessorTaskManagementPage: React.FC = () => {
   const navigate = useNavigate();
   const { roomName } = useParams();
   const location = useLocation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     refetch();
@@ -42,14 +44,13 @@ const ProfessorTaskManagementPage: React.FC = () => {
       }
 
       toast({
-        title: "Task deleted",
+        title: t("taskDeleted"),
         status: "success",
         duration: 3000,
         isClosable: true,
       });
 
       refetch();
-      console.log("RU aaaa");
     } catch (error) {
       console.error(error);
       toast({

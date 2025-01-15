@@ -381,6 +381,7 @@ const resources = {
       editAnswers: "Uredi odgovore",
       actions: "Akcije",
       answersSaved: "Odgovori spremljeni!",
+      taskDeleted: "Zadatak obrisan!",
     },
   },
 };

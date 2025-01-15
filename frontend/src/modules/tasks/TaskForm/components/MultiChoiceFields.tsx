@@ -34,7 +34,6 @@ const MultiChoiceFields: React.FC<MultiChoiceFieldsProps> = ({
   isSubmitting,
 }) => {
   const { t } = useTranslation();
-  console.log(options);
 
   const handleAddOption = () => {
     onChange.options([...options, ""]);

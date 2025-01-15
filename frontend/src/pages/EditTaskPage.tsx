@@ -7,8 +7,6 @@ const EditTaskPage = () => {
   const { orderNumber } = useParams<{ orderNumber: string }>();
   const { tasks } = useTasks();
 
-  console.log("Tasksss", tasks);
-
   if (!orderNumber) {
     return <div>Task ID is required</div>;
   }

@@ -92,7 +92,6 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ task, onSubmit }) => {
             const coordinatesString = positions
               .map((pos) => `${pos.lat},${pos.lng}`)
               .join(";");
-            console.log(coordinatesString);
             handleTaskSubmit(coordinatesString);
           }}
         />
