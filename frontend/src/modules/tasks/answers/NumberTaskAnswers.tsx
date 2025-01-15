@@ -1,4 +1,5 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   VStack,
@@ -15,7 +16,13 @@ import {
   Tr,
   Th,
   Td,
+  Button,
+  HStack,
+  IconButton,
+  Input,
+  useToast,
 } from "@chakra-ui/react";
+import { EditIcon, DeleteIcon, CheckIcon, CloseIcon } from "@chakra-ui/icons";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -41,6 +48,7 @@ ChartJS.register(
 
 interface NumberTaskAnswersProps {
   answers: GenericAnswer[];
+  taskId: string;
   min: number;
   max: number;
 }
@@ -60,38 +68,283 @@ const StatBox = ({ label, value }: { label: string; value: string }) => (
   </Box>
 );
 
-const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
-  answers = [],
-}) => {
+const EditableAnswersTableView: React.FC<{
+  answers: GenericAnswer[];
+  taskId: string;
+  min: number;
+  max: number;
+  onAnswersUpdate: (newAnswers: GenericAnswer[]) => void;
+}> = ({ answers, taskId, min, max, onAnswersUpdate }) => {
   const { t } = useTranslation();
   const { isAnonymous } = useAnonymity();
+  const toast = useToast();
+  const navigate = useNavigate();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedAnswers, setEditedAnswers] = useState<GenericAnswer[]>(answers);
+  const [editingStates, setEditingStates] = useState<boolean[]>(
+    answers.map(() => false)
+  );
+
+  const validateNumber = (value: string): boolean => {
+    const num = Number(value);
+    return !isNaN(num) && num >= min && num <= max;
+  };
+
+  const handleEdit = (index: number) => {
+    const newEditingStates = [...editingStates];
+    newEditingStates[index] = true;
+    setEditingStates(newEditingStates);
+  };
+
+  const handleDelete = (index: number) => {
+    const newAnswers = editedAnswers.filter((_, i) => i !== index);
+    setEditedAnswers(newAnswers);
+  };
+
+  const handleSaveRow = (index: number) => {
+    if (!validateNumber(editedAnswers[index].answer)) {
+      toast({
+        title: t("invalidNumber"),
+        description: t("numberOutOfRange", { min, max }),
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+    const newEditingStates = [...editingStates];
+    newEditingStates[index] = false;
+    setEditingStates(newEditingStates);
+  };
+
+  const handleCancelRow = (index: number) => {
+    const newEditingStates = [...editingStates];
+    newEditingStates[index] = false;
+    setEditingStates(newEditingStates);
+    const newAnswers = [...editedAnswers];
+    newAnswers[index] = answers[index];
+    setEditedAnswers(newAnswers);
+  };
+
+  const handleAnswerChange = (index: number, newAnswer: string) => {
+    const newAnswers = [...editedAnswers];
+    newAnswers[index] = { ...newAnswers[index], answer: newAnswer };
+    setEditedAnswers(newAnswers);
+  };
+
+  const handleSaveAll = async () => {
+    // Validate all numbers
+    const hasInvalidNumbers = editedAnswers.some(
+      (answer) => !validateNumber(answer.answer)
+    );
+
+    if (hasInvalidNumbers) {
+      toast({
+        title: t("invalidNumbers"),
+        description: t("numberOutOfRange", { min, max }),
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const authToken = localStorage.getItem("token");
+    if (!authToken) {
+      navigate("/");
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      const payload = {
+        id: taskId,
+        answers: editedAnswers.map((answer) => ({
+          username: answer.username,
+          answer: answer.answer,
+        })),
+      };
+
+      const response = await fetch("http://localhost:3000/editAnswers", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-jwt-token": authToken,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save answers");
+      }
+
+      toast({
+        title: t("answersSaved"),
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+
+      setIsEditing(false);
+      onAnswersUpdate(editedAnswers);
+    } catch {
+      toast({
+        title: t("errorSavingAnswers"),
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  return (
+    <Box w="100%" overflowX="auto">
+      <HStack justifyContent="flex-end" mb={4}>
+        {isEditing ? (
+          <>
+            <Button
+              colorScheme="teal"
+              onClick={handleSaveAll}
+              leftIcon={<CheckIcon />}
+            >
+              {t("saveChanges")}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsEditing(false);
+                setEditedAnswers(answers);
+                setEditingStates(answers.map(() => false));
+              }}
+              leftIcon={<CloseIcon />}
+            >
+              {t("cancel")}
+            </Button>
+          </>
+        ) : (
+          <Button
+            colorScheme="teal"
+            leftIcon={<EditIcon />}
+            onClick={() => setIsEditing(true)}
+          >
+            {t("editAnswers")}
+          </Button>
+        )}
+      </HStack>
+
+      <Table variant="simple">
+        <Thead>
+          <Tr>
+            <Th>{isAnonymous ? t("respondent") : t("username")}</Th>
+            <Th>{t("answer")}</Th>
+            {isEditing && <Th width="150px">{t("actions")}</Th>}
+          </Tr>
+        </Thead>
+        <Tbody>
+          {editedAnswers.map((answer, index) => (
+            <Tr key={`${answer.username}-${index}`}>
+              <Td fontWeight="medium">
+                {isAnonymous
+                  ? `${t("respondent")} ${index + 1}`
+                  : answer.username}
+              </Td>
+              <Td>
+                {editingStates[index] ? (
+                  <Input
+                    value={answer.answer}
+                    onChange={(e) => handleAnswerChange(index, e.target.value)}
+                    size="sm"
+                    type="number"
+                    min={min}
+                    max={max}
+                  />
+                ) : (
+                  answer.answer
+                )}
+              </Td>
+              {isEditing && (
+                <Td>
+                  <HStack spacing={2}>
+                    {editingStates[index] ? (
+                      <>
+                        <IconButton
+                          icon={<CheckIcon />}
+                          aria-label={t("save")}
+                          size="sm"
+                          colorScheme="green"
+                          onClick={() => handleSaveRow(index)}
+                        />
+                        <IconButton
+                          icon={<CloseIcon />}
+                          aria-label={t("cancel")}
+                          size="sm"
+                          colorScheme="red"
+                          onClick={() => handleCancelRow(index)}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <IconButton
+                          icon={<EditIcon />}
+                          aria-label={t("edit")}
+                          size="sm"
+                          colorScheme="teal"
+                          onClick={() => handleEdit(index)}
+                        />
+                        <IconButton
+                          icon={<DeleteIcon />}
+                          aria-label={t("delete")}
+                          size="sm"
+                          colorScheme="red"
+                          onClick={() => handleDelete(index)}
+                        />
+                      </>
+                    )}
+                  </HStack>
+                </Td>
+              )}
+            </Tr>
+          ))}
+        </Tbody>
+      </Table>
+    </Box>
+  );
+};
+
+const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
+  answers = [],
+  taskId,
+  min,
+  max,
+}) => {
+  const { t } = useTranslation();
+  const [currentAnswers, setCurrentAnswers] =
+    useState<GenericAnswer[]>(answers);
 
   const stats = useMemo(() => {
-    if (!answers?.length) return null;
+    if (!currentAnswers?.length) return null;
 
-    const numericAnswers = answers.map((a) => Number(a.answer));
+    const numericAnswers = currentAnswers.map((a) => Number(a.answer));
     return {
-      average: numericAnswers.reduce((a, b) => a + b, 0) / answers.length,
+      average:
+        numericAnswers.reduce((a, b) => a + b, 0) / currentAnswers.length,
       median: numericAnswers.sort((a, b) => a - b)[
-        Math.floor(answers.length / 2)
+        Math.floor(currentAnswers.length / 2)
       ],
       min: Math.min(...numericAnswers),
       max: Math.max(...numericAnswers),
     };
-  }, [answers]);
+  }, [currentAnswers]);
 
   const frequencyData = useMemo(() => {
-    if (!answers?.length) return { labels: [], counts: [] };
+    if (!currentAnswers?.length) return { labels: [], counts: [] };
 
-    // Create a frequency map of values
     const frequencies: { [key: number]: number } = {};
-    answers.forEach((answer) => {
+    currentAnswers.forEach((answer) => {
       const value = Number(answer.answer);
       if (!Number.isFinite(value)) return;
       frequencies[value] = (frequencies[value] || 0) + 1;
     });
 
-    // Sort values numerically
     const sortedValues = Object.keys(frequencies)
       .map(Number)
       .sort((a, b) => a - b);
@@ -100,9 +353,9 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
       labels: sortedValues.map((value) => value.toString()),
       counts: sortedValues.map((value) => frequencies[value]),
     };
-  }, [answers]);
+  }, [currentAnswers]);
 
-  if (!answers?.length) {
+  if (!currentAnswers?.length) {
     return (
       <Box textAlign="center" py={8}>
         <Text color="gray.500">{t("noAnswersYet")}</Text>
@@ -171,26 +424,13 @@ const NumberTaskAnswers: React.FC<NumberTaskAnswersProps> = ({
           </TabPanel>
 
           <TabPanel>
-            <Table variant="simple">
-              <Thead>
-                <Tr>
-                  <Th>{isAnonymous ? t("respondent") : t("username")}</Th>
-                  <Th>{t("answer")}</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {answers.map((answer, index) => (
-                  <Tr key={`${answer.username}-${index}`}>
-                    <Td>
-                      {isAnonymous
-                        ? `${t("respondent")} ${index + 1}`
-                        : answer.username}
-                    </Td>
-                    <Td>{answer.answer}</Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
+            <EditableAnswersTableView
+              answers={currentAnswers}
+              taskId={taskId}
+              min={min}
+              max={max}
+              onAnswersUpdate={setCurrentAnswers}
+            />
           </TabPanel>
         </TabPanels>
       </Tabs>

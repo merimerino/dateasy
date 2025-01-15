@@ -11,6 +11,8 @@ export interface UseTasksOptions {
 export const useTasks = (options: UseTasksOptions = { filterByRoom: true }) => {
   const [tasks, setTasks] = useState<ExtendedTask[] | null>(null);
   const [loading, setLoading] = useState(true);
+  // Add a timestamp state to force re-renders
+  const [refreshKey, setRefreshKey] = useState(0);
   const toast = useToast();
   const navigate = useNavigate();
   const { roomName } = useParams();
@@ -70,7 +72,12 @@ export const useTasks = (options: UseTasksOptions = { filterByRoom: true }) => {
 
   useEffect(() => {
     fetchTasks();
-  }, [fetchTasks]);
+  }, [fetchTasks, refreshKey]);
 
-  return { tasks, loading, refetch: fetchTasks };
+  const refetch = useCallback(() => {
+    setLoading(true);
+    setRefreshKey((prev) => prev + 1);
+  }, []);
+
+  return { tasks, loading, refetch };
 };

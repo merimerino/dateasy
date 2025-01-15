@@ -8,8 +8,9 @@ import {
   Text,
   useColorModeValue,
   useToast,
+  IconButton,
 } from "@chakra-ui/react";
-import { AddIcon, DragHandleIcon } from "@chakra-ui/icons";
+import { AddIcon, CloseIcon, DragHandleIcon } from "@chakra-ui/icons";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { TvIcon } from "lucide-react";
@@ -177,8 +178,8 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
             {t("tasksList")}
           </Heading>
           <Box display="flex" gap={2}>
-            <Button
-              leftIcon={<DragHandleIcon />}
+            <IconButton
+              icon={isReorderMode ? <CloseIcon /> : <DragHandleIcon />}
               colorScheme={isReorderMode ? "gray" : "teal"}
               size="md"
               onClick={toggleReorderMode}
@@ -187,9 +188,8 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
                 boxShadow: "lg",
               }}
               transition="all 0.2s"
-            >
-              {isReorderMode ? t("cancelReorder") : t("reorderTasks")}
-            </Button>
+              aria-label={""}
+            ></IconButton>
             {isReorderMode && (
               <Button
                 colorScheme="teal"
@@ -200,14 +200,15 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
                   boxShadow: "lg",
                 }}
                 transition="all 0.2s"
+                aria-label={""}
               >
                 {t("saveOrder")}
               </Button>
             )}
             {!isReorderMode && (
               <>
-                <Button
-                  leftIcon={<TvIcon />}
+                <IconButton
+                  icon={<TvIcon />}
                   colorScheme="teal"
                   size="md"
                   onClick={handlePresentResults}
@@ -216,11 +217,10 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
                     boxShadow: "lg",
                   }}
                   transition="all 0.2s"
-                >
-                  {t("present")}
-                </Button>
-                <Button
-                  leftIcon={<AddIcon />}
+                  aria-label={""}
+                ></IconButton>
+                <IconButton
+                  icon={<AddIcon />}
                   colorScheme="teal"
                   size="md"
                   onClick={onAdd}
@@ -229,9 +229,8 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
                     boxShadow: "lg",
                   }}
                   transition="all 0.2s"
-                >
-                  {t("addNewTask")}
-                </Button>
+                  aria-label={""}
+                ></IconButton>
               </>
             )}
           </Box>

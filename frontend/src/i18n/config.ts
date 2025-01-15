@@ -184,6 +184,9 @@ const resources = {
       saveOrder: "Save Order",
       orderUpdated: "Task order updated successfully",
       errorUpdatingOrder: "Error updating task order",
+      editAnswers: "Edit answers",
+      actions: "Actions",
+      answersSaved: "Answers saved!",
     },
   },
   hr: {
@@ -375,6 +378,9 @@ const resources = {
       saveOrder: "Spremi redoslijed",
       orderUpdated: "Novi redoslijed zadataka spremljen!",
       errorUpdatingOrder: "Greška prilikom spremanja redoslijeda.",
+      editAnswers: "Uredi odgovore",
+      actions: "Akcije",
+      answersSaved: "Odgovori spremljeni!",
     },
   },
 };

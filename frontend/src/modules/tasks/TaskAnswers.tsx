@@ -19,11 +19,12 @@ const TaskAnswers: React.FC<TaskAnswersProps> = ({ task }) => {
       );
 
     case "short_task":
-      return <ShortTaskAnswers answers={task.answers} />;
+      return <ShortTaskAnswers taskId={task.id} answers={task.answers} />;
 
     case "numbers_task":
       return (
         <NumberTaskAnswers
+          taskId={task.id}
           answers={task.answers}
           min={task.min_num}
           max={task.max_num}
@@ -31,8 +32,6 @@ const TaskAnswers: React.FC<TaskAnswersProps> = ({ task }) => {
       );
 
     case "table_task":
-      console.log("asns", task.answers);
-      console.log(task.columns);
       return (
         <TableTaskAnswers
           answers={task.answers}
