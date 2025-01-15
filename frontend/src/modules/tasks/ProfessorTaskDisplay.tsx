@@ -5,6 +5,7 @@ import ProfessorMapTask from "./professorTask/ProfessorMapTask";
 import ProfessorDescription from "./professorTask/ProfessorDescription";
 import ProfessorTableTask from "./professorTask/ProfessorTableTask";
 import { ExtendedTask } from "./TaskForm/types";
+import ProfessorGpxTask from "./professorTask/ProfessorGpxTask";
 
 type SubmissionValue =
   | string
@@ -82,6 +83,15 @@ const ProfessorTaskDisplay: React.FC<ProfessorTaskDisplayProps> = ({
     case "map_task": {
       return (
         <ProfessorMapTask
+          title={task.name ?? ""}
+          description={task.text ?? ""}
+        />
+      );
+    }
+
+    case "map_task_gpx": {
+      return (
+        <ProfessorGpxTask
           title={task.name ?? ""}
           description={task.text ?? ""}
         />

@@ -10,12 +10,13 @@ import {
   VStack,
   Button,
   Switch,
+  Select,
 } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { useTranslation } from "react-i18next";
 import TaskAnswers from "./tasks/TaskAnswers";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowBigLeft } from "lucide-react";
+import { ArrowBigLeft, ChevronDownIcon } from "lucide-react";
 import { ExtendedTask } from "./tasks/TaskForm/types";
 import { AnonymityProvider, useAnonymity } from "../contexts/AnonimityProvider";
 
@@ -23,7 +24,6 @@ interface PresentTasksProps {
   tasks: ExtendedTask[] | null;
 }
 
-// Separate component for the anonymity toggle
 const AnonymityToggle = () => {
   const { isAnonymous, toggleAnonymity } = useAnonymity();
   const { t } = useTranslation();
@@ -43,7 +43,6 @@ const AnonymityToggle = () => {
   );
 };
 
-// Main component content
 const PresentTasksContent: React.FC<PresentTasksProps> = ({ tasks }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -70,6 +69,10 @@ const PresentTasksContent: React.FC<PresentTasksProps> = ({ tasks }) => {
     );
   };
 
+  const handleTaskSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setCurrentTaskIndex(parseInt(event.target.value, 10));
+  };
+
   const getTaskTypeInfo = (type: string): { color: string; label: string } => {
     switch (type) {
       case "multichoice":
@@ -82,6 +85,8 @@ const PresentTasksContent: React.FC<PresentTasksProps> = ({ tasks }) => {
         return { color: "orange", label: t("taskTypes.table_task") };
       case "map_task":
         return { color: "red", label: t("taskTypes.map_task") };
+      case "map_task_gpx":
+        return { color: "teal", label: t("taskTypes.map_task_gpx") };
       case "description":
         return { color: "gray", label: t("taskTypes.description") };
       default:
@@ -133,8 +138,8 @@ const PresentTasksContent: React.FC<PresentTasksProps> = ({ tasks }) => {
           <TaskAnswers task={currentTask} />
         </Box>
 
-        {/* Navigation Controls */}
-        <Flex justify="space-between" pt={4}>
+        {/* Navigation Controls with Dropdown */}
+        <Flex justify="space-between" align="center" pt={4}>
           <IconButton
             icon={<ChevronLeftIcon boxSize={8} />}
             aria-label="Previous task"
@@ -144,6 +149,46 @@ const PresentTasksContent: React.FC<PresentTasksProps> = ({ tasks }) => {
             colorScheme="teal"
             variant="ghost"
           />
+
+          <Box width="250px">
+            <Select
+              value={currentTaskIndex}
+              onChange={handleTaskSelect}
+              size="md"
+              variant="filled"
+              bg="teal.500"
+              color="white"
+              _hover={{
+                bg: "teal.600",
+              }}
+              _focus={{
+                bg: "teal.500",
+                borderColor: "teal.300",
+                boxShadow: "0 0 0 1px var(--chakra-colors-teal-300)",
+              }}
+              icon={<ChevronDownIcon />}
+              sx={{
+                "& option": {
+                  bg: "white",
+                  color: "teal.800",
+                  fontWeight: "500",
+                  _hover: {
+                    bg: "teal.50",
+                  },
+                },
+                transition: "all 0.2s ease-in-out",
+                cursor: "pointer",
+                fontWeight: "500",
+              }}
+            >
+              {tasks.map((task, index) => (
+                <option key={index} value={index}>
+                  {index + 1}: {task.name}
+                </option>
+              ))}
+            </Select>
+          </Box>
+
           <IconButton
             icon={<ChevronRightIcon boxSize={8} />}
             aria-label="Next task"

@@ -186,6 +186,10 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
           min_num: data.min_num ?? 0,
           max_num: data.max_num ?? 100,
         };
+      case "map_task_gpx":
+        return {
+          ...basePayload,
+        };
 
       default:
         throw new Error(`Unknown task type: ${data.task_type}`);
@@ -415,6 +419,18 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, initialData }) => {
                   isSubmitting={isSubmitting}
                 />
               </>
+            )}
+            {task.task_type === "map_task_gpx" && (
+              <BasicTaskFields
+                name={task.name}
+                text={task.text}
+                errors={{
+                  name: errors.name,
+                  text: errors.text,
+                }}
+                onChange={handleInputChange}
+                isSubmitting={isSubmitting}
+              />
             )}
           </VStack>
         </CardBody>

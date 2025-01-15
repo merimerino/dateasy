@@ -49,6 +49,8 @@ const ProfessorTaskList: React.FC<ProfessorTaskListProps> = ({
         return { color: "orange" };
       case "map_task":
         return { color: "red" };
+      case "map_task_gpx":
+        return { color: "teal" };
       case "description":
         return { color: "gray" };
       default:

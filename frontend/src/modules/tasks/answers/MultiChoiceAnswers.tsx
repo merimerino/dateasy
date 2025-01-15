@@ -60,7 +60,10 @@ const MultiChoiceAnswers: React.FC<MultiChoiceAnswersProps> = ({
   }
 
   const answerCounts = options.reduce((acc, option) => {
-    acc[option] = answers.filter((a) => a.answer === option).length;
+    acc[option] = answers.reduce((count, answer) => {
+      const answerArray = answer.answer.split(",").map((a) => a.trim());
+      return count + (answerArray.includes(option) ? 1 : 0);
+    }, 0);
     return acc;
   }, {} as Record<string, number>);
 

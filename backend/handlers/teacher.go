@@ -7,6 +7,8 @@ import (
 	"sort"
 
 	types "backend/types"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type SortedTasks []types.Task
@@ -51,6 +53,13 @@ func (s *APIServer) HandleGetAllTasks(w http.ResponseWriter, r *http.Request, ro
 		return WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to retrieve map tasks"})
 	}
 	for _, task := range mapTasks {
+		allTasks = append(allTasks, task)
+	}
+	mapTasksGpx, err := s.store.GetMapTasksGpx(room_name)
+	if err != nil {
+		return WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to retrieve map tasks"})
+	}
+	for _, task := range mapTasksGpx {
 		allTasks = append(allTasks, task)
 	}
 
@@ -197,7 +206,7 @@ func (s *APIServer) HandleAddDescription(w http.ResponseWriter, r *http.Request,
 	// Create a new MultipleChoice task
 	newTask := &types.Description{
 		RoomName:    room_name,
-		Text: add_multiple_req.Text,
+		Text:        add_multiple_req.Text,
 		TaskType:    "description",
 		OrderNumber: highestOrder + 1,
 	}
@@ -264,7 +273,7 @@ func (s *APIServer) HandleAddTableTask(w http.ResponseWriter, r *http.Request, r
 		RoomName:          room_name,
 		Name:              add_multiple_req.Name,
 		TaskType:          "table_task",
-		Text: 				add_multiple_req.Text,
+		Text:              add_multiple_req.Text,
 		OrderNumber:       highestOrder + 1,
 		Columns:           add_multiple_req.Columns,
 		Rows:              add_multiple_req.Rows,
@@ -419,7 +428,7 @@ func (s *APIServer) HandleEditDescription(w http.ResponseWriter, r *http.Request
 	task := &types.Description{
 		ID:          edit_description_req.ID,
 		RoomName:    room_name,
-		Text: edit_description_req.Text,
+		Text:        edit_description_req.Text,
 		TaskType:    "description",
 		OrderNumber: edit_description_req.OrderNumber,
 		Answers:     []types.Answer{},
@@ -449,7 +458,7 @@ func (s *APIServer) HandleEditTableTask(w http.ResponseWriter, r *http.Request, 
 		ID:                edit_table_req.ID,
 		RoomName:          room_name,
 		Name:              edit_table_req.Name,
-		Text:				edit_table_req.Text,
+		Text:              edit_table_req.Text,
 		TaskType:          "table_task",
 		OrderNumber:       edit_table_req.OrderNumber,
 		Columns:           edit_table_req.Columns,
@@ -529,4 +538,150 @@ func (s *APIServer) HandleEditNumbersTask(w http.ResponseWriter, r *http.Request
 	}
 
 	return WriteJSON(w, http.StatusOK, "Successfully edited a task")
+}
+
+// GPX task
+
+// Add gpx task
+func (s *APIServer) HandleAddMapTaskGpx(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
+	if username != "Admin" {
+		return WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+	}
+
+	add_gpx_req := new(types.AddMapTaskGpx)
+	if err := json.NewDecoder(r.Body).Decode(add_gpx_req); err != nil {
+		return err
+	}
+
+	// Get the highest task order
+	highestOrder, err := s.store.GetHighestTaskOrder(room_name)
+	if err != nil {
+		return err
+	}
+
+	// Read and encode GPX file
+	//gpxFile, err := io.ReadAll(r.Body)
+	//if err != nil {
+	//	return err
+	//}
+
+	// Create a new MapTaskGpx
+	newTask := &types.MapTaskGpx{
+		RoomName:    room_name,
+		Name:        add_gpx_req.Name,
+		TaskType:    "map_task_gpx",
+		OrderNumber: highestOrder + 1,
+		Text:        add_gpx_req.Text,
+		GpxFile:     add_gpx_req.GpxFile,
+		Answers:     []types.Answer{},
+	}
+
+	// Save the new task to the database
+	if err := s.store.AddMapTaskGpx(newTask); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, "Successfully added a GPX task")
+}
+
+func (s *APIServer) HandleEditMapTaskGpx(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
+	if r.Method != http.MethodPut {
+		return WriteJSON(w, http.StatusMethodNotAllowed, "Invalid request method")
+	}
+	if username != "Admin" {
+		return WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+	}
+	edit_map_gpx_req := new(types.EditMapTaskGpx)
+	if err := json.NewDecoder(r.Body).Decode(edit_map_gpx_req); err != nil {
+		return err
+	}
+
+	// Create a new MapTaskGpx
+	task := &types.MapTaskGpx{
+		ID:          edit_map_gpx_req.ID,
+		RoomName:    room_name,
+		Name:        edit_map_gpx_req.Name,
+		TaskType:    "map_task_gpx",
+		OrderNumber: edit_map_gpx_req.OrderNumber,
+		Text:        edit_map_gpx_req.Text,
+		GpxFile:     edit_map_gpx_req.GpxFile,
+		Answers:     []types.Answer{},
+	}
+
+	err_update := s.store.UpdateMapTaskGpx(*task)
+	if err_update != nil {
+		return WriteJSON(w, http.StatusInternalServerError, err_update.Error())
+	}
+
+	return WriteJSON(w, http.StatusOK, "Successfully edited a GPX task")
+}
+
+func (s *APIServer) HandleUpdateTaskOrder(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
+	if username != "Admin" {
+		return WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+	}
+	newOrdersReq := new([]types.NewOrderNumber)
+	if err := json.NewDecoder(r.Body).Decode(newOrdersReq); err != nil {
+		return WriteJSON(w, http.StatusBadRequest, err)
+	}
+
+	for _, newOrderReq := range *newOrdersReq {
+		taskID := newOrderReq.ID
+		log.Println("Uso sam unutra s %d", taskID)
+
+		// Get the task by ID
+		task, collectionName, err := s.store.GetTaskByID(taskID)
+		if err != nil {
+			log.Println(err)
+			return WriteJSON(w, http.StatusInternalServerError, err)
+		}
+		if task == nil {
+			log.Printf("No task found with id %s", taskID.Hex())
+			continue
+		}
+
+		// Update the task with the new order number
+		err = s.store.UpdateTaskWithNewOrder(collectionName, task, newOrderReq.OrderNumber)
+		if err != nil {
+			log.Println(err)
+			return WriteJSON(w, http.StatusInternalServerError, err)
+		}
+	}
+
+	return WriteJSON(w, http.StatusOK, "Order number of task changed successfully")
+}
+
+func (s *APIServer) HandleEditAnswers(w http.ResponseWriter, r *http.Request, room_name string, username string) error {
+	if username != "Admin" {
+		return WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+	}
+	newAnswers := new(types.EditAnswers)
+	if err := json.NewDecoder(r.Body).Decode(newAnswers); err != nil {
+		return WriteJSON(w, http.StatusBadRequest, err)
+	}
+
+	objectID, err := primitive.ObjectIDFromHex(newAnswers.ID)
+	if err != nil {
+		return WriteJSON(w, http.StatusBadRequest, "Invalid ID format")
+	}
+
+	// Get the task by ID
+	task, collectionName, err := s.store.GetTaskByID(objectID)
+	if err != nil {
+		log.Println(err)
+		return WriteJSON(w, http.StatusInternalServerError, err)
+	}
+	if task == nil {
+		log.Printf("No task found with id %s", &newAnswers.ID)
+		return WriteJSON(w, http.StatusBadRequest, "You provided id that doesn't exist")
+	}
+
+	// Update the task with the answer
+	err = s.store.UpdateTaskAnswers(collectionName, task, newAnswers.Answers)
+	if err != nil {
+		log.Println(err)
+		return WriteJSON(w, http.StatusInternalServerError, err)
+	}
+
+	return WriteJSON(w, http.StatusOK, "Answers successfully changed!")
 }

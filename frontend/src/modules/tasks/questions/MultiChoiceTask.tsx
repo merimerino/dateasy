@@ -7,7 +7,7 @@ interface MultiChoiceTaskProps {
   description: string;
   options?: string[];
   multiple_answers?: boolean;
-  onChange: (value: string | string[]) => void;
+  onChange: (value: string) => void;
 }
 
 const MultiChoiceTask: React.FC<MultiChoiceTaskProps> = ({
@@ -18,7 +18,7 @@ const MultiChoiceTask: React.FC<MultiChoiceTaskProps> = ({
   onChange,
 }) => {
   const [singleValue, setSingleValue] = useState("");
-  const [multipleValues, setMultipleValues] = useState<string[]>([]);
+  const [multipleValues, setMultipleValues] = useState<string>("");
 
   const handleSingleChange = (newValue: string) => {
     setSingleValue(newValue);
@@ -26,9 +26,18 @@ const MultiChoiceTask: React.FC<MultiChoiceTaskProps> = ({
   };
 
   const handleMultipleChange = (option: string, isChecked: boolean) => {
-    const updatedValues = isChecked
-      ? [...multipleValues, option]
-      : multipleValues.filter((value) => value !== option);
+    const currentValues = multipleValues ? multipleValues.split(",") : [];
+    let updatedValues: string;
+
+    if (isChecked) {
+      updatedValues = currentValues.includes(option)
+        ? multipleValues
+        : [...currentValues, option].join(",");
+    } else {
+      updatedValues = currentValues
+        .filter((value) => value !== option)
+        .join(",");
+    }
 
     setMultipleValues(updatedValues);
     onChange(updatedValues);
@@ -41,7 +50,7 @@ const MultiChoiceTask: React.FC<MultiChoiceTaskProps> = ({
           {options?.map((option, index) => (
             <Checkbox
               key={index}
-              isChecked={multipleValues.includes(option)}
+              isChecked={multipleValues.split(",").includes(option)}
               onChange={(e) => handleMultipleChange(option, e.target.checked)}
               size="lg"
               colorScheme="teal"

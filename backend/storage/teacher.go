@@ -19,22 +19,27 @@ type TeacherStore interface {
 	GetShortTasks(string) ([]*types.ShortTask, error)
 	GetDescriptions(string) ([]*types.Description, error)
 	GetMapTasks(string) ([]*types.MapTask, error)
+	GetMapTasksGpx(string) ([]*types.MapTaskGpx, error)
 	GetTableTasks(string) ([]*types.TableTask, error)
 	AddNumbersTask(*types.NumbersTask) error
 	AddShortTask(*types.ShortTask) error
 	AddDescription(*types.Description) error
 	AddMapTask(*types.MapTask) error
+	AddMapTaskGpx(*types.MapTaskGpx) error
 	AddTableTask(*types.TableTask) error
 	AddMultipleChoiceTask(*types.MultipleChoice) error
 	GetHighestTaskOrder(string) (int, error)
 	GetTaskByID(primitive.ObjectID) (types.Task, string, error)
 	UpdateTaskWithAnswer(string, types.Task, string, string) error
+	UpdateTaskWithNewOrder(string, types.Task, int) error
+	UpdateTaskAnswers(string, types.Task, []types.Answer) error
 	DeleteTask(string, primitive.ObjectID) error
 	UpdateMultipleChoice(types.MultipleChoice) error
 	UpdateNumbersTask(types.NumbersTask) error
 	UpdateShortTask(types.ShortTask) error
 	UpdateDescription(types.Description) error
 	UpdateMapTask(types.MapTask) error
+	UpdateMapTaskGpx(types.MapTaskGpx) error
 	UpdateTableTask(types.TableTask) error
 }
 
@@ -69,7 +74,7 @@ func (s *MongoStore) UpdateDescription(task types.Description) error {
 	update := bson.M{
 		"$set": bson.M{
 			"room_name":    task.RoomName,
-			"text":  task.Text,
+			"text":         task.Text,
 			"task_type":    task.TaskType,
 			"order_number": task.OrderNumber,
 			"answers":      task.Answers,
@@ -93,7 +98,7 @@ func (s *MongoStore) UpdateTableTask(task types.TableTask) error {
 			"room_name":            task.RoomName,
 			"name":                 task.Name,
 			"order_number":         task.OrderNumber,
-			"text":         task.Text,
+			"text":                 task.Text,
 			"task_type":            task.TaskType,
 			"columns":              task.Columns,
 			"rows":                 task.Rows,
@@ -107,6 +112,29 @@ func (s *MongoStore) UpdateTableTask(task types.TableTask) error {
 	_, err := collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return fmt.Errorf("error updating table task: %v", err)
+	}
+
+	return nil
+}
+func (s *MongoStore) UpdateMapTaskGpx(task types.MapTaskGpx) error {
+	collection := s.client.Database("taskdb").Collection("MapTaskGpx")
+
+	filter := bson.M{"_id": task.ID}
+	update := bson.M{
+		"$set": bson.M{
+			"room_name":    task.RoomName,
+			"name":         task.Name,
+			"order_number": task.OrderNumber,
+			"task_type":    task.TaskType,
+			"text":         task.Text,
+			"gpx_file":     task.GpxFile,
+			"answers":      task.Answers,
+		},
+	}
+
+	_, err := collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return fmt.Errorf("error updating map task: %v", err)
 	}
 
 	return nil
@@ -207,6 +235,7 @@ func (s *MongoStore) GetTaskByID(taskID primitive.ObjectID) (types.Task, string,
 		"Description":    &types.Description{},
 		"TableTask":      &types.TableTask{},
 		"MapTask":        &types.MapTask{},
+		"MapTaskGpx":     &types.MapTaskGpx{},
 		"NumbersTask":    &types.NumbersTask{},
 	}
 
@@ -237,6 +266,21 @@ func (s *MongoStore) getTaskFromCollectionByID(collectionName string, taskType t
 
 	return taskType, nil
 }
+func (s *MongoStore) UpdateTaskAnswers(collectionName string, task types.Task, answers []types.Answer) error {
+	collection := s.client.Database("taskdb").Collection(collectionName)
+
+	filter := bson.M{"_id": task.GetID()}
+	update := bson.M{
+		"$set": bson.M{"answers": answers},
+	}
+
+	_, err := collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return fmt.Errorf("error updating task with new order number: %v", err)
+	}
+
+	return nil
+}
 func (s *MongoStore) UpdateTaskWithAnswer(collectionName string, task types.Task, username string, answer string) error {
 	collection := s.client.Database("taskdb").Collection(collectionName)
 
@@ -248,6 +292,21 @@ func (s *MongoStore) UpdateTaskWithAnswer(collectionName string, task types.Task
 	_, err := collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return fmt.Errorf("error updating task with answer: %v", err)
+	}
+
+	return nil
+}
+func (s *MongoStore) UpdateTaskWithNewOrder(collectionName string, task types.Task, orderNumber int) error {
+	collection := s.client.Database("taskdb").Collection(collectionName)
+
+	filter := bson.M{"_id": task.GetID()}
+	update := bson.M{
+		"$set": bson.M{"order_number": orderNumber},
+	}
+
+	_, err := collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return fmt.Errorf("error updating task with new order number: %v", err)
 	}
 
 	return nil
@@ -277,6 +336,15 @@ func (s *MongoStore) AddDescription(task *types.Description) error {
 	_, err := collection.InsertOne(context.Background(), task)
 	if err != nil {
 		return fmt.Errorf("error inserting description: %v", err)
+	}
+	return nil
+}
+func (s *MongoStore) AddMapTaskGpx(task *types.MapTaskGpx) error {
+	collection := s.client.Database("taskdb").Collection("MapTaskGpx")
+
+	_, err := collection.InsertOne(context.Background(), task)
+	if err != nil {
+		return fmt.Errorf("error inserting map task: %v", err)
 	}
 	return nil
 }
@@ -331,6 +399,7 @@ func (s *MongoStore) GetHighestTaskOrder(roomName string) (int, error) {
 		"Description":    &types.Description{},
 		"TableTask":      &types.TableTask{},
 		"MapTask":        &types.MapTask{},
+		"MapTaskGpx":     &types.MapTaskGpx{},
 		"NumbersTask":    &types.NumbersTask{},
 	}
 
@@ -464,6 +533,33 @@ func (s *MongoStore) GetNumberTasks(roomName string) ([]*types.NumbersTask, erro
 
 	for cursor.Next(context.Background()) {
 		var task types.NumbersTask
+		if err := cursor.Decode(&task); err != nil {
+			return nil, fmt.Errorf("error decoding task: %v", err)
+		}
+		// Append a pointer to the task
+		tasks = append(tasks, &task)
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
+}
+
+func (s *MongoStore) GetMapTasksGpx(roomName string) ([]*types.MapTaskGpx, error) {
+	collection := s.client.Database("taskdb").Collection("MapTaskGpx")
+
+	var tasks []*types.MapTaskGpx
+	filter := bson.M{"room_name": roomName}
+
+	cursor, err := collection.Find(context.Background(), filter)
+	if err != nil {
+		return nil, fmt.Errorf("error trying to get multiple choice tasks: %v", err)
+	}
+	defer cursor.Close(context.Background())
+
+	for cursor.Next(context.Background()) {
+		var task types.MapTaskGpx
 		if err := cursor.Decode(&task); err != nil {
 			return nil, fmt.Errorf("error decoding task: %v", err)
 		}

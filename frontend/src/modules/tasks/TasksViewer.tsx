@@ -13,22 +13,20 @@ import {
 import { useTasks } from "../../hooks/useTasks";
 import TaskDisplay from "./TaskDisplay";
 import { useTranslation } from "react-i18next";
-import { SubmissionValue } from "../../types/Tasks";
 //import { useNavigate } from "react-router-dom";
 
 const TasksViewer: React.FC = () => {
   const { tasks, loading } = useTasks();
   const { t } = useTranslation();
-  const taskRefs = useRef<Record<number, SubmissionValue>>({});
+  const taskRefs = useRef<Record<number, string>>({});
   const toast = useToast();
   //const navigate = useNavigate();
 
-  const convertToString = (value: SubmissionValue): string => {
-    if (value === null || value === undefined) return "";
+  const convertToString = (value: string | string[]): string => {
     if (Array.isArray(value)) {
-      return value.map(String).join(",");
+      return value.join(",");
     }
-    return String(value);
+    return value;
   };
 
   const handleSubmitAll = async () => {
@@ -39,8 +37,10 @@ const TasksViewer: React.FC = () => {
       .filter((task) => task.task_type !== "description")
       .map((task) => ({
         id: task.id,
-        answer: convertToString(taskRefs.current[task.order_number] || null),
+        answer: taskRefs.current[task.order_number] || "",
       }));
+
+    console.log(allAnswers);
 
     try {
       const authToken = localStorage.getItem("token");
@@ -122,8 +122,8 @@ const TasksViewer: React.FC = () => {
             <Box key={`${task.room_name}-${task.order_number}`}>
               <TaskDisplay
                 task={task}
-                onSubmit={(_: string, value: SubmissionValue) => {
-                  taskRefs.current[task.order_number] = value;
+                onSubmit={(_: string, value: string | string[]) => {
+                  taskRefs.current[task.order_number] = convertToString(value);
                 }}
               />
             </Box>

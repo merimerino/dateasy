@@ -102,6 +102,7 @@ const resources = {
         table_task: "Table Task",
         map_task: "Map Task",
         description: "Description",
+        map_task_gpx: "Gpx Task",
       },
       noAnswersYet: "No answers yet.",
 
@@ -175,6 +176,9 @@ const resources = {
       confirmAction: "Confirm action",
       saveChangesConfirmation:
         "Are you sure you want to edit the task? All submitted answers will be deleted.",
+      distance: "Distance",
+      points: "Points",
+      track: "Track",
     },
   },
   hr: {
@@ -311,6 +315,7 @@ const resources = {
         table_task: "Tablični zadatak",
         map_task: "Zadatak s kartom",
         description: "Opis",
+        map_task_gpx: "Gpx zadatak",
       },
       noAnswersYet: "Još nema odgovora",
 
@@ -357,6 +362,9 @@ const resources = {
       confirmAction: "Jeste li sigurni?",
       saveChangesConfirmation:
         "Jeste li sigurni da želite obrisati zadatak? Svi predani odgovori će biti obrisani.",
+      distance: "Udaljenost",
+      points: "Točke",
+      track: "Traka",
     },
   },
 };

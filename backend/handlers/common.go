@@ -71,6 +71,7 @@ func (s *APIServer) Run() {
 	router.HandleFunc("/editTask/numbers_task", withJWTAuth(s.HandleEditNumbersTask))
 	router.HandleFunc("/editTask/table_task", withJWTAuth(s.HandleEditTableTask))
 	router.HandleFunc("/editTask/map_task", withJWTAuth(s.HandleEditMapTask))
+	router.HandleFunc("/editTask/map_task_gpx", withJWTAuth(s.HandleEditMapTaskGpx))
 
 	router.HandleFunc("/addTask/multichoice", withJWTAuth(s.HandleAddMultipleChoice))
 	router.HandleFunc("/addTask/short_task", withJWTAuth(s.HandleAddShortTask))
@@ -78,8 +79,11 @@ func (s *APIServer) Run() {
 	router.HandleFunc("/addTask/numbers_task", withJWTAuth(s.HandleAddNumbersTask))
 	router.HandleFunc("/addTask/table_task", withJWTAuth(s.HandleAddTableTask))
 	router.HandleFunc("/addTask/map_task", withJWTAuth(s.HandleAddMapTask))
+	router.HandleFunc("/addTask/map_task_gpx", withJWTAuth(s.HandleAddMapTaskGpx))
 
 	router.HandleFunc("/giveAnswer", withJWTAuth(s.HandleGiveAnswer))
+	router.HandleFunc("/editAnswers", withJWTAuth(s.HandleEditAnswers))
+	router.HandleFunc("/changeOrder", withJWTAuth(s.HandleUpdateTaskOrder))
 	//router.HandleFunc("/multichoices", withJWTAuth(makeHTTPHandleFunc(s.HandleMultipleChoice)))
 	//router.HandleFunc("/shortTasks", withJWTAuth(makeHTTPHandleFunc(s.HandleShortTask)))
 	//router.HandleFunc("/descriptions", withJWTAuth(makeHTTPHandleFunc(s.HandleDescriptions)))

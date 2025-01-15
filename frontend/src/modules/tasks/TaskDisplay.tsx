@@ -5,17 +5,17 @@ import MultiChoiceTask from "./questions/MultiChoiceTask";
 import DescriptionTask from "./questions/DescriptionTask";
 import TableTask from "./questions/TableTask";
 import MapTask from "./questions/MapTask";
-import { SubmissionValue } from "../../types/Tasks";
+import GpxTask from "./questions/GpxTask";
 
 interface TaskDisplayProps {
   task: ExtendedTask;
-  onSubmit: (roomName: string, value: SubmissionValue) => void;
+  onSubmit: (roomName: string, value: string | string[]) => void;
 }
 
 const TaskDisplay: React.FC<TaskDisplayProps> = ({ task, onSubmit }) => {
   if (!task) return null;
 
-  const handleTaskSubmit = (value: SubmissionValue): void => {
+  const handleTaskSubmit = (value: string): void => {
     onSubmit(task.room_name, value);
   };
 
@@ -38,7 +38,7 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ task, onSubmit }) => {
           description={task.text ?? ""}
           min={task.min_num}
           max={task.max_num}
-          onChange={(value: string) => handleTaskSubmit(Number(value))}
+          onChange={(value: string) => handleTaskSubmit(value)}
         />
       );
     }
@@ -50,7 +50,7 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ task, onSubmit }) => {
           description={task.text ?? ""}
           options={task.options}
           multiple_answers={task.multiple_answers}
-          onChange={(value: string | string[]) => handleTaskSubmit(value)}
+          onChange={(value: string) => handleTaskSubmit(value)}
         />
       );
     }
@@ -95,6 +95,15 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ task, onSubmit }) => {
             console.log(coordinatesString);
             handleTaskSubmit(coordinatesString);
           }}
+        />
+      );
+    }
+    case "map_task_gpx": {
+      return (
+        <GpxTask
+          title={task.name ?? ""}
+          description={task.text ?? ""}
+          onChange={(value: string) => handleTaskSubmit(value)}
         />
       );
     }

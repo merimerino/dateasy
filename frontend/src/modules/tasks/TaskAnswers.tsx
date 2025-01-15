@@ -5,6 +5,7 @@ import NumberTaskAnswers from "./answers/NumberTaskAnswers";
 import TableTaskAnswers from "./answers/TableTaskAnswers";
 import MapTaskAnswers from "./answers/MapTaskAnswers";
 import { ExtendedTask } from "./TaskForm/types";
+import GpxTaskAnswers from "./answers/GpxTaskAnswers";
 
 interface TaskAnswersProps {
   task: ExtendedTask;
@@ -41,6 +42,8 @@ const TaskAnswers: React.FC<TaskAnswersProps> = ({ task }) => {
 
     case "map_task":
       return <MapTaskAnswers answers={task.answers} />;
+    case "map_task_gpx":
+      return <GpxTaskAnswers answers={task.answers} />;
 
     case "description":
       return null;

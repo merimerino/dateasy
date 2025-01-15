@@ -5,7 +5,8 @@ export type TaskType =
   | "multichoice"
   | "description"
   | "table_task"
-  | "map_task";
+  | "map_task"
+  | "map_task_gpx";
 
 export interface GenericAnswer {
   username: string;

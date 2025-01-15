@@ -21,7 +21,7 @@ export const getDefaultValuesForType = (
     case "table_task":
       return {
         headers: [""],
-        rows: 3,
+        rows: 1,
         columns: 1,
       };
     case "map_task":

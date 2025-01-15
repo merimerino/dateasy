@@ -4,6 +4,14 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type EditAnswers struct {
+	ID      string   `json:"id" bson:"_id,omitempty"`
+	Answers []Answer `json:"answers" bson:"answers"`
+}
+type NewOrderNumber struct {
+	ID          primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	OrderNumber int                `json:"order_number" bson:"order_number"`
+}
 type EditMultipleChoice struct {
 	ID              primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	Name            string             `json:"name" bson:"name"`
@@ -22,22 +30,29 @@ type EditShortTask struct {
 
 type EditDescription struct {
 	ID          primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-	Text string             `json:"text" bson:"text"`
+	Text        string             `json:"text" bson:"text"`
 	OrderNumber int                `json:"order_number" bson:"order_number"`
 }
 
 type EditTableTask struct {
 	ID                primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	Name              string             `json:"name" bson:"name"`
-	Text string             `json:"text" bson:"text"`
+	Text              string             `json:"text" bson:"text"`
 	OrderNumber       int                `json:"order_number" bson:"order_number"`
 	Columns           string             `json:"columns" bson:"columns"`
-	Rows              int             `json:"rows" bson:"rows"`
+	Rows              int                `json:"rows" bson:"rows"`
 	ShowGraf          bool               `json:"show_graf" bson:"show_graf"`
 	AllowAddingOfRows bool               `json:"allow_adding_of_rows" bson:"allow_adding_of_rows"`
 	NewRowName        string             `json:"new_row_name" bson:"new_row_name"`
 }
 
+type EditMapTaskGpx struct {
+	ID          primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	Name        string             `bson:"name" json:"name"`
+	OrderNumber int                `json:"order_number" bson:"order_number"`
+	Text        string             `bson:"text" json:"text"`
+	GpxFile     []byte             `bson:"gpx_file" json:"gpx_file"`
+}
 type EditMapTask struct {
 	ID          primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	Name        string             `json:"name" bson:"name"`
@@ -90,11 +105,16 @@ type AddDescription struct {
 type AddTableTask struct {
 	Name              string `json:"name" bson:"name"`
 	Columns           string `json:"columns" bson:"columns"`
-	Text string             `json:"text" bson:"text"`
-	Rows              int `json:"rows" bson:"rows"`
+	Text              string `json:"text" bson:"text"`
+	Rows              int    `json:"rows" bson:"rows"`
 	ShowGraf          bool   `json:"show_graf" bson:"show_graf"`
 	AllowAddingOfRows bool   `json:"allow_adding_of_rows" bson:"allow_adding_of_rows"`
 	NewRowName        string `json:"new_row_name" bson:"new_row_name"`
+}
+type AddMapTaskGpx struct {
+	Name    string `bson:"name" json:"name"`
+	Text    string `bson:"text" json:"text"`
+	GpxFile []byte `bson:"gpx_file" json:"gpx_file"`
 }
 
 type AddMapTask struct {
@@ -138,7 +158,7 @@ type ShortTask struct {
 type Description struct {
 	ID          primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	RoomName    string             `json:"room_name" bson:"room_name"`
-	Text string             `json:"text" bson:"text"`
+	Text        string             `json:"text" bson:"text"`
 	TaskType    string             `json:"task_type" bson:"task_type"`
 	OrderNumber int                `json:"order_number" bson:"order_number"`
 	Answers     []Answer           `json:"answers" bson:"answers"`
@@ -148,15 +168,26 @@ type TableTask struct {
 	ID                primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	RoomName          string             `json:"room_name" bson:"room_name"`
 	Name              string             `json:"name" bson:"name"`
-	Text string             `json:"text" bson:"text"`
+	Text              string             `json:"text" bson:"text"`
 	TaskType          string             `json:"task_type" bson:"task_type"`
 	OrderNumber       int                `json:"order_number" bson:"order_number"`
 	Columns           string             `json:"columns" bson:"columns"`
-	Rows              int             `json:"rows" bson:"rows"`
+	Rows              int                `json:"rows" bson:"rows"`
 	ShowGraf          bool               `json:"show_graf" bson:"show_graf"`
 	AllowAddingOfRows bool               `json:"allow_adding_of_rows" bson:"allow_adding_of_rows"`
 	NewRowName        string             `json:"new_row_name" bson:"new_row_name"`
 	Answers           []Answer           `json:"answers" bson:"answers"`
+}
+
+type MapTaskGpx struct {
+	ID          primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	RoomName    string             `bson:"room_name" json:"room_name"`
+	Name        string             `bson:"name" json:"name"`
+	TaskType    string             `bson:"task_type" json:"task_type"`
+	OrderNumber int                `bson:"order_number" json:"order_number"`
+	Text        string             `bson:"text" json:"text"`
+	GpxFile     []byte             `bson:"gpx_file" json:"gpx_file"`
+	Answers     []Answer           `bson:"answers" json:"answers"`
 }
 
 type MapTask struct {
@@ -196,6 +227,7 @@ func (t ShortTask) OrderNumberField() int      { return t.OrderNumber }
 func (t Description) OrderNumberField() int    { return t.OrderNumber }
 func (t TableTask) OrderNumberField() int      { return t.OrderNumber }
 func (t MapTask) OrderNumberField() int        { return t.OrderNumber }
+func (t MapTaskGpx) OrderNumberField() int     { return t.OrderNumber }
 func (t NumbersTask) OrderNumberField() int    { return t.OrderNumber }
 
 func (m *MultipleChoice) GetID() primitive.ObjectID {
@@ -211,6 +243,9 @@ func (m *TableTask) GetID() primitive.ObjectID {
 	return m.ID
 }
 func (m *MapTask) GetID() primitive.ObjectID {
+	return m.ID
+}
+func (m *MapTaskGpx) GetID() primitive.ObjectID {
 	return m.ID
 }
 func (m *NumbersTask) GetID() primitive.ObjectID {

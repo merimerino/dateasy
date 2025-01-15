@@ -531,3 +531,49 @@ db.NumbersTask.insertMany([
     answers: [], // Initialize with empty answers array
   },
 ]);
+db.createCollection("MapTaskGpx", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["room_name", "name", "order_number", "task_type", "text", "gpx_file", "answers"],
+      properties: {
+        room_name: { bsonType: "string", description: "must be a string and is required" },
+        name: { bsonType: "string", description: "must be a string and is required" },
+        order_number: { bsonType: "int", description: "must be an int and is required" },
+        task_type: { bsonType: "string", description: "must be a string and is required" },
+        text: { bsonType: "string", description: "must be a string and is required" },
+        gpx_file: { bsonType: "binData", description: "must be binary data and is required" },
+        answers: {
+          bsonType: "array",
+          items: {
+            bsonType: "object",
+            properties: {
+              username: { bsonType: "string", description: "must be a string" },
+              answer: { bsonType: "string", description: "must be a string" },
+            },
+          },
+        },
+      },
+    },
+  },
+});
+db.MapTaskGpx.insertMany([
+  {
+    room_name: "testing",
+    name: "First GPX Task",
+    task_type: "map_task_gpx",
+    order_number: 5,
+    text: "Navigate using this GPX route",
+    gpx_file: new BinData(0, "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGdweCB2ZXJzaW9uPSIxLjEiIGNyZWF0b3I9IkV4YW1wbGUiPgo8bWV0YWRhdGE+CjxsaW5rIHJlbD0icmVmIiBocmVmPSJodHRwczovL2V4YW1wbGUuY29tL2dweCIvPgo8L21ldGFkYXRhPgo8dHI+CjxsYXRsbj4zOC44OTk4MzwvbGF0bG4+Cjxsb24+LTk0LjI1OTg4ODwvbG9uPgo8ZWxldiBjbGltYj0iMjAwIi8+CjwvdHI+CjwvcHJrPg=="),
+    answers: [],
+  },
+  {
+    room_name: "forest_hike",
+    name: "Second GPX Task",
+    task_type: "map_task_gpx",
+    order_number: 2,
+    text: "Follow the trail for a scenic view",
+    gpx_file: new BinData(0, "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGdweCB2ZXJzaW9uPSIxLjEiIGNyZWF0b3I9IkV4YW1wbGUiPgo8bWV0YWRhdGE+CjxsaW5rIHJlbD0icmVmIiBocmVmPSJodHRwczovL2V4YW1wbGUuY29tL2dweCIvPgo8L21ldGFkYXRhPgo8dHI+CjxsYXRsbj4zOC44OTk4MzwvbGF0bG4+Cjxsb24+LTk0LjI1OTg4ODwvbG9uPgo8ZWxldiBjbGltYj0iMjAwIi8+CjwvdHI+CjwvcHJrPg=="),
+    answers: [],
+  }
+]);
