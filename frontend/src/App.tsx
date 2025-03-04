@@ -6,54 +6,98 @@ import i18n from "./i18n/config";
 import StudentLoginPage from "./pages/StudentLoginPage";
 import ProfessorLoginPage from "./pages/ProfessorLoginPage";
 import ProfessorTaskManagementPage from "./pages/ProfessorTaskManagementPage";
-import ProtectedRoute from "./components/ProtectedRoute";
-import TaskForm from "./components/TaskForm";
+import StudentRoomViewPage from "./pages/StudentRoomViewPage";
+import TaskViewPage from "./pages/TaskViewPage";
+import ProtectedRoute from "./modules/ProtectedRoute";
+
+import AddTaskPage from "./pages/AddTaskPage";
+import EditTaskPage from "./pages/EditTaskPage";
+import { UserProvider } from "./contexts/UserProvider";
+import PresentPage from "./pages/PresentPage";
+import { AnonymityProvider } from "./contexts/AnonimityProvider";
+
+//
 
 function App() {
   return (
     <I18nextProvider i18n={i18n}>
-      <ChakraProvider>
-        <BrowserRouter>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<StudentLoginPage />} />
-            <Route path="/prof" element={<ProfessorLoginPage />} />
+      <AnonymityProvider>
+        <ChakraProvider>
+          <UserProvider>
+            <BrowserRouter>
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<StudentLoginPage />} />
+                <Route path="/prof" element={<ProfessorLoginPage />} />
 
-            {/* Protected Routes */}
+                {/* Professor Routes */}
+                <Route
+                  path="/room/:roomName/edit"
+                  element={
+                    <ProtectedRoute allowedRoles={["professor"]}>
+                      <ProfessorTaskManagementPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/room/:roomName/view/:orderNumber"
+                  element={
+                    <ProtectedRoute allowedRoles={["professor"]}>
+                      <TaskViewPage />
+                    </ProtectedRoute>
+                  }
+                />
 
-            {/* Professor Task Management Routes */}
-            <Route
-              path="/room/:roomName/edit"
-              element={
-                <ProtectedRoute>
-                  <ProfessorTaskManagementPage />
-                </ProtectedRoute>
-              }
-            />
+                <Route
+                  path="/room/:roomName/present"
+                  element={
+                    <ProtectedRoute allowedRoles={["professor"]}>
+                      <PresentPage />
+                    </ProtectedRoute>
+                  }
+                />
 
-            <Route
-              path="/room/:roomName/add-task"
-              element={
-                <ProtectedRoute>
-                  <TaskForm mode="create" />
-                </ProtectedRoute>
-              }
-            />
+                <Route
+                  path="/room/:roomName/add-task"
+                  element={
+                    <ProtectedRoute allowedRoles={["professor"]}>
+                      <AddTaskPage />
+                    </ProtectedRoute>
+                  }
+                />
 
-            <Route
-              path="/room/:roomName/edit-task/:taskId"
-              element={
-                <ProtectedRoute>
-                  <TaskForm mode="edit" />
-                </ProtectedRoute>
-              }
-            />
+                <Route
+                  path="/room/:roomName/edit-task/:orderNumber"
+                  element={
+                    <ProtectedRoute allowedRoles={["professor"]}>
+                      <EditTaskPage />
+                    </ProtectedRoute>
+                  }
+                />
 
-            {/* Catch all route */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </BrowserRouter>
-      </ChakraProvider>
+                {/* Student Routes */}
+                <Route
+                  path="/room/:roomName/view"
+                  element={
+                    <ProtectedRoute allowedRoles={["student"]}>
+                      <StudentRoomViewPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Redirect unauthorized access */}
+                <Route
+                  path="/room/:roomName/*"
+                  element={<Navigate to="/" replace />}
+                />
+
+                {/* Catch all route */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </BrowserRouter>
+          </UserProvider>
+        </ChakraProvider>
+      </AnonymityProvider>
     </I18nextProvider>
   );
 }

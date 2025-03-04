@@ -1,19 +1,26 @@
-import React from "react";
 import { Box, useToast } from "@chakra-ui/react";
 import { useTasks } from "../hooks/useTasks";
-import ProfessorTaskList from "../components/professor/ProfessorTaskList";
-import LoadingSpinner from "../components/LoadingSpinner";
-import { Task } from "../types/Tasks";
-import { useNavigate, useParams } from "react-router-dom";
-import Header from "../components/Header";
+import ProfessorTaskList from "../modules/professor/ProfessorTaskList";
+import LoadingSpinner from "../modules/LoadingSpinner";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import Header from "../modules/Header";
+import { useEffect } from "react";
+import { ExtendedTask } from "../modules/tasks/TaskForm/types";
+import { useTranslation } from "react-i18next";
 
 const ProfessorTaskManagementPage: React.FC = () => {
-  const { tasks, loading } = useTasks();
+  const { tasks, loading, refetch } = useTasks();
   const toast = useToast();
   const navigate = useNavigate();
   const { roomName } = useParams();
+  const location = useLocation();
+  const { t } = useTranslation();
 
-  const handleEditTask = (task: Task) => {
+  useEffect(() => {
+    refetch();
+  }, [location.pathname, refetch]);
+
+  const handleEditTask = (task: ExtendedTask) => {
     navigate(`/room/${roomName}/edit-task/${task.order_number}`, {
       state: { task },
     });
@@ -21,12 +28,15 @@ const ProfessorTaskManagementPage: React.FC = () => {
 
   const handleDeleteTask = async (taskId: string) => {
     try {
-      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+      const response = await fetch(`http://localhost:3000/deleteTask`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
           "x-jwt-token": localStorage.getItem("token") || "",
         },
+        body: JSON.stringify({
+          id: taskId,
+        }),
       });
 
       if (!response.ok) {
@@ -34,16 +44,15 @@ const ProfessorTaskManagementPage: React.FC = () => {
       }
 
       toast({
-        title: "Task deleted",
+        title: t("taskDeleted"),
         status: "success",
         duration: 3000,
         isClosable: true,
       });
 
-      // Refresh tasks list
-      // You might want to implement a refetch function in your useTasks hook
+      refetch();
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast({
         title: "Error",
         description: "Failed to delete task",
@@ -70,6 +79,7 @@ const ProfessorTaskManagementPage: React.FC = () => {
         onEdit={handleEditTask}
         onDelete={handleDeleteTask}
         onAdd={handleAddTask}
+        roomName={roomName}
       />
     </Box>
   );

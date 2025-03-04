@@ -1,8 +1,6 @@
-// pages/ProfessorLoginPage.tsx
-import React from "react";
 import { Container } from "@chakra-ui/react";
-import Header from "../components/Header";
-import ProfessorLoginTabs from "../components/professor/ProfessorLoginTabs";
+import Header from "../modules/Header";
+import ProfessorLoginTabs from "../modules/professor/ProfessorLoginTabs";
 import { useProfessorLogin } from "../hooks/useProfessorLogin";
 
 const ProfessorLoginPage: React.FC = () => {

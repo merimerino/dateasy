@@ -1,67 +1,77 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@chakra-ui/react";
-import { Task } from "../types/Tasks";
-import { roomHandler } from "../utils/roomHandler";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { ExtendedTask } from "../modules/tasks/TaskForm/types";
 
-export const useTasks = () => {
-  const [tasks, setTasks] = useState<Task[] | null>(null);
+export interface UseTasksOptions {
+  filterByRoom?: boolean;
+}
+
+export const useTasks = (options: UseTasksOptions = { filterByRoom: true }) => {
+  const [tasks, setTasks] = useState<ExtendedTask[] | null>(null);
   const [loading, setLoading] = useState(true);
+  // Add a timestamp state to force re-renders
+  const [refreshKey, setRefreshKey] = useState(0);
   const toast = useToast();
   const navigate = useNavigate();
+  const { roomName } = useParams();
+
+  const fetchTasks = useCallback(async () => {
+    try {
+      const authToken = localStorage.getItem("token");
+      if (!authToken) {
+        navigate("/");
+        throw new Error("Not authenticated");
+      }
+
+      const response = await fetch("http://localhost:3000/tasks", {
+        headers: {
+          "Content-Type": "application/json",
+          "x-jwt-token": authToken,
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        try {
+          const parsedError = JSON.parse(error);
+          throw new Error(parsedError.error || "Failed to fetch tasks");
+        } catch {
+          throw new Error("Failed to fetch tasks");
+        }
+      }
+
+      const data: ExtendedTask[] = await response.json();
+      if (data) {
+        const filteredTasks =
+          options.filterByRoom && roomName
+            ? data.filter((task) => task.room_name === roomName)
+            : data;
+        setTasks(filteredTasks);
+      }
+    } catch (error) {
+      console.error("Error details:", error);
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to load tasks",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast, navigate, roomName, options.filterByRoom]);
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        if (!roomHandler.isAuthenticated()) {
-          navigate("/");
-          throw new Error("Not authenticated");
-        }
-
-        const authToken = localStorage.getItem("token");
-
-        if (!authToken) {
-          navigate("/");
-          throw new Error("Not authenticated");
-        }
-
-        const response = await fetch("http://localhost:3000/tasks", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "x-jwt-token": authToken,
-          },
-        });
-
-        if (!response.ok) {
-          const error = await response.text();
-          try {
-            const parsedError = JSON.parse(error);
-            throw new Error(parsedError.error || "Failed to fetch tasks");
-          } catch {
-            throw new Error("Failed to fetch tasks");
-          }
-        }
-
-        const data: Task[] = await response.json();
-        setTasks(data);
-      } catch (error) {
-        console.error("Error details:", error);
-        toast({
-          title: "Error",
-          description:
-            error instanceof Error ? error.message : "Failed to load tasks",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchTasks();
-  }, [toast, navigate]);
+  }, [fetchTasks, refreshKey]);
 
-  return { tasks, loading };
+  const refetch = useCallback(() => {
+    setLoading(true);
+    setRefreshKey((prev) => prev + 1);
+  }, []);
+
+  return { tasks, loading, refetch };
 };
