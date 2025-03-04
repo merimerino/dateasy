@@ -51,7 +51,6 @@ type EditMapTaskGpx struct {
 	Name        string             `bson:"name" json:"name"`
 	OrderNumber int                `json:"order_number" bson:"order_number"`
 	Text        string             `bson:"text" json:"text"`
-	GpxFile     []byte             `bson:"gpx_file" json:"gpx_file"`
 }
 type EditMapTask struct {
 	ID          primitive.ObjectID `json:"id" bson:"_id,omitempty"`
@@ -112,9 +111,8 @@ type AddTableTask struct {
 	NewRowName        string `json:"new_row_name" bson:"new_row_name"`
 }
 type AddMapTaskGpx struct {
-	Name    string `bson:"name" json:"name"`
-	Text    string `bson:"text" json:"text"`
-	GpxFile []byte `bson:"gpx_file" json:"gpx_file"`
+	Name string `bson:"name" json:"name"`
+	Text string `bson:"text" json:"text"`
 }
 
 type AddMapTask struct {
@@ -186,7 +184,6 @@ type MapTaskGpx struct {
 	TaskType    string             `bson:"task_type" json:"task_type"`
 	OrderNumber int                `bson:"order_number" json:"order_number"`
 	Text        string             `bson:"text" json:"text"`
-	GpxFile     []byte             `bson:"gpx_file" json:"gpx_file"`
 	Answers     []Answer           `bson:"answers" json:"answers"`
 }
 

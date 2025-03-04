@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@chakra-ui/react";
-import { roomHandler } from "../utils/roomHandler";
 import { useNavigate, useParams } from "react-router-dom";
 import { ExtendedTask } from "../modules/tasks/TaskForm/types";
 
@@ -19,11 +18,6 @@ export const useTasks = (options: UseTasksOptions = { filterByRoom: true }) => {
 
   const fetchTasks = useCallback(async () => {
     try {
-      if (!roomHandler.isAuthenticated()) {
-        navigate("/");
-        throw new Error("Not authenticated");
-      }
-
       const authToken = localStorage.getItem("token");
       if (!authToken) {
         navigate("/");

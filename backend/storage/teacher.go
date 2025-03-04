@@ -127,7 +127,6 @@ func (s *MongoStore) UpdateMapTaskGpx(task types.MapTaskGpx) error {
 			"order_number": task.OrderNumber,
 			"task_type":    task.TaskType,
 			"text":         task.Text,
-			"gpx_file":     task.GpxFile,
 			"answers":      task.Answers,
 		},
 	}

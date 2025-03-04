@@ -572,7 +572,6 @@ func (s *APIServer) HandleAddMapTaskGpx(w http.ResponseWriter, r *http.Request, 
 		TaskType:    "map_task_gpx",
 		OrderNumber: highestOrder + 1,
 		Text:        add_gpx_req.Text,
-		GpxFile:     add_gpx_req.GpxFile,
 		Answers:     []types.Answer{},
 	}
 
@@ -604,7 +603,6 @@ func (s *APIServer) HandleEditMapTaskGpx(w http.ResponseWriter, r *http.Request,
 		TaskType:    "map_task_gpx",
 		OrderNumber: edit_map_gpx_req.OrderNumber,
 		Text:        edit_map_gpx_req.Text,
-		GpxFile:     edit_map_gpx_req.GpxFile,
 		Answers:     []types.Answer{},
 	}
 
